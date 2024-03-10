@@ -7,11 +7,11 @@ case class Rule(name: String, cmds: Seq[Command])
 // commands
 trait Command
 case class Random(value: Float) extends AnyVal
-object Random {  val always = Random(100f) }
+object Random { val always = Random(100f) }
 case class Clear(tile: Tile, random: Random = Random.always, autorotate: Seq[Dir] = Seq())                     extends Command
 case class Reset(tile: Tile, random: Random = Random.always, autorotate: Seq[Dir] = Seq())                     extends Command
 case class Replace(tile: Tile, conds: Seq[Cond], random: Random = Random.always, autorotate: Seq[Dir] = Seq()) extends Command
-case class Shadow(tiles: Seq[Tile], softdiags: Boolean = false)                                      extends Command
+case class Shadow(tiles: Seq[Tile], softdiags: Boolean = false)                                                extends Command
 /*case class Shape(scheme: Scheme, matchScheme: Scheme, map: Map[Char, Seq[Tile]], random: Random = Random.always, autorotate: Seq[Dir] = Seq()) extends Command(random, autorotate)*/
 
 // other classes

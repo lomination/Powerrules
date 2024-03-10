@@ -44,10 +44,12 @@ object BasicWriter {
 
   given Writable[Random] with
     extension (r: Random)
-      def write: String = if (r.value >= 100f) "" else
-        (r.value * 100).toString match
-        case s if s.endsWith(".0") => s"Random ${s.dropRight(2)}%\n"
-        case s                     => s"Random $s%\n"
+      def write: String =
+        if (r.value >= 100f) ""
+        else
+          (r.value * 100).toString match
+            case s if s.endsWith(".0") => s"Random ${s.dropRight(2)}%\n"
+            case s                     => s"Random $s%\n"
 
   given Writable[Clear] with
     extension (c: Clear)
@@ -92,4 +94,20 @@ object BasicWriter {
           (for t <- tiles
           yield s"Index s\n").mkString
         }
+
+  given Writable[Rule] with
+    extension (r: Rule)
+      def write: String =
+        val commandOutput = r.cmds
+          .map {
+            case c: Clear   => c.write
+            case r: Reset   => r.write
+            case r: Replace => r.write
+            case s: Shadow  => s.write
+          }
+          .mkString("\n")
+        s"[${r.name}]\n\n$commandOutput"
+
+  given Writable[Autorule] with
+    extension (a: Autorule) def write: String = a.rules.map(_.write).mkString("\n")
 }

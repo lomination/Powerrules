@@ -1,11 +1,19 @@
 package lomination.ddnettools
 
 import parser.AutoruleParser
+import scala.util.Using
+import scala.io.Source
+import java.io.PrintWriter
+import lomination.ddnettools.writers.Writable
+import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
 
 @main
 def main =
-  val inFile = scala.io.Source.fromFile("file.txt")
-  val inText = inFile.getLines.mkString("\n")
-  val outFile = java.io.File("test.rules")
   val parser = AutoruleParser()
-  // outFile = parser(inText)
+  val result = for {
+    input    <- Using(Source.fromFile("file.txt"))(_.mkString)
+    autorule <- parser(input)
+    _        <- Using(new PrintWriter("test.rules"))(_.write(autorule.write))
+  } yield ()
+
+  result.failed.foreach(println)

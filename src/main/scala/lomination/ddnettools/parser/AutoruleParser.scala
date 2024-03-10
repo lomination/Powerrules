@@ -3,10 +3,15 @@ package lomination.ddnettools.parser
 import scala.util.parsing.combinator.*
 import scala.util.matching.Regex
 import lomination.ddnettools.*
+import scala.util.Try
 
 class AutoruleParser extends RegexParsers {
   override protected val whiteSpace: Regex = "".r
-  def apply(input: String)                 = parse(autorule, input)
+  def apply(input: String): Try[Autorule] = parseAll(autorule, input) match
+    case Success(result, next) => scala.util.Success(result)
+    case Error(msg, next)      => sys.error(msg)
+    case Failure(msg, next)    => sys.error(msg)
+
   // regex
   val anyWS: Regex   = "[\n ]*".r   // any white space
   val anyWSNL: Regex = "[\n ]*\n".r // any white space followed by new line
