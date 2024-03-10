@@ -40,15 +40,22 @@ object BasicWriter {
   given Writable[Tile] with
     extension (t: Tile)
       def write: String = t match
-        case Tile(id, d) => s"$id $d"
+        case Tile(id, d) => s"$id ${d.write}"
+
+  given Writable[Random] with
+    extension (r: Random)
+      def write: String = if (r.value >= 100f) "" else
+        (r.value * 100).toString match
+        case s if s.endsWith(".0") => s"Random ${s.dropRight(2)}%\n"
+        case s                     => s"Random $s%\n"
 
   given Writable[Clear] with
     extension (c: Clear)
       def write: String = c match
         case Clear(t, r, a) =>
           (
-            for d <- (a :+ Dir(Sign.Plus, Times.Zero))
-            yield s"Index ${t.rotate(d).write}\nNoDefaultRule\n" + (if (r >= 100f) s"Random $r%\n" else "")
+            for d <- (Dir(Sign.Plus, Times.Zero) +: a)
+            yield s"Index ${t.rotate(d).write}\nNoDefaultRule\n${r.write}"
           ).mkString
 
   given Writable[Reset] with
@@ -57,7 +64,7 @@ object BasicWriter {
         case Reset(t, r, a) =>
           (
             for d <- (a :+ Dir(Sign.Plus, Times.Zero))
-            yield s"Index ${t.rotate(d).write}\n" + (if (r >= 100f) s"Random $r%\n" else "")
+            yield s"Index ${t.rotate(d).write}\n${r.write}"
           ).mkString
 
   given Writable[Replace] with
@@ -69,7 +76,7 @@ object BasicWriter {
             yield s"Index ${t.rotate(d).write}\n" + (
               for c <- conds
               yield s"Pos ${c.pos.write} ${c.op.write} ${c.tm.map(_.write).mkString(" OR ")}\n"
-            ) + (if (r >= 100f) s"Random $r%\n" else "")
+            ) + r.write
           ).mkString
 
   given Writable[Shadow] with

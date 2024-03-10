@@ -6,7 +6,7 @@ import lomination.ddnettools.*
 
 class AutoruleParser extends RegexParsers {
   override protected val whiteSpace: Regex = "".r
-  def apply(input: String) = parse(autorule, input)
+  def apply(input: String)                 = parse(autorule, input)
   // regex
   val anyWS: Regex   = "[\n ]*".r   // any white space
   val anyWSNL: Regex = "[\n ]*\n".r // any white space followed by new line
@@ -21,9 +21,9 @@ class AutoruleParser extends RegexParsers {
   def ruleName: Parser[String]   = "[" ~> "\\w+".r <~ "]" ~ anyWSNL
   // commands
   def command: Parser[Command] = clear | reset | replace | shadow // | shape
-  def clear: Parser[Clear]     = clearKW ~> withS ~ randomS.? ~ autorotateS.? <~ endclearKW                 ^^ { case t ~ r ~ a => Clear(t(1), r.getOrElse(100f), a.getOrElse(Seq())) }
-  def reset: Parser[Reset]     = resetKW ~> withS ~ randomS.? ~ autorotateS.? <~ endresetKW                 ^^ { case t ~ r ~ a => Reset(t(1), r.getOrElse(100f), a.getOrElse(Seq())) }
-  def replace: Parser[Replace] = replaceKW ~> withS ~ rep1(ifS) ~ randomS.? ~ autorotateS.? <~ endreplaceKW ^^ { case t ~ c ~ r ~ a => Replace(t(1), c.flatten, r.getOrElse(100f), a.getOrElse(Seq())) }
+  def clear: Parser[Clear]     = clearKW ~> withS ~ randomS.? ~ autorotateS.? <~ endclearKW                 ^^ { case t ~ r ~ a => Clear(t(0), r.getOrElse(Random.always), a.getOrElse(Seq())) }
+  def reset: Parser[Reset]     = resetKW ~> withS ~ randomS.? ~ autorotateS.? <~ endresetKW                 ^^ { case t ~ r ~ a => Reset(t(0), r.getOrElse(Random.always), a.getOrElse(Seq())) }
+  def replace: Parser[Replace] = replaceKW ~> withS ~ rep1(ifS) ~ randomS.? ~ autorotateS.? <~ endreplaceKW ^^ { case t ~ c ~ r ~ a => Replace(t(0), c.flatten, r.getOrElse(Random.always), a.getOrElse(Seq())) }
   def shadow: Parser[Shadow]   = shadowKW ~> withS ~ softdiagS.? <~ endshadowKW                             ^^ { case l ~ d => Shadow(l, d.getOrElse(false)) }
   // command keywords
   def clearKW: Parser[Unit]      = "clear" ~ anyWSNL                             ^^ { _ => () }
@@ -36,8 +36,8 @@ class AutoruleParser extends RegexParsers {
   def endshadowKW: Parser[Unit]  = (anyWS ~ "endshadow" ~ (anyWSNL | sp ~ eof))  ^^ { _ => () }
   // statements
   def withS: Parser[Seq[Tile]]      = withKW ~> rep1sep(tile, anyWSNL ~ ind2) <~ anyWSNL
-  def ifS: Parser[Seq[Cond]]   = ifKW ~> repsep(condition, anyWSNL ~ ind2) <~ anyWSNL
-  def randomS: Parser[Float]        = randomKW ~> randomChance <~ anyWSNL
+  def ifS: Parser[Seq[Cond]]        = ifKW ~> repsep(condition, anyWSNL ~ ind2) <~ anyWSNL
+  def randomS: Parser[Random]       = randomKW ~> randomChance <~ anyWSNL
   def autorotateS: Parser[Seq[Dir]] = autorotateKW ~> autorotateDirs <~ anyWSNL
   def softdiagS: Parser[Boolean]    = softdiagKW ~> "true|yes|false|no".r <~ anyWSNL ^^ { b => if (b == "true" || b == "yes") true else false }
   // statement keywords
@@ -48,14 +48,14 @@ class AutoruleParser extends RegexParsers {
   def autorotateKW: Parser[Unit] = (ind ~ "autorotate" ~ ((anyWSNL ~ ind2) | sp))    ^^ { _ => () }
   def softdiagKW: Parser[Unit]   = (ind ~ "softdiagonals" ~ ((anyWSNL ~ ind2) | sp)) ^^ { _ => () }
   // others
-  def condition: Parser[Cond]     = (pos <~ sp) ~ (operator <~ sp) ~ repsep(tileMatcher, sp ~ "or".? ~ sp) ^^ { case p ~ o ~ t => Cond(p, o, t: _*) }
+  def condition: Parser[Cond]          = (pos <~ sp) ~ (operator <~ sp) ~ repsep(tileMatcher, sp ~ "or".? ~ sp) ^^ { case p ~ o ~ t => Cond(p, o, t: _*) }
   def pos: Parser[Pos]                 = "(" ~ sp ~> ("-?\\d+".r <~ sp ~ "," ~ sp) ~ "-?\\d+".r <~ sp ~ ")"     ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
   def operator: Parser[Operator]       = "==|!=|is|is ?not".r                                                   ^^ { o => if (o == "==" || o == "is") Operator.Equal else Operator.NotEqual }
   def tileMatcher: Parser[TileMatcher] = fullTM | emptyTM | genericTM
   def fullTM: Parser[TileMatcher]      = "full"                                                                 ^^ { case _ => TileMatcher(FullTile, AnyDir) }
   def emptyTM: Parser[TileMatcher]     = "empty"                                                                ^^ { case _ => TileMatcher(0, AnyDir) }
   def genericTM: Parser[TileMatcher]   = id ~ (dir | anyDir)                                                    ^^ { case i ~ d => TileMatcher(i, d) }
-  def randomChance: Parser[Float]      = "\\d+(?:\\.\\d*)?".r ~ "%?".r                                          ^^ { case n ~ p => if (p == "%") n.toFloat else n.toFloat / 100 }
+  def randomChance: Parser[Random]     = "\\d+(?:\\.\\d*)?".r ~ "%?".r                                          ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat / 100) }
   def autorotateDirs: Parser[Seq[Dir]] = repsep(dir, sp | (anyWSNL ~ ind2))
   def tile: Parser[Tile]               = id ~ dir                                                               ^^ { case i ~ d => Tile(i, d) }
   def id: Parser[Int]                  = "[a-f0-9]{1,2}".r                                                      ^^ { i => Integer.parseInt(i, 16) }
