@@ -8,11 +8,11 @@ case class Rule(name: String, cmds: Seq[Command])
 // commands
 sealed trait Command
 
-case class Reset(tile: Tile, random: Random = Random.always, autorotate: Seq[Dir] = Seq(Dir.default), noDefRule: Boolean = false)                     extends Command
+case class Reset(tile: Tile, random: Random = Random.always, autorotate: Seq[Dir] = Seq(Dir.default), noDefRule: Boolean = false) extends Command
 
 case class Replace(tile: Tile, conds: Seq[Cond], random: Random = Random.always, autorotate: Seq[Dir] = Seq(Dir.default), noDefRule: Boolean = false) extends Command
 
-case class Shadow(tiles: Seq[Tile], softDiags: Boolean = false)                                              extends Command
+case class Shadow(tiles: Seq[Tile], softDiags: Boolean = false) extends Command
 
 // case class Shape(scheme: Scheme, matchScheme: Scheme, map: Map[Char, Seq[Tile]], random: Random = Random.always, autorotate: Seq[Dir] = Seq()) extends Command(random, autorotate)
 
@@ -44,7 +44,7 @@ object Random { val always = Random(100f) }
 // case class Scheme(lines: Seq[Char])
 
 // enums
-enum Sign     { case +, -           }
+enum Sign     { case +, -                  }
 enum Times    { case Zero, One, Two, Three }
 enum Operator { case Equal, NotEqual       }
 

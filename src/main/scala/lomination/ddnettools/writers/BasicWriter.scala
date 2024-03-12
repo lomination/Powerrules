@@ -10,10 +10,10 @@ object BasicWriter {
   given Writable[Dir] with
     extension (d: Dir)
       def write: String = d match
-        case Dir(Sign.+, Times.Zero)   => "NONE"
-        case Dir(Sign.+, Times.One)    => "ROTATE"
-        case Dir(Sign.+, Times.Two)    => "XFLIP YFLIP"
-        case Dir(Sign.+, Times.Three)  => "XFLIP YFLIP ROTATE"
+        case Dir(Sign.+, Times.Zero)  => "NONE"
+        case Dir(Sign.+, Times.One)   => "ROTATE"
+        case Dir(Sign.+, Times.Two)   => "XFLIP YFLIP"
+        case Dir(Sign.+, Times.Three) => "XFLIP YFLIP ROTATE"
         case Dir(Sign.-, Times.Zero)  => "XFLIP"
         case Dir(Sign.-, Times.One)   => "YFLIP ROTATE"
         case Dir(Sign.-, Times.Two)   => "YFLIP"
