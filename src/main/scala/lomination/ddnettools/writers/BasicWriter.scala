@@ -10,14 +10,14 @@ object BasicWriter {
   given Writable[Dir] with
     extension (d: Dir)
       def write: String = d match
-        case Dir(Sign.Plus, Times.Zero)   => "NONE"
-        case Dir(Sign.Plus, Times.One)    => "ROTATE"
-        case Dir(Sign.Plus, Times.Two)    => "XFLIP YFLIP"
-        case Dir(Sign.Plus, Times.Three)  => "XFLIP YFLIP ROTATE"
-        case Dir(Sign.Minus, Times.Zero)  => "XFLIP"
-        case Dir(Sign.Minus, Times.One)   => "YFLIP ROTATE"
-        case Dir(Sign.Minus, Times.Two)   => "YFLIP"
-        case Dir(Sign.Minus, Times.Three) => "XFLIP ROTATE"
+        case Dir(Sign.+, Times.Zero)   => "NONE"
+        case Dir(Sign.+, Times.One)    => "ROTATE"
+        case Dir(Sign.+, Times.Two)    => "XFLIP YFLIP"
+        case Dir(Sign.+, Times.Three)  => "XFLIP YFLIP ROTATE"
+        case Dir(Sign.-, Times.Zero)  => "XFLIP"
+        case Dir(Sign.-, Times.One)   => "YFLIP ROTATE"
+        case Dir(Sign.-, Times.Two)   => "YFLIP"
+        case Dir(Sign.-, Times.Three) => "XFLIP ROTATE"
 
   given Writable[Pos] with
     extension (p: Pos)
@@ -47,35 +47,33 @@ object BasicWriter {
       def write: String =
         if (r.value >= 100f) ""
         else
-          (r.value * 100).toString match
+          r.value.toString match
             case s if s.endsWith(".0") => s"Random ${s.dropRight(2)}%\n"
             case s                     => s"Random $s%\n"
-
-  given Writable[Clear] with
-    extension (c: Clear)
-      def write: String = c match
-        case Clear(t, r, a) =>
-          (
-            for d <- (Dir(Sign.Plus, Times.Zero) +: a)
-            yield s"Index ${t.rotate(d).write}\nNoDefaultRule\n${r.write}"
-          ).mkString
 
   given Writable[Reset] with
     extension (r: Reset)
       def write: String = r match
-        case Reset(t, r, a) =>
-          (
-            for d <- (a :+ Dir(Sign.Plus, Times.Zero))
-            yield s"Index ${t.rotate(d).write}\n${r.write}"
-          ).mkString
+        case Reset(t, r, a, false) =>
+          (for d <- a yield s"Index ${t.rotate(d).write}\n${r.write}").mkString
+        case Reset(t, r, a, true) =>
+          (for d <- a yield s"Index ${t.rotate(d).write}\nNoDefaultRule\n${r.write}").mkString
 
   given Writable[Replace] with
     extension (r: Replace)
       def write: String = r match
-        case Replace(t, conds, r, a) =>
+        case Replace(t, conds, r, a, false) =>
           (
-            for d <- (a :+ Dir(Sign.Plus, Times.Zero))
+            for d <- a
             yield s"Index ${t.rotate(d).write}\n" + (
+              for c <- conds
+              yield s"Pos ${c.pos.write} ${c.op.write} ${c.tm.map(_.write).mkString(" OR ")}\n"
+            ) + r.write
+          ).mkString
+        case Replace(t, conds, r, a, true) =>
+          (
+            for d <- a
+            yield s"Index ${t.rotate(d).write}\nNoDefaultRule\n" + (
               for c <- conds
               yield s"Pos ${c.pos.write} ${c.op.write} ${c.tm.map(_.write).mkString(" OR ")}\n"
             ) + r.write
@@ -100,7 +98,6 @@ object BasicWriter {
       def write: String =
         val commandOutput = r.cmds
           .map {
-            case c: Clear   => c.write
             case r: Reset   => r.write
             case r: Replace => r.write
             case s: Shadow  => s.write

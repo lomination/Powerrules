@@ -1,6 +1,6 @@
 package lomination.ddnettools
 
-import parser.AutoruleParser
+import parser.MyParser
 import scala.util.Using
 import scala.io.Source
 import java.io.PrintWriter
@@ -9,7 +9,7 @@ import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
 
 @main
 def main =
-  val parser = AutoruleParser()
+  val parser = MyParser()
   val result = for {
     input    <- Using(Source.fromFile("file.txt"))(_.mkString)
     autorule <- parser(input)
