@@ -11,16 +11,8 @@ import scala.util.Success
 import lomination.ddnettools.writers.Writable
 import lomination.ddnettools.Autorule
 import lomination.ddnettools.parser.MyParser
-// import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
-import lomination.ddnettools.writers.BasicWriter.given_Writable_Autorule
-import lomination.ddnettools.writers.BasicWriter.given_Writable_Autorule.write
-import scala.util.Failure
-import lomination.ddnettools.parser.MyParser
-import scala.util.Using
-import scala.io.Source
-import java.io.PrintWriter
-import lomination.ddnettools.writers.Writable
 import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
+import scala.util.Failure
 
 @main
 def main: Unit =
