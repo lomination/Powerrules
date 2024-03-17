@@ -31,14 +31,15 @@ Index 10
 
 replace(
   0a,
-  (0,0) isnot 0b or 10 or 40,
+  (0,0) is not 0b or 10 or 40
   (1,0) is 01n or 23xyr
 )
 
 replace
-  with 0a
-  if (0,0) is not 0bn or 10 or 40,
-  if (1,0) is 01n or 23xyr
+  tile 0a
+  if
+    0 0 is not 0b+0 or 10+0 or 40,
+    1 0 is 01n or 23xyr
 endreplace
 
 =>
@@ -150,8 +151,10 @@ Pos 1 0 FULL
 
 
 
+0 0 is 2b+0
 
 
 
 fonctions
-variables
+variables ?
+comments

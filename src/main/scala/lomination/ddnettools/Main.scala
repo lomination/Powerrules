@@ -11,9 +11,9 @@ import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
 def main =
   val parser = MyParser()
   val result = for {
-    input    <- Using(Source.fromFile("file.txt"))(_.mkString)
+    input    <- Using(Source.fromFile("z.txt"))(_.mkString)
     autorule <- parser(input)
-    _        <- Using(new PrintWriter("test.rules"))(_.write(autorule.write))
+    _        <- Using(new PrintWriter("z.rules"))(_.write(autorule.write(using autorule.tmp)))
   } yield ()
 
   result.failed.foreach(println)

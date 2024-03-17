@@ -2,66 +2,40 @@ package lomination.ddnettools.parser
 
 import munit.FunSuite
 import lomination.ddnettools.*
-
-class ParseReset extends FunSuite {
-  test("reset") {
-    val input  = "reset\n  tile 2e-2\nendreset"
-    val parser = MyParser()
-    val result = parser.parse(parser.command, input)
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Reset(Tile(0x2e, Dir(Sign.-, Times.Two)))))
-  }
-  test("indented reset") {
-    val input  = "reset\n  tile\n    2e-2\nendreset"
-    val parser = MyParser()
-    val result = parser.parse(parser.command, input)
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Reset(Tile(0x2e, Dir(Sign.-, Times.Two)))))
-  }
-  test("nodefrule reset") {
-    val input  = "reset\n  tile 2e-2\n  nodefaultrule\nendreset"
-    val parser = MyParser()
-    val result = parser.parse(parser.command, input)
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Reset(Tile(0x2e, Dir(Sign.-, Times.Two)), noDefRule = true)))
-  }
-  test("indented nodefrule reset") {
-    val input  = "reset\n  tile\n    2e-2\n  nodefaultrule\nendreset"
-    val parser = MyParser()
-    val result = parser.parse(parser.command, input)
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Reset(Tile(0x2e, Dir(Sign.-, Times.Two)), noDefRule = true)))
-  }
-}
+import scala.language.experimental
 
 class ParseReplace extends FunSuite {
   test("replace") {
-    val input  = "replace\n  tile 1f-0\n  if (0,0) is full\nendreplace"
+    val input  = "replace\n  tile 2e-2\nendreplace"
     val parser = MyParser()
     val result = parser.parse(parser.command, input)
+    val expected = Replace(Tile(0x2e, Dir(Sign.-, Times.Two)))
     assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Cond(Pos(0, 0), Operator.Equal, TileMatcher(FullTile, AnyDir))))))
+    assert(clue(result.get) == clue(expected))
   }
   test("indented replace") {
-    val input  = "replace\n  tile\n    1f-0\n  if\n    (0,0) is full\nendreplace"
+    val input  = "replace\n  tile\n    2e-2\nendreplace"
     val parser = MyParser()
     val result = parser.parse(parser.command, input)
+    val expected = Replace(Tile(0x2e, Dir(Sign.-, Times.Two)))
     assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Cond(Pos(0, 0), Operator.Equal, TileMatcher(FullTile, AnyDir))))))
+    assert(clue(result.get) == clue(expected))
   }
-  test("nodefrule replace") {
-    val input  = "replace\n  tile 1f-0\n  if (0,0) is full\n  nodefaultrule\nendreplace"
+  test("replace with conds") {
+    val input  = "replace\n  tile 1f-0\n  when 0 0 is 9+2\n  when -1 0 is 3-0\nendreplace"
     val parser = MyParser()
     val result = parser.parse(parser.command, input)
+    val expected = Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Pos.zero is TileMatcher(9, Dir(Sign.+, Times.Two)), Pos(-1, 0) is TileMatcher(3, Dir(Sign.-, Times.Zero))))
     assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Cond(Pos(0, 0), Operator.Equal, TileMatcher(FullTile, AnyDir))), noDefRule = true)))
+    assert(clue(result.get) == clue(expected))
   }
-  test("indented nodefrule replace") {
-    val input  = "replace\n  tile\n    1f-0\n  if\n    (0,0) is full\n  nodefaultrule\nendreplace"
+  test("replace with conds") {
+    val input  = "replace\n  tile 1f-0\n  when\n    0 0 is 9+2\n    -1 0 is 3-0\nendreplace"
     val parser = MyParser()
     val result = parser.parse(parser.command, input)
+    val expected = Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Pos.zero is TileMatcher(9, Dir(Sign.+, Times.Two)), Pos(-1, 0) is TileMatcher(3, Dir(Sign.-, Times.Zero))))
     assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(Replace(Tile(0x1f, Dir(Sign.-, Times.Zero)), Seq(Cond(Pos(0, 0), Operator.Equal, TileMatcher(FullTile, AnyDir))), noDefRule = true)))
+    assert(clue(result.get) == clue(expected))
   }
 }
 
@@ -111,6 +85,17 @@ class ParseTile extends FunSuite {
     val parser   = MyParser()
     val result   = parser.parse(parser.tile, input)
     val expected = Tile(0xb3, Dir(Sign.-, Times.Three))
+    assert(result.successful, s"PARSING ERROR: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+}
+
+class ParseRuleName extends FunSuite {
+  test("rule name") {
+    val input = "[test]"
+    val parser = MyParser()
+    val result = parser.parse(parser.ruleName, input)
+    val expected = "test"
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
