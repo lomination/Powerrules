@@ -107,6 +107,11 @@ object BasicWriter {
                 conds(i).map(c => (c.pos.rotate(dir) is c.matcher).write).mkString
           ).mkString + "NewRun\n"
 
+  given Writable[Comment] with
+    extension (c: Comment)
+      def write(using DefaultTile): String =
+        "#" + c.str + "\n"
+
   given Writable[Rule] with
     extension (r: Rule)
       def write(using DefaultTile): String =
@@ -114,6 +119,7 @@ object BasicWriter {
           .map {
             case r: Replace => r.write
             case s: Shadow  => s.write
+            case c: Comment => c.write
           }
           .mkString("\n")
 

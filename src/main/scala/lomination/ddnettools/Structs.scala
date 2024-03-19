@@ -12,6 +12,8 @@ case class Replace(tile: Tile, conds: Seq[Cond] = Seq(), random: Random = Random
 
 case class Shadow(tiles: Seq[Tile], conds: Seq[Cond] = Seq(), softDiags: Boolean = false) extends Command
 
+case class Comment(str: String) extends Command
+
 // matchers
 sealed trait Matcher:
   def not: Matcher

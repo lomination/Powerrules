@@ -39,6 +39,33 @@ class ParseReplace extends FunSuite {
   }
 }
 
+class ParseComment extends FunSuite {
+  test("comment with #") {
+    val input    = "# this is my comment\n"
+    val parser   = MyParser()
+    val result   = parser.parse(parser.comment, input)
+    val expected = Comment(" this is my comment")
+    assert(result.successful, s"PARSING ERROR: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+  test("comment with //") {
+    val input    = "// this is my comment\n"
+    val parser   = MyParser()
+    val result   = parser.parse(parser.comment, input)
+    val expected = Comment(" this is my comment")
+    assert(result.successful, s"PARSING ERROR: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+  test("comment containing special chars") {
+    val input    = """// this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""" + "\n"
+    val parser   = MyParser()
+    val result   = parser.parse(parser.comment, input)
+    val expected = Comment(" this is my comment: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
+    assert(result.successful, s"PARSING ERROR: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+}
+
 class ParseTile extends FunSuite {
   test("basic") {
     val input    = "02+0"

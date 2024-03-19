@@ -26,10 +26,10 @@ class MyParser extends RegexParsers {
   def autorule: Parser[Autorule] = anyWS ~> (tile <~ anyWSNL) ~ repsep(rule, anyWS) <~ anyWS ^^ { case t ~ r =>
     Autorule(DefaultTile(t.id, t.dir), r)
   }
-  def rule: Parser[Rule] = (ruleName <~ anyWSNL) ~ repsep(command, anyWS) ^^ { case n ~ c =>
+  def rule: Parser[Rule] = (ruleName <~ anyWSNL) ~ repsep(command | comment, anyWS) ^^ { case n ~ c =>
     Rule(n, c)
   }
-  def ruleName: Parser[String] = "[" ~> "\\w+".r <~ "]"
+  def ruleName: Parser[String] = "[" ~> "[ \\w\\p{Punct}&&[^\\[\\]]]+".r <~ "]"
 
   // commands
   def command: Parser[Command] = replace | shadow // | shape
@@ -37,6 +37,8 @@ class MyParser extends RegexParsers {
     ^^ { case t ~ c ~ r ~ a => Replace(t(0), c.flatten, r.getOrElse(Random.always), a.getOrElse(Seq(Dir.default))) }
   def shadow: Parser[Shadow] = shadowKW ~> tiles ~ when.? ~ softdiag.? <~ endshadowKW
     ^^ { case t ~ c ~ d => Shadow(t, c.getOrElse(Seq(Pos(0, 0) is FullMatcher)), d.getOrElse(false)) }
+  def comment: Parser[Comment] = ("#" | "//") ~> "[ \\w\\p{Punct}]+".r <~ anyWSNL
+    ^^ { case str => Comment(str) }
 
   // command keywords
   def replaceKW: Parser[Unit]    = "replace" ~ anyWSNL                           ^^ { _ => () }
@@ -65,12 +67,12 @@ class MyParser extends RegexParsers {
     }
 
   def pos: Parser[Pos] =
-    (("\\( ?".r ~> ("-?\\d+".r <~ " ?, ?".r.?) ~ "-?\\d+".r <~ " ?\\)".r) | (("-?\\d+".r <~ " +".r) ~ "-?\\d+".r)) ^^ { case x ~ y =>
+    ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y =>
       Pos(x.toInt, y.toInt)
     }
 
   def operator: Parser[Operator] =
-    "==|!=|is|is ?not".r ^^ { o =>
+    "==|!=|is|isnot".r ^^ { o =>
       if (o == "==" || o == "is") Operator.Equal else Operator.NotEqual
     }
 
@@ -78,10 +80,10 @@ class MyParser extends RegexParsers {
     fullMatcher | emptyMatcher | genericMatcher
 
   def fullMatcher: Parser[FullMatcher.type] =
-    "full" ^^ { _ => FullMatcher }
+    ("full" | "is +full".r | "isnot +empty".r) ^^ { _ => FullMatcher }
 
   def emptyMatcher: Parser[EmptyMatcher.type] =
-    "empty" ^^ { _ => EmptyMatcher }
+    ("empty" | "is +empty".r | "isnot +full".r) ^^ { _ => EmptyMatcher }
 
   def genericMatcher: Parser[GenericMatcher] =
     (operator <~ ws) ~ rep1sep(tileMatcher, " " ~ ws) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
