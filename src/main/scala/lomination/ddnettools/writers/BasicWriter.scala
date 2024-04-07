@@ -75,36 +75,48 @@ object BasicWriter {
             }.mkString + "NewRun\n"
 
   given Writable[Shadow] with
-    extension (s: Shadow)
+    extension (sdw: Shadow)
       def write(using tmp: DefaultTile): String =
         val tm = tmp.tm
-        val conds =
-          if (s.softDiags)
-            Seq()
-          else
+        val conds = sdw.shadowType match
+          case ShadowType.NoOutsideCorner =>
+            import lomination.ddnettools.Pos.{zero as o, n, ne as ne_, e, se, s, sw, w, nw}
             Seq(
-              Seq(Pos.zero is tm, Pos.n is tm, Pos.e is tm, Pos.s is tm, Pos.w is tm),
-              Seq(Pos.zero is tm, Pos.n isnot tm, Pos.e is tm, Pos.s is tm, Pos.w isnot tm),
-              Seq(Pos.zero is tm, Pos.n isnot tm, Pos.e isnot tm, Pos.s is tm, Pos.w isnot tm),
-              Seq(),
-              Seq(Pos.zero is tm, Pos.n isnot tm, Pos.s isnot tm, Pos.w isnot tm, Pos.e isnot tm),
-              Seq(),
-              Seq(Pos.zero isnot tm, Pos.n is tm, Pos.e isnot tm, Pos.s isnot tm, Pos.w is tm, Pos.nw is tm),
-              Seq(Pos.zero isnot tm, Pos.n is tm, Pos.ne is tm, Pos.e is tm, Pos.s isnot tm, Pos.w isnot tm, Pos.nw isnot tm),
-              Seq(Pos.zero isnot tm, Pos.n is tm, Pos.ne is tm, Pos.e is tm, Pos.se is tm, Pos.s is tm, Pos.sw isnot tm, Pos.w is tm, Pos.nw is tm),
-              (Pos.zero isnot tm) +: Pos.distFrom1.map(_ is tm),
-              Seq()
+              // blocks
+              (o is tm) & (n is tm)    & (e is tm)    & (s is tm)    & (w is tm),    // square
+              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w is tm),    // T
+              (o is tm) & (n isnot tm) & (e is tm)    & (s isnot tm) & (w is tm),    // -
+              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w isnot tm), // corner down right "r"
+              (o is tm) & (n isnot tm) & (e isnot tm) & (s is tm)    & (w isnot tm), // end of a bar (up i) connection down
+              (o is tm) & (n isnot tm) & (s isnot tm) & (w isnot tm) & (e isnot tm)  // • no connections
             )
+          case ShadowType.Default =>
+            import lomination.ddnettools.Pos.{zero as o, n, ne as ne_, e, se, s, sw, w, nw}
+            Seq(
+              // blocks
+              (o is tm) & (n is tm)    & (e is tm)    & (s is tm)    & (w is tm),    // square
+              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w is tm),    // T
+              (o is tm) & (n isnot tm) & (e is tm)    & (s isnot tm) & (w is tm),    // -
+              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w isnot tm), // corner down right "r"
+              (o is tm) & (n isnot tm) & (e isnot tm) & (s is tm)    & (w isnot tm), // end of a bar (up i) connection down
+              (o is tm) & (n isnot tm) & (s isnot tm) & (w isnot tm) & (e isnot tm), // • no connections
+              // outside corners
+              (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm)  & (nw is tm), // corner in top-left corner of the tile
+              (o isnot tm) & (n is tm) & (ne_ is tm)  & (e is tm)    & (w is tm)  & (nw is tm), // double corners top-left and top-right
+              (o isnot tm) & (n is tm) & (ne_ is tm)  & (e is tm)    & (se is tm) & (s is tm) & (sw isnot tm) & (w is tm) & (nw is tm), // triple (all except bottom-left)
+              (o isnot tm) +: Pos.distFrom1.map(_ is tm) // four corners
+            )
+          case ShadowType.SoftDigonals =>
+            import lomination.ddnettools.Pos.{zero as o, n, ne as ne_, e, se, s, sw, w, nw}
+            ???
         s"Index ${tmp.tile.write}\nNoDefaultRule\n" +
-          s.conds.map(_.write).mkString + "NewRun\n" +
-          s"Index ${s.tiles(0).write}\nNoDefaultRule\nPos 0 0 INDEX ${tm.write}\n" + (
+          sdw.conds.map(_.write).mkString + "NewRun\n" +
+          s"Index ${sdw.tiles(0).write}\nNoDefaultRule\nPos 0 0 INDEX ${tm.write}\n" + (
             for {
-              i   <- 1 until s.tiles.length
+              i   <- 1 until sdw.tiles.length
               dir <- Seq(Times.Zero, Times.One, Times.Two, Times.Three).map(Dir(Sign.+, _))
-            } yield
-              if (conds(i).length == 0) ""
-              else s"Index ${s.tiles(i).rotate(dir).write}\nNoDefaultRule\n" +
-                conds(i).map(c => (c.pos.rotate(dir) is c.matcher).write).mkString
+            } yield s"Index ${sdw.tiles(i).rotate(dir).write}\nNoDefaultRule\n" +
+              conds(i).map(_.rotate(dir).write).mkString
           ).mkString + "NewRun\n"
 
   given Writable[Comment] with

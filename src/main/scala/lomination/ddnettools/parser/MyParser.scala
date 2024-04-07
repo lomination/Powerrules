@@ -8,6 +8,8 @@ import lomination.ddnettools.*
 class MyParser extends RegexParsers {
   override protected val whiteSpace: Regex = "".r
 
+  var macros: Map[String, (Seq[String], String)] = Map()
+
   def apply(input: String): Try[Autorule] = parseAll(autorule, input) match
     case Success(result, next) => scala.util.Success(result)
     case Error(msg, next)      => scala.util.Failure(new IllegalArgumentException(msg))
@@ -23,42 +25,56 @@ class MyParser extends RegexParsers {
   val eof: Regex     = "$".r        // end of file
 
   // general
-  def autorule: Parser[Autorule] = anyWS ~> (tile <~ anyWSNL) ~ repsep(rule, anyWS) <~ anyWS ^^ { case t ~ r =>
-    Autorule(DefaultTile(t.id, t.dir), r)
-  }
-  def rule: Parser[Rule] = (ruleName <~ anyWSNL) ~ repsep(command | comment, anyWS) ^^ { case n ~ c =>
-    Rule(n, c)
-  }
+  def autorule: Parser[Autorule] =
+    anyWS ~> (defaultTile <~ anyWSNL) ~ /* repsep(macroDef, anyWS) ~ */ repsep(rule, anyWS) <~ anyWS ^^ { case t ~ r => Autorule(t, r) }
+  def defaultTile: Parser[DefaultTile] =
+    "defaultTile += +".r ~> id ~ dir ^^ { case id ~ dir => DefaultTile(id, dir) }
+  def rule: Parser[Rule] =
+    (ruleName <~ anyWSNL) ~ repsep(command, anyWS) ^^ { case n ~ c => Rule(n, c) }
   def ruleName: Parser[String] = "[" ~> "[ \\w\\p{Punct}&&[^\\[\\]]]+".r <~ "]"
 
+  // macros
+  def macroDef: Parser[Unit] = "def +".r ~> macroName ~ (macroParams <~ ws ~ "=" ~ ws) ~ macroContent <~ anyWSNL ^^ { case n ~ p ~ c =>
+    macros = macros + (n -> (p, c))
+  }
+  def macroName: Parser[String] = "\\w+".r
+  def macroParams: Parser[Seq[String]] = "(" ~ ws ~> repsep(macroParam, ws ~ "," ~ ws) <~ ws ~ ")"
+  def macroContent: Parser[String] = "(\n" ~> ".+" <~ "\n)"
+  def macroParam: Parser[String] = "\\w+".r
+
   // commands
-  def command: Parser[Command] = replace | shadow // | shape
-  def replace: Parser[Replace] = replaceKW ~> tiles ~ rep(when) ~ random.? ~ autorotate.? <~ endreplaceKW
+  def command: Parser[Command] = replace // | shadow | comment // | shape
+  def replace: Parser[Replace] = replaceKw ~> tiS ~ rep(wS) ~ rS.? ~ arS.? <~ endreplaceKw
     ^^ { case t ~ c ~ r ~ a => Replace(t(0), c.flatten, r.getOrElse(Random.always), a.getOrElse(Seq(Dir.default))) }
-  def shadow: Parser[Shadow] = shadowKW ~> tiles ~ when.? ~ softdiag.? <~ endshadowKW
-    ^^ { case t ~ c ~ d => Shadow(t, c.getOrElse(Seq(Pos(0, 0) is FullMatcher)), d.getOrElse(false)) }
+  // def shadow: Parser[Shadow] = shadowKw ~> tiS ~ wS.? ~ stS.? <~ endshadowKw
+    // ^^ { case t ~ c ~ st => Shadow(t, c.getOrElse(Seq(Pos(0, 0) is FullMatcher)), st.getOrElse(ShadowType.Default)) }
   def comment: Parser[Comment] = ("#" | "//") ~> "[ \\w\\p{Punct}]+".r <~ anyWSNL
     ^^ { case str => Comment(str) }
 
   // command keywords
-  def replaceKW: Parser[Unit]    = "replace" ~ anyWSNL                           ^^ { _ => () }
-  def endreplaceKW: Parser[Unit] = (anyWS ~ "endreplace" ~ (anyWSNL | ws ~ eof)) ^^ { _ => () }
-  def shadowKW: Parser[Unit]     = "shadow" ~ anyWSNL                            ^^ { _ => () }
-  def endshadowKW: Parser[Unit]  = (anyWS ~ "endshadow" ~ (anyWSNL | ws ~ eof))  ^^ { _ => () }
+  def cmdKw(name: Parser[?]): Parser[Unit]    = name ~ anyWSNL ^^ { _ => () }
+  def endCmdKw(name: Parser[?]): Parser[Unit] = (anyWS ~ name ~ (anyWSNL | ws ~ eof)) ^^ { _ => () }
+  def replaceKw: Parser[Unit]    = cmdKw("replace" | "re")
+  def endreplaceKw: Parser[Unit] = endCmdKw("endreplace")
+  def shadowKw: Parser[Unit]     = cmdKw("shadow" | "sd")
+  def endshadowKw: Parser[Unit]  = endCmdKw("endshadow")
 
   // statements
-  def tiles: Parser[Seq[Tile]]     = tileKW ~> rep1sep(tile, (anyWSNL ~ ind2) | " +".r) <~ anyWSNL
-  def when: Parser[Seq[Cond]]      = whenKW ~> rep1sep(condition, anyWSNL ~ ind2) <~ anyWSNL
-  def random: Parser[Random]       = randomKW ~> randomChance <~ anyWSNL
-  def autorotate: Parser[Seq[Dir]] = autorotateKW ~> autorotateDirs <~ anyWSNL
-  def softdiag: Parser[Boolean]    = softdiagKW <~ anyWSNL ^^ { _ => true }
+  def tiS: Parser[Seq[Tile]]       = tileKw ~> rep1sep(tile, (anyWSNL ~ ind2) | " +".r) <~ anyWSNL
+  def wS: Parser[Seq[Cond]]        = whenKw ~> rep1sep(condition, anyWSNL ~ ind2) <~ anyWSNL
+  // def stS: Parser[ShadowType] = shadowTypeKw ~> noCst | defST | sDST <~ anyWSNL
+  def rS: Parser[Random]         = randomKw ~> randomChance <~ anyWSNL
+  def arS: Parser[Seq[Dir]]   = autorotateKw ~> repsep(dir, " +".r | (anyWSNL ~ ind2)) <~ anyWSNL
+  def sdS: Parser[Boolean]      = softdiagKw ~ anyWSNL ^^ { _ => true }
 
   // statement keywords
-  def tileKW: Parser[Unit]       = (ind ~ "tile" ~ ((anyWSNL ~ ind2) | ws))          ^^ { _ => () }
-  def whenKW: Parser[Unit]       = (ind ~ "when" ~ ((anyWSNL ~ ind2) | ws))          ^^ { _ => () }
-  def randomKW: Parser[Unit]     = (ind ~ "random" ~ ((anyWSNL ~ ind2) | ws))        ^^ { _ => () }
-  def autorotateKW: Parser[Unit] = (ind ~ "autorotate" ~ ((anyWSNL ~ ind2) | ws))    ^^ { _ => () }
-  def softdiagKW: Parser[Unit]   = (ind ~ "softdiagonals" ~ ((anyWSNL ~ ind2) | ws)) ^^ { _ => () }
+  def sKw(name: Parser[_]): Parser[Unit] = ind ~ name ~ ((anyWSNL ~ ind2) | " +".r) ^^ { _ => () }
+  def tileKw: Parser[Unit]       = sKw("tiles?".r | "with")
+  def whenKw: Parser[Unit]       = sKw("when" | "if")
+  def shadowTypeKw: Parser[Unit] = sKw("type")
+  def randomKw: Parser[Unit]     = sKw("random")
+  def autorotateKw: Parser[Unit] = sKw("autorotate")
+  def softdiagKw: Parser[Unit]   = ind ~ "softdiagonals" ~ anyWSNL ^^ { _ => () }
 
   // others
   def condition: Parser[Cond] =
@@ -96,8 +112,14 @@ class MyParser extends RegexParsers {
       if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100)
     }
 
-  def autorotateDirs: Parser[Seq[Dir]] =
-    repsep(dir, ws | (anyWSNL ~ ind2))
+  def nocST: Parser[ShadowType] =
+    ("noc" | "nooutsidecorner") ^^ { _ => ShadowType.NoOutsideCorner }
+
+  def defST: Parser[ShadowType] =
+    ("default" | "") ^^ { _ => ShadowType.Default }
+
+  def sdST: Parser[ShadowType] =
+    ("default" | "") ^^ { _ => ShadowType.SoftDigonals }
 
   def tile: Parser[Tile] =
     id ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.default)) }

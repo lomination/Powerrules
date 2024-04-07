@@ -1,0 +1,47 @@
+defaultTile = ff+0
+
+
+
+def macro(a, b) =
+
+
+
+def reset 
+  replace
+    with 1
+    when 0 0 is empty
+  endreplace
+enddef
+
+def default
+  shadow
+    with 1 16
+    when 0 0 is 1
+    type simple
+  endshadow
+
+
+
+
+# try this with grass_main !
+
+
+[reset]
+
+$reset
+
+[default]
+
+$reset
+$default
+
+[grass]
+
+$reset
+$default
+replace with 16 when 0 0 is 20+1 or 20-3
+endreplace
+replace
+  with 16
+  when 0 0 is 20+1 or 20-3
+endreplace

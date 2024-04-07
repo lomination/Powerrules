@@ -4,32 +4,32 @@ import munit.FunSuite
 import lomination.ddnettools.*
 import lomination.ddnettools.writers.BasicWriter.{given Writable[?]}
 
-class ReplaceCommandWriter extends FunSuite {
+class WriteReplace extends FunSuite {
   given DefaultTile = DefaultTile(255)
-  test("replace") {
+  test("basic replace") {
     val struct   = Replace(Tile(0x12), Seq(Pos(0, 0) is FullMatcher))
     val result   = struct.write
     val expected = "Index 18 NONE\nNoDefaultRule\nPos 0 0 FULL\n"
     assert(clue(result) == clue(expected))
   }
-  test("random") {
+  test("replace with random") {
     val struct   = Replace(Tile(0xa), Seq(Pos(0, 0) is FullMatcher), random = Random(75))
     val result   = struct.write
     val expected = "Index 10 NONE\nNoDefaultRule\nPos 0 0 FULL\nRandom 75%\n"
     assert(clue(result) == clue(expected))
   }
-  test("autorotate") {
-    val struct   = Replace(Tile(0xa), Seq(Pos(1, 0) is TileMatcher(2)), autorotate = Seq(Dir.default, Dir.p1))
-    val result   = struct.write
+  test("replace with autorotate") {
+    val struct = Replace(Tile(0xa), Seq(Pos(1, 0) is TileMatcher(2)), autorotate = Seq(Dir.default, Dir.p1))
+    val result = struct.write
     val expected = "Index 255 NONE\nNoDefaultRule\nPos 1 0 INDEX 2 NONE\n" +
       "Index 10 NONE\nPos 0 0 INDEX 255 NONE\nRandom 2\n" +
       "Index 10 ROTATE\nPos 0 0 INDEX 255 NONE\n" +
       "NewRun\n"
     assert(clue(result) == clue(expected))
   }
-  test("random & autorotate") {
-    val struct   = Replace(Tile(0xa), Seq(Pos(1, 0) is TileMatcher(2)), random = Random(50), autorotate = Seq(Dir.default, Dir.p1))
-    val result   = struct.write
+  test("replace with random & autorotate") {
+    val struct = Replace(Tile(0xa), Seq(Pos(1, 0) is TileMatcher(2)), random = Random(50), autorotate = Seq(Dir.default, Dir.p1))
+    val result = struct.write
     val expected = "Index 255 NONE\nNoDefaultRule\nPos 1 0 INDEX 2 NONE\nRandom 50%\n" +
       "Index 10 NONE\nPos 0 0 INDEX 255 NONE\nRandom 2\n" +
       "Index 10 ROTATE\nPos 0 0 INDEX 255 NONE\n" +
@@ -38,7 +38,7 @@ class ReplaceCommandWriter extends FunSuite {
   }
 }
 
-// class ShadowCommandWriter extends FunSuite {
+// class WriteShadow extends FunSuite {
 //   given DefaultTile = DefaultTile(255)
 //   test("shadow") {
 //     val struct   = Shadow((1 to 6).map(Tile(_)))
@@ -52,3 +52,19 @@ class ReplaceCommandWriter extends FunSuite {
 //     assert(clue(result) == clue(expected))
 //   }
 // }
+
+class WriteComment extends FunSuite {
+  given DefaultTile = DefaultTile(255)
+  test("basic comment") {
+    val struct   = Comment(" this is my comment")
+    val result   = struct.write
+    val expected = "# this is my comment\n"
+    assert(clue(result) == clue(expected))
+  }
+  test("comment containing special characters") {
+    val struct   = Comment(""" this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    val result   = struct.write
+    val expected = """# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""" + "\n"
+    assert(clue(result) == clue(expected))
+  }
+}
