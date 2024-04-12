@@ -1,16 +1,25 @@
 package lomination.ddnettools
 
 // general
-case class Autorule(tmp: DefaultTile, rules: Seq[Rule])
+case class RuleFile(defTile: DefaultTile, rules: Seq[Rule])
 
 case class Rule(name: String, cmds: Seq[Command])
 
 // commands
 sealed trait Command
 
-case class Replace(tile: Tile, conds: Seq[Cond] = Seq(), random: Random = Random.always, autorotate: Seq[Dir] = Seq(Dir.default)) extends Command
+case class Replace(
+    tile: Tile,
+    conds: Seq[Cond] = Seq(),
+    random: Random = Random.always,
+    autorotate: Seq[Dir] = Seq(Dir.default)
+) extends Command
 
-case class Shadow(tiles: Seq[Tile], conds: Seq[Cond] = Seq(), shadowType: ShadowType = ShadowType.Default) extends Command
+case class Shadow(
+    tiles: Seq[Tile],
+    conds: Seq[Cond] = Seq(),
+    shadowType: ShadowType = ShadowType.default
+) extends Command
 
 case class Comment(str: String) extends Command
 
@@ -29,7 +38,7 @@ object EmptyMatcher extends Matcher:
 
 case class GenericMatcher(op: Operator, tms: TileMatcher*) extends Matcher:
   def this(tms: TileMatcher*) = this(Operator.Equal, tms*)
-  def not: Matcher                     = GenericMatcher(Operator.fromOrdinal((op.ordinal + 1) % 2))
+  def not: Matcher                     = GenericMatcher(Operator.fromOrdinal((op.ordinal + 1) % 2), tms*)
   def rotate(dir: Dir): GenericMatcher = GenericMatcher(op, tms.map(_.rotate(dir))*)
 
 case class TileMatcher(id: Int, dir: Dir | AnyDir.type = Dir.default):
@@ -48,10 +57,13 @@ case class DefaultTile(id: Int, dir: Dir = Dir.default):
 
 case class Cond(pos: Pos, matcher: Matcher):
   /** `rotate` does not rotate the macher! */
-  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher)
-  def &(that: Cond): Seq[Cond] = Seq(this, that)
+  def rotate(dir: Dir): Cond   = Cond(pos.rotate(dir), matcher)
+  def &(cond: Cond): Seq[Cond] = Seq(this, cond)
+  def &(conds: Seq[Cond]): Seq[Cond] = this +: conds
 
-extension (conds: Seq[Cond]) def &(c: Cond): Seq[Cond] = conds :+ c
+extension (thiss: Seq[Cond])
+  def &(cond: Cond): Seq[Cond] = thiss :+ cond
+  def &(conds: Seq[Cond]): Seq[Cond] = thiss ++ conds
 
 case class Pos(x: Int, y: Int):
   def rotate(dir: Dir): Pos = dir match
@@ -72,19 +84,21 @@ case class Pos(x: Int, y: Int):
   def isnot(tm: TileMatcher): Cond =
     Cond(this, GenericMatcher(Operator.NotEqual, tm))
 
-object Pos {
-  val zero: Pos           = Pos(0, 0)
-  val n: Pos              = Pos(0, -1)
-  val ne: Pos             = Pos(1, -1)
-  val e: Pos              = Pos(1, 0)
-  val se: Pos             = Pos(1, 1)
-  val s: Pos              = Pos(0, 1)
-  val sw: Pos             = Pos(-1, 1)
-  val w: Pos              = Pos(-1, 0)
-  val nw: Pos             = Pos(-1, -1)
-  val adjacent: Seq[Pos]  = Seq(n, e, s, w)
-  val distFrom1: Seq[Pos] = Seq(n, ne, e, se, s, sw, w, nw)
-}
+object Pos:
+  val zero: Pos = Pos(0, 0)
+  val n: Pos    = Pos(0, -1)
+  val ne: Pos   = Pos(1, -1)
+  val e: Pos    = Pos(1, 0)
+  val se: Pos   = Pos(1, 1)
+  val s: Pos    = Pos(0, 1)
+  val sw: Pos   = Pos(-1, 1)
+  val w: Pos    = Pos(-1, 0)
+  val nw: Pos   = Pos(-1, -1)
+  // .
+  def adjacent: Seq[Pos]               = Seq(n, e, s, w)
+  def adjacentExept(pos: Pos*)         = adjacent.filterNot(pos.contains(_))
+  def around: Seq[Pos]                 = Seq(n, ne, e, se, s, sw, w, nw)
+  def aroundExept(pos: Pos*): Seq[Pos] = around.filterNot(pos.contains(_))
 
 case class Dir(sign: Sign, n: Times):
   def this(i: Int, n: Int) =
@@ -94,7 +108,7 @@ case class Dir(sign: Sign, n: Times):
     Times.fromOrdinal((n.ordinal + dir.n.ordinal) % 4)
   )
 
-object Dir {
+object Dir:
   val default: Dir = Dir(Sign.+, Times.Zero)
   val p0: Dir      = Dir(Sign.+, Times.Zero)
   val p1: Dir      = Dir(Sign.+, Times.One)
@@ -104,16 +118,20 @@ object Dir {
   val m1: Dir      = Dir(Sign.-, Times.One)
   val m2: Dir      = Dir(Sign.-, Times.Two)
   val m3: Dir      = Dir(Sign.-, Times.Three)
-}
 
 object AnyDir
 
-case class Random(value: Float) extends AnyVal
+case class Random(percent: Float) extends AnyVal
 
-object Random { val always = Random(100f) }
+object Random:
+  val always = Random(100f)
+
+case class ShadowType(extCorner: Boolean, intCorner: Boolean, soft: Boolean)
+
+object ShadowType:
+  val default = ShadowType(true, false, false)
 
 // enums
-enum Sign       { case +, -                                   }
-enum Times      { case Zero, One, Two, Three                  }
-enum Operator   { case Equal, NotEqual                        }
-enum ShadowType { case NoOutsideCorner, Default, SoftDigonals }
+enum Sign     { case +, -                  }
+enum Times    { case Zero, One, Two, Three }
+enum Operator { case Equal, NotEqual       }

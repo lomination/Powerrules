@@ -12,6 +12,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
 
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %%% "scala-parser-combinators" % "2.3.0",
+      "org.log4s" %%% "log4s" % "1.10.0",
       "org.scalameta" %%% "munit" % "1.0.0-M11" % Test
     )
   )

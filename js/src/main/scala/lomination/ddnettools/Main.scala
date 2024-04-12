@@ -1,4 +1,4 @@
-package lominatopn.ddnettools
+package lomination.ddnettools
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -9,9 +9,9 @@ import org.scalajs.dom.HTMLTextAreaElement
 import org.scalajs.dom.HTMLButtonElement
 import scala.util.Success
 import lomination.ddnettools.writers.Writable
-import lomination.ddnettools.Autorule
+import lomination.ddnettools.RuleFile
 import lomination.ddnettools.parser.MyParser
-import lomination.ddnettools.writers.BasicWriter.{given Writable[Autorule]}
+import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
 import scala.util.Failure
 
 @main
@@ -36,8 +36,8 @@ def main: Unit =
         "click",
         { _ =>
           parser(input.value) match
-            case Success(autorule) => output.value = autorule.write(using autorule.tmp)
-            case Failure(error)     => output.value = s"ERROR: $error"
+            case Success(autorule) => output.value = autorule.write(using autorule.defTile)
+            case Failure(error)    => output.value = s"ERROR: $error"
         }
       )
     }

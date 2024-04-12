@@ -52,3 +52,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Perso
+
+launch_nginx.sh
+TODO
