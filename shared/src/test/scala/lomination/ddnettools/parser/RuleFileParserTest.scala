@@ -56,15 +56,7 @@ class ParseReplace extends FunSuite {
 
 class ParseComment extends FunSuite {
   test("comment with #") {
-    val input    = "# this is my comment\n"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.comment, input)
-    val expected = Comment(" this is my comment")
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get) == clue(expected))
-  }
-  test("comment with //") {
-    val input    = "// this is my comment\n"
+    val input    = "# this is my comment"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.comment, input)
     val expected = Comment(" this is my comment")
@@ -72,7 +64,7 @@ class ParseComment extends FunSuite {
     assert(clue(result.get) == clue(expected))
   }
   test("comment containing special chars") {
-    val input    = """// this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""" + "\n"
+    val input    = """# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.comment, input)
     val expected = Comment(""" this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")

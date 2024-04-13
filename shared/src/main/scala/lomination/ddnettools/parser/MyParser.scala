@@ -10,3 +10,13 @@ case class MyParser():
     macroParser(input) match
       case Success(value) => ruleFileParser(value)
       case Failure(exception) => Failure(exception)
+
+  // replace `//` comments by empty lines
+  def preProcess(input: String): String =
+    input.split('\n').foldLeft("") {
+      case (acc, line) =>
+        if (line.startsWith("//"))
+          acc + "\n"
+        else
+          acc + "\n" + line
+    }
