@@ -18,11 +18,11 @@ class RuleFileParser() extends RegexParsers {
         scala.util.Success(result)
       case Failure(msg, next)    =>
         val exception = IllegalArgumentException(msg)
-        logger.error(exception)("Fail to parse RuleFile")
+        logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column}")
         scala.util.Failure(exception)
       case Error(msg, next)      =>
         val exception = IllegalArgumentException(msg)
-        logger.error(exception)("Fail to parse RuleFile (fatal error)")
+        logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column} (fatal error)")
         scala.util.Failure(exception)
 
   // regex
@@ -52,7 +52,7 @@ class RuleFileParser() extends RegexParsers {
   def sd: Parser[PreShadow]  = sdKw ~> wS ~ iS.? ~ tS.?
   def sdKw: Parser[Unit]     = ("shadow" | "sd") ^^ { _ => () }
   // comment
-  def comment: Parser[Comment] = ("#" | "//") ~> "[ \\w\\p{Punct}]+".r ^^ { case str => Comment(str) }
+  def comment: Parser[Comment] = "#" ~> "[^\n]*".r ^^ { case str => Comment(str) }
 
   // statements
   def stm[A](name: Parser[String], content: Parser[A]) = (" +".r | (wsNl ~ ind(1))) ~ name ~ (" +".r | (wsNl ~ ind(2))) ~> content
