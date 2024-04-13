@@ -11,12 +11,8 @@ case class MyParser():
       case Success(value) => ruleFileParser(value)
       case Failure(exception) => Failure(exception)
 
-  // replace `//` comments by empty lines
+  // replace `//` comments by empty strings
   def preProcess(input: String): String =
-    input.split('\n').foldLeft("") {
-      case (acc, line) =>
-        if (line.startsWith("//"))
-          acc + "\n"
-        else
-          acc + "\n" + line
-    }
+    input
+      .replaceAll("//[^\n]*", "")
+      .replaceAll("/*[\\S\\s]*/", "")

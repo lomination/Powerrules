@@ -126,7 +126,7 @@ object BasicWriter {
   given Writable[Comment] with
     extension (c: Comment)
       def write(using DefaultTile): String =
-        "#" + c.str + "\n"
+        c.str + "\n"
 
   given Writable[Rule] with
     extension (r: Rule)

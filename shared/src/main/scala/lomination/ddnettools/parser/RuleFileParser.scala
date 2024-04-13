@@ -52,7 +52,7 @@ class RuleFileParser() extends RegexParsers {
   def sd: Parser[PreShadow]  = sdKw ~> wS ~ iS.? ~ tS.?
   def sdKw: Parser[Unit]     = ("shadow" | "sd") ^^ { _ => () }
   // comment
-  def comment: Parser[Comment] = "#" ~> "[^\n]*".r ^^ { case str => Comment(str) }
+  def comment: Parser[Comment] = "#[^\n]*".r ^^ { case str => Comment(str) }
 
   // statements
   def stm[A](name: Parser[String], content: Parser[A]) = (" +".r | (wsNl ~ ind(1))) ~ name ~ (" +".r | (wsNl ~ ind(2))) ~> content
