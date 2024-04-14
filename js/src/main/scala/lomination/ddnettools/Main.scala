@@ -21,7 +21,7 @@ def main: Unit =
   dom.document.addEventListener(
     "DOMContentLoaded",
     { _ =>
-      val version   = dom.document.getElementById("version").asInstanceOf[HTMLSpanElement]
+      val version = dom.document.getElementById("version").asInstanceOf[HTMLSpanElement]
       version.textContent = BuildInfo.gitDescription
 
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
@@ -35,6 +35,12 @@ def main: Unit =
             case Success(autorule) => output.value = autorule.write(using autorule.defTile)
             case Failure(error)    => output.value = s"ERROR: $error"
         }
+      )
+
+      val copy = dom.document.getElementById("copy").asInstanceOf[HTMLButtonElement]
+      copy.addEventListener(
+        "click",
+        _ => dom.window.navigator.clipboard.writeText(output.value)
       )
     }
   )
