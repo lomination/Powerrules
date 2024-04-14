@@ -19,15 +19,9 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
       version,
       scalaVersion,
       BuildInfoKey.apply(
-        "gitCommit", {
+        "gitDescription", {
           import scala.sys.process._
           "git describe --match=Nothing --always --abbrev=9 --dirty".!!.trim
-        }
-      ),
-      BuildInfoKey.apply(
-        "gitTag", {
-          import scala.sys.process._
-          "git describe --tags".!!.trim
         }
       )
     )

@@ -22,9 +22,7 @@ def main: Unit =
     "DOMContentLoaded",
     { _ =>
       val version   = dom.document.getElementById("version").asInstanceOf[HTMLSpanElement]
-      val versionDetails  = dom.document.getElementById("versionDetails").asInstanceOf[HTMLSpanElement]
-      version.textContent = BuildInfo.gitTag
-      versionDetails.textContent = BuildInfo.gitCommit
+      version.textContent = BuildInfo.gitDescription
 
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
       val output  = dom.document.getElementById("output").asInstanceOf[HTMLTextAreaElement]
