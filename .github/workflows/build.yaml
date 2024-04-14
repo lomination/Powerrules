@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
+      - name: Run tests
+        run: sbt test
       - run: npm run build4gh_pages
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
