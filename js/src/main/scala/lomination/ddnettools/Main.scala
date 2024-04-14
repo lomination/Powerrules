@@ -13,20 +13,18 @@ import lomination.ddnettools.RuleFile
 import lomination.ddnettools.parser.MyParser
 import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
 import scala.util.Failure
+import org.scalajs.dom.HTMLSpanElement
+import lomination.ddnettools.build.BuildInfo
 
 @main
 def main: Unit =
   dom.document.addEventListener(
     "DOMContentLoaded",
     { _ =>
-      dom.document.querySelector("#app").innerHTML = div(
-        h1("Welcome to ddnet autorule converter"),
-        textarea(id := "input", rows := 10, cols := 50),
-        br,
-        button(id := "convert", "convert"),
-        br,
-        textarea(id := "output", rows := 10, cols := 50)
-      ).toString
+      val version   = dom.document.getElementById("version").asInstanceOf[HTMLSpanElement]
+      val versionDetails  = dom.document.getElementById("versionDetails").asInstanceOf[HTMLSpanElement]
+      version.textContent = BuildInfo.gitTag
+      versionDetails.textContent = BuildInfo.gitCommit
 
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
       val output  = dom.document.getElementById("output").asInstanceOf[HTMLTextAreaElement]

@@ -2,6 +2,7 @@ package lomination.ddnettools.writers
 
 import lomination.ddnettools.*
 import lomination.ddnettools.Pos.aroundExept
+import lomination.ddnettools.build.BuildInfo
 
 object BasicWriter {
 
@@ -142,7 +143,7 @@ object BasicWriter {
   given Writable[RuleFile] with
     extension (a: RuleFile)
       def write(using DefaultTile): String =
-        "# Generated with ddnettools (v0.1) by lomination\n" +
+        s"# Generated with ddnettools (v${BuildInfo.gitTag}) by lomination\n" +
           "# https://github.com/lomination/ddnettools" + "\n\n\n\n" +
           a.rules.map(_.write).mkString("\n")
 }
