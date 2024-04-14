@@ -59,7 +59,7 @@ class ParseComment extends FunSuite {
     val input    = "# this is my comment"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.comment, input)
-    val expected = Comment(" this is my comment")
+    val expected = Comment("# this is my comment")
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -67,7 +67,7 @@ class ParseComment extends FunSuite {
     val input    = """# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.comment, input)
-    val expected = Comment(""" this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    val expected = Comment("""# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }

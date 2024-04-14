@@ -56,13 +56,13 @@ class WriteReplace extends FunSuite {
 class WriteComment extends FunSuite {
   given DefaultTile = DefaultTile(255)
   test("basic comment") {
-    val struct   = Comment(" this is my comment")
+    val struct   = Comment("# this is my comment")
     val result   = struct.write
     val expected = "# this is my comment\n"
     assert(clue(result) == clue(expected))
   }
   test("comment containing special characters") {
-    val struct   = Comment(""" this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    val struct   = Comment("""# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
     val result   = struct.write
     val expected = """# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""" + "\n"
     assert(clue(result) == clue(expected))
