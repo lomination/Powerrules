@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build4gh_pages": "vite build --base=/ddnettools/",
     "preview": "vite preview"
   },
   "devDependencies": {
