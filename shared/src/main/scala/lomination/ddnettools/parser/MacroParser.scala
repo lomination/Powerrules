@@ -55,16 +55,10 @@ class MacroParser() extends RegexParsers {
   // macros
   type PreMacro = String ~ Option[Seq[String]] ~ String
   def mac: Parser[Macro]             = macDef ^^ { case name ~ params ~ content =>
-    if (params.isDefined)
-      if (params.get == Seq(""))
-        logger.warn(s"Macro $name is defined with one parameter named with empty string ``.\n" +
-          "Consider not using brackets after its definition if no paramter is expected.")
-      if (params.get.sizeIs != params.get.toSet.size)
-        logger.warn(s"Some parameters of macro $name have the same name.")
     Macro(name, params.getOrElse(Seq()), content)
   }
   def macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent
   def macName: Parser[String]        = "\\w+".r
-  def macParams: Parser[Seq[String]] = "\\( *".r ~> repsep("\\w+".r, " *, *".r) <~ " *\\)".r
+  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',') }
   def macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
 }
