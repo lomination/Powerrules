@@ -9,7 +9,7 @@ case class Macro(name: String, paramNames: Seq[String], content: String):
       "Consider not using brackets after its definition if no paramter is expected.")
   if (paramNames.sizeIs != paramNames.toSet.size)
     logger.warn(s"Some parameters of macro $name have the same name.")
-val logger = getLogger
+  val logger = getLogger
   def apply(paramValues: Seq[String]): Try[String] =
     val vLength = paramValues.size
     val nLength = paramNames.size
