@@ -133,6 +133,14 @@ class ParseRuleName extends FunSuite {
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
+  test("rule name with brackets") {
+    val input    = "[test with [brackets]]"
+    val parser   = RuleFileParser()
+    val result   = parser.parse(parser.ruleName, input)
+    val expected = "test with [brackets]"
+    assert(result.successful, s"PARSING ERROR: $result")
+    assert(clue(result.get) == clue(expected))
+  }
 }
 
 class ParseDefaultTile extends FunSuite {

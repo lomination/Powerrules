@@ -37,7 +37,7 @@ class RuleFileParser() extends RegexParsers {
   def rules: Parser[RuleFile]          = ws ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ ws ^^ { case d ~ r => RuleFile(d.getOrElse(DefaultTile(255, Dir.m3)), r) }
   def defaultTile: Parser[DefaultTile] = ":" ~> id ~ dir.? ^^ { case i ~ d => DefaultTile(i, d.getOrElse(Dir.m3)) }
   def rule: Parser[Rule]               = (ruleName <~ wsNl) ~ repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
-  def ruleName: Parser[String]         = "[" ~> """[ \w\p{Punct}&&[^\[\]]]+""".r <~ "]"
+  def ruleName: Parser[String]         = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
 
   // commands
   def command: Parser[Command] = replace | shadow | comment // | shape
@@ -81,7 +81,7 @@ class RuleFileParser() extends RegexParsers {
   def dir: Parser[Dir]   = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
   // others
   def random: Parser[Random]         = "\\d+(?:\\.\\d*)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
-  def sdType: Parser[ShadowType]     = "([+-])e([+-])i([+-])s".r ^^ { case sdTypeR(e, i, s) =>
+  def sdType: Parser[ShadowType]     = "[+-]e[+-]i[+-]s".r ^^ { case sdTypeR(e, i, s) =>
     def bool(sign: String) = if (sign == "+") true else false
     ShadowType(bool(e), bool(i), bool(s))
   }
