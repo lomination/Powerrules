@@ -9,10 +9,10 @@ case class Rule(name: String, cmds: Seq[Command])
 sealed trait Command
 
 case class Replace(
-    tile: Tile,
+    tiles: Seq[Tile],
     conds: Seq[Cond] = Seq(),
     random: Random = Random.always,
-    autorotate: Seq[Dir] = Seq(Dir.default)
+    rotations: Seq[Dir] = Seq(Dir.default)
 ) extends Command
 
 case class Shadow(

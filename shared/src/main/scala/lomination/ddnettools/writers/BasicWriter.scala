@@ -52,31 +52,36 @@ object BasicWriter {
     extension (r: Random)
       def write(using DefaultTile): String =
         if (r.percent >= 100f) ""
-        else
-          r.percent.toString match
-            case s if s.endsWith(".0") => s"Random ${s.dropRight(2)}%\n"
-            case s                     => s"Random $s%\n"
+        else s"Random ${r.percent.toString().replaceAll("\\.0+", "")}%\n"
 
   given Writable[Replace] with
     extension (r: Replace)
       def write(using defTile: DefaultTile): String =
-        val len = r.autorotate.length
-        if (len == 1)
-          s"Index ${r.tile.rotate(r.autorotate(0)).write}\n" +
+        if (r.tiles.sizeIs == 1 && r.rotations.sizeIs == 1)
+          s"Index ${r.tiles(0).rotate(r.rotations(0)).write}\n" +
             "NoDefaultRule\n" +
             r.conds.map(_.write).mkString +
             r.random.write +
             "NewRun\n"
         else
-          s"Index ${defTile.tile.write}\n" +
+          val tLen = r.tiles.length
+          val rLen = r.rotations.length
+          val tmp = s"Index ${defTile.tile.write}\n" +
             "NoDefaultRule\n" +
             r.conds.map(_.write).mkString +
             r.random.write +
-            Range(0, len).map { i =>
-              s"Index ${r.tile.rotate(r.autorotate(i)).write}\n" +
+            "NewRun\n"
+          val core = (
+            for {
+              i <- 0 until tLen
+              j <- 0 until rLen
+            } yield
+              val chance = tLen * rLen - i * rLen - j
+              s"Index ${r.tiles(i).rotate(r.rotations(j)).write}\n" +
                 s"Pos 0 0 INDEX ${defTile.tm.write}\n" +
-                (if (len - i > 1) s"Random ${len - i}\n" else "")
-            }.mkString + "NewRun\n"
+                (if (chance > 1) s"Random $chance\nNewRun\n" else "")
+          ).mkString + "NewRun\n"
+          tmp + core
 
   given Writable[Shadow] with
     extension (sd: Shadow)

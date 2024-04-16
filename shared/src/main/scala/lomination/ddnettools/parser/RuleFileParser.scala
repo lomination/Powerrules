@@ -43,7 +43,7 @@ class RuleFileParser() extends RegexParsers {
   def command: Parser[Command] = replace | shadow | comment // | shape
   // replace
   type PreReplace = Seq[Tile] ~ Option[Seq[Cond]] ~ Option[Random] ~ Option[Seq[Dir]]
-  def replace: Parser[Replace] = re ^^ { case t ~ c ~ r ~ a => Replace(t(0), c.getOrElse(Seq()), r.getOrElse(Random.always), a.getOrElse(Seq(Dir.default))) }
+  def replace: Parser[Replace] = re ^^ { case t ~ c ~ r ~ a => Replace(t, c.getOrElse(Seq()), r.getOrElse(Random.always), a.getOrElse(Seq(Dir.default))) }
   def re: Parser[PreReplace]   = reKw ~> wS ~ iS.? ~ raS.? ~ roS.?
   def reKw: Parser[Unit]       = ("replace" | "re") ^^ { _ => () }
   // shadow
@@ -60,7 +60,7 @@ class RuleFileParser() extends RegexParsers {
   def wS: Parser[Seq[Tile]]  = stm("with", rep1sep(tile, " +".r | (wsNl ~ ind(2))))
   def iS: Parser[Seq[Cond]]  = stm(("if" | "when"), rep1sep(cond, " +& +".r | (" +&".r ~ wsNl ~ ind(2))))
   def raS: Parser[Random]    = stm("random", random)
-  def roS: Parser[Seq[Dir]]  = stm("rotate", repsep(dir, sp | (wsNl ~ ind(2))))
+  def roS: Parser[Seq[Dir]]  = stm("rotate", rep1sep(dir, sp | (wsNl ~ ind(2))))
   def tS: Parser[ShadowType] = stm("type", sdType)
 
   // others

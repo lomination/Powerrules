@@ -8,7 +8,7 @@ class ParseReplace extends FunSuite {
     val input    = "replace with 2e-2"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x2e, Dir.m2))
+    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -16,7 +16,7 @@ class ParseReplace extends FunSuite {
     val input    = "re with 2e-2"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x2e, Dir.m2))
+    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -24,7 +24,7 @@ class ParseReplace extends FunSuite {
     val input    = "replace\n  with\n    2e-2"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x2e, Dir.m2))
+    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -32,7 +32,7 @@ class ParseReplace extends FunSuite {
     val input    = "replace\n  with 1f-0\n  if 0 0 is 9+2 & -1 0 is 3-0"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x1f, Dir.m0), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
+    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -40,7 +40,7 @@ class ParseReplace extends FunSuite {
     val input    = "replace\n  with 1f-0\n  if\n    0 0 is 9+2 &\n    -1 0 is 3-0"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x1f, Dir.m0), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
+    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -48,7 +48,7 @@ class ParseReplace extends FunSuite {
     val input    = "replace\n  with 1f-0\n  when 0 0 is 9+2 & -1 0 is 3-0\n  random 0.33\n  rotate +0+1+2+3"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.command, input)
-    val expected = Replace(Tile(0x1f, Dir.m0), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)), Random(33), Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3))
+    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)), Random(33), Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3))
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
