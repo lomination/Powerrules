@@ -17,12 +17,12 @@ class RuleFileParser() extends RegexParsers {
       case Success(result, next) =>
         scala.util.Success(result)
       case Failure(msg, next)    =>
-        val exception = IllegalArgumentException(msg)
-        logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column}")
+        val exception = IllegalArgumentException(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column} (fatal error)" + msg)
+        // logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column}")
         scala.util.Failure(exception)
       case Error(msg, next)      =>
-        val exception = IllegalArgumentException(msg)
-        logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column} (fatal error)")
+        val exception = IllegalArgumentException(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column} (fatal error)" + msg)
+        // logger.error(exception)(s"Fail to parse RuleFile at ln ${next.pos.line}, col ${next.pos.column} (fatal error)")
         scala.util.Failure(exception)
 
   // regex
