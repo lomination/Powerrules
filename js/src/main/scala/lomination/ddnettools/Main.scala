@@ -33,7 +33,7 @@ def main: Unit =
         { _ =>
           parser(input.value) match
             case Success(autorule) => output.value = autorule.write(using autorule.defTile)
-            case Failure(error)    => output.value = s"ERROR: $error"
+            case Failure(error)    => output.value = s"ERROR: ${error.getMessage}"
         }
       )
 
