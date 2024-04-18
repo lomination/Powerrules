@@ -47,7 +47,7 @@ class RuleFileParser() extends RegexParsers {
   def reKw: Parser[Unit]       = ("replace" | "re") ^^ { _ => () }
   // shadow
   type PreShadow = Seq[Tile] ~ Option[Seq[Cond]] ~ Option[ShadowType]
-  def shadow: Parser[Shadow] = sd ^^ { case t ~ c ~ st => Shadow(t, c.getOrElse(Seq(Pos(0, 0) is FullMatcher)), st.getOrElse(ShadowType.default)) }
+  def shadow: Parser[Shadow] = sd ^^ { case t ~ c ~ st => Shadow(t, c.getOrElse(Seq()), st.getOrElse(ShadowType.default)) }
   def sd: Parser[PreShadow]  = sdKw ~> whS ~ ifS.? ~ tyS.?
   def sdKw: Parser[Unit]     = ("shadow" | "sd") ^^ { _ => () }
   // shape
