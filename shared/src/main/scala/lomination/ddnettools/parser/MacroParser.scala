@@ -16,13 +16,13 @@ class MacroParser() extends RegexParsers {
   def apply(input: String, macroSeq: Seq[Macro] = Seq()): Try[String] =
     getMacro(macroSeq, input) match
       case scala.util.Success(newMacroSeq, remainder) => scala.util.Success(applyMacro(newMacroSeq, remainder))
-      case scala.util.Failure(exception) => scala.util.Failure(exception)
+      case scala.util.Failure(exception)              => scala.util.Failure(exception)
 
   def getMacro(macroSeq: Seq[Macro], remainder: String): Try[(Seq[Macro], String)] =
     parse(mac, applyMacro(macroSeq, remainder)) match
       case Success(result, next) => getMacro(macroSeq :+ result, next.source.toString.drop(next.offset))
       case Failure(msg, next)    => scala.util.Success((macroSeq, next.source.toString.drop(next.offset)))
-      case Error(msg, next)      =>
+      case Error(msg, next) =>
         val exception = IllegalArgumentException(msg)
         logger.error(exception)("Fail to parse macros (fatal error)")
         scala.util.Failure(exception)
@@ -38,13 +38,13 @@ class MacroParser() extends RegexParsers {
             case macro1(name, params, remainder) =>
               macroSeq.find(_.name == name) match
                 case Some(m) => m(params.split(',')).get + remainder
-                case None    =>
+                case None =>
                   logger.warn(s"`$$` token is found but macro `$name` is not defined (yet)")
                   s"$$$name($params)" + remainder
             case macro2(name, remainder) =>
               macroSeq.find(_.name == name) match
                 case Some(m) => m(Seq()).get + remainder
-                case None    =>
+                case None =>
                   logger.warn(s"`$$` token is found but macro `$name` is not defined (yet)")
                   s"$$$name" + remainder
             case other =>
@@ -54,7 +54,7 @@ class MacroParser() extends RegexParsers {
 
   // macros
   type PreMacro = String ~ Option[Seq[String]] ~ String
-  def mac: Parser[Macro]             = macDef ^^ { case name ~ params ~ content =>
+  def mac: Parser[Macro] = macDef ^^ { case name ~ params ~ content =>
     Macro(name, params.getOrElse(Seq()), content)
   }
   def macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent

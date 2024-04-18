@@ -4,38 +4,38 @@ import munit.FunSuite
 
 class DirTest extends FunSuite {
   test("dir: rotate combinason (1)") {
-    val test     = Dir(Sign.+, Times.One) rotate Dir(Sign.-, Times.One)
-    val expected = Dir(Sign.-, Times.Two)
+    val test     = Dir.p1 rotate Dir.m1
+    val expected = Dir.m2
     assert(clue(test) == clue(expected))
   }
   test("dir: rotate combinason (2)") {
-    val test     = Dir(Sign.+, Times.One) rotate Dir(Sign.-, Times.Two)
-    val expected = Dir(Sign.-, Times.Three)
+    val test     = Dir.p1 rotate Dir.m2
+    val expected = Dir.m3
     assert(clue(test) == clue(expected))
   }
   test("dir: rotate combinason (3)") {
-    val test     = Dir(Sign.-, Times.Two) rotate Dir(Sign.-, Times.One)
-    val expected = Dir(Sign.+, Times.Three)
+    val test     = Dir.m2 rotate Dir.m1
+    val expected = Dir.p3
     assert(clue(test) == clue(expected))
   }
   test("dir: rotate with default dir (1)") {
-    val test     = Dir.default rotate Dir(Sign.-, Times.Three)
-    val expected = Dir(Sign.-, Times.Three)
+    val test     = Dir.p0 rotate Dir.m3
+    val expected = Dir.m3
     assert(clue(test) == clue(expected))
   }
   test("dir: rotate with default dir (2)") {
-    val test     = Dir(Sign.+, Times.Two) rotate Dir.default
-    val expected = Dir(Sign.+, Times.Two)
+    val test     = Dir.p2 rotate Dir.p0
+    val expected = Dir.p2
     assert(clue(test) == clue(expected))
   }
   test("dir: rotate commutativity") {
-    val test     = Dir(Sign.-, Times.Three) rotate Dir(Sign.+, Times.Two)
-    val expected = Dir(Sign.+, Times.Two) rotate Dir(Sign.-, Times.Three)
+    val test     = Dir.m3 rotate Dir.p2
+    val expected = Dir.p2 rotate Dir.m3
     assert(clue(test) == clue(expected))
   }
   test("dir: second constructor") {
     val test     = new Dir(-1, 0)
-    val expected = Dir(Sign.-, Times.Zero)
+    val expected = Dir.m0
     assert(clue(test) == clue(expected))
   }
 }

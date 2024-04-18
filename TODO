@@ -1,8 +1,0 @@
-- fix shadow command
-- make shape command
-- add replace command feature: with statement containing multiple tiles
-- show debug on user (js) interface
-- example
-  - complete
-  - transpile it
-  - check the result on ddnet client

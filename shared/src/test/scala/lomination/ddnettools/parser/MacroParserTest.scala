@@ -16,7 +16,7 @@ class UseMacro extends FunSuite {
     val input    = "re with $tile(a)"
     val macroSeq = Seq(Macro("tile", Seq(), "23"))
     val parser   = MacroParser()
-    val result   = Try( parser.applyMacro(macroSeq, input) )
+    val result   = Try(parser.applyMacro(macroSeq, input))
     assert(result.isFailure)
     assert(result.failed.get.isInstanceOf[IllegalArgumentException])
   }
@@ -24,7 +24,7 @@ class UseMacro extends FunSuite {
     val input    = "re with $tile()"
     val macroSeq = Seq(Macro("tile", Seq(), "23"))
     val parser   = MacroParser()
-    val result   = Try( parser.applyMacro(macroSeq, input) )
+    val result   = Try(parser.applyMacro(macroSeq, input))
     assert(result.isFailure)
     assert(result.failed.get.isInstanceOf[IllegalArgumentException])
   }
@@ -37,7 +37,7 @@ class UseMacro extends FunSuite {
     assert(clue(result) == clue(expected))
   }
   test("apply macro with macros as params") {
-    val input    = "$reset($tile(-2),$cond(0 0,full))"
+    val input = "$reset($tile(-2),$cond(0 0,full))"
     val macroSeq = Seq(
       Macro("reset", Seq("tile", "cond"), "re with <tile> if <cond>"),
       Macro("tile", Seq("dir"), "12<dir>"),

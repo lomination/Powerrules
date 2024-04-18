@@ -19,7 +19,7 @@ class WriteReplace extends FunSuite {
     assert(clue(result) == clue(expected))
   }
   test("replace with autorotate") {
-    val struct = Replace(Seq(Tile(0xa)), Seq(Pos(1, 0) is TileMatcher(2)), rotations = Seq(Dir.default, Dir.p1))
+    val struct = Replace(Seq(Tile(0xa)), Seq(Pos(1, 0) is TileMatcher(2)), rotations = Seq(Dir.p0, Dir.p1))
     val result = struct.write
     val expected = "Index 255 NONE\nNoDefaultRule\nPos 1 0 INDEX 2 NONE\nNewRun\n" +
       "Index 10 NONE\nPos 0 0 INDEX 255 NONE\nRandom 2\nNewRun\n" +
@@ -28,7 +28,7 @@ class WriteReplace extends FunSuite {
     assert(clue(result) == clue(expected))
   }
   test("replace with random & autorotate") {
-    val struct = Replace(Seq(Tile(0xa)), Seq(Pos(1, 0) is TileMatcher(2)), random = Random(50), rotations = Seq(Dir.default, Dir.p1))
+    val struct = Replace(Seq(Tile(0xa)), Seq(Pos(1, 0) is TileMatcher(2)), random = Random(50), rotations = Seq(Dir.p0, Dir.p1))
     val result = struct.write
     val expected = "Index 255 NONE\nNoDefaultRule\nPos 1 0 INDEX 2 NONE\nRandom 50%\nNewRun\n" +
       "Index 10 NONE\nPos 0 0 INDEX 255 NONE\nRandom 2\nNewRun\n" +

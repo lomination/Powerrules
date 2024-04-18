@@ -24,8 +24,7 @@ object BasicWriter {
         case Dir(Sign.-, Times.Three) => "XFLIP ROTATE"
 
   given Writable[Pos] with
-    extension (p: Pos)
-      def write(using DefaultTile): String = s"${p.x} ${p.y}"
+    extension (p: Pos) def write(using DefaultTile): String = s"${p.x} ${p.y}"
 
   given Writable[Cond] with
     extension (c: Cond)
@@ -87,47 +86,72 @@ object BasicWriter {
     extension (sd: Shadow)
       def write(using defTile: DefaultTile): String =
         val tm = defTile.tm
-        val conds = sd.shadowType match
-          case ShadowType(extCorner, intCorner, false) =>
-            import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-            Seq(
-              (o is tm) & adjacent.map( _ is tm ),    // square
-              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w is tm),    // T
-              (o is tm) & (n isnot tm) & (e is tm)    & (s isnot tm) & (w is tm),    // -
-              (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w isnot tm), // corner down right "r"
-              (o is tm) & (n isnot tm) & (e isnot tm) & (s is tm)    & (w isnot tm), // end of a bar (up i) connection down
-              (o is tm) & adjacent.map( _ isnot tm ), // • no connections
-            ) ++ (
-              if (extCorner) Seq(
-                (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm)  & (nw is tm), // corner in top-left corner of the tile
-                (o isnot tm) & (n is tm) &  (e is tm)  & (s isnot tm)  & (w is tm)  & (nE is tm)   & (nw is tm), // double corners top-left and top-right                                
-                (o isnot tm) & around.map( _ is tm ) // four corners
-              )
-              else Seq()
-            ) ++ (
-              if (intCorner) Seq(
-                (o is tm) & adjacent.map( _ is tm ) & (nE is tm) & (se is tm) & (sw is tm) & (nw isnot tm), // corner in top-left corner of the tile
-                (o is tm) & adjacent.map( _ is tm ) & (nE isnot tm) & (se is tm) & (sw is tm) & (nw isnot tm), // corner in top-left and top-right corner of the tile
-                (o is tm) & adjacent.map( _ is tm ) & (nE is tm) & (se isnot tm) & (sw is tm) & (nw isnot tm), // corner in top-left and bottom-right corner of the tile
-                (o is tm) & adjacent.map( _ is tm ) & (nE isnot tm) & (se isnot tm) & (sw is tm) & (nw isnot tm), // corner in top-left, top-right and bottom-right corner of the tile
-                (o is tm) & adjacent.map( _ is tm ) & (nE isnot tm) & (se isnot tm) & (sw isnot tm) & (nw isnot tm) // corner in top-left, top-right and bottom-right corner of the tile
-              )
-              else Seq()
-            )
-          case ShadowType(extCorner, intCorner, true) => ???
-        // replace with default tile
-        val tmp = s"Index ${defTile.tile.write}\nNoDefaultRule\n" +
-          sd.conds.map(_.write).mkString + "NewRun\n"
-        // compute shaodw
-        val core = s"Index ${sd.tiles(0).write}\nNoDefaultRule\nPos 0 0 INDEX ${tm.write}\n" + (
-          for {
-            i   <- 1 until sd.tiles.length
-            dir <- Seq(Times.Zero, Times.One, Times.Two, Times.Three).map(Dir(Sign.+, _))
-          } yield s"Index ${sd.tiles(i).rotate(dir).write}\nNoDefaultRule\n" +
-            conds(i).map(_.rotate(dir).write).mkString
-        ).mkString + "NewRun\n"
-        // return
-        tmp + core
+        val defConds =
+          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          Seq(
+            (Seq(p0), (o is tm)             & adjacent.map(_ is tm)), // square
+            (Seq(p0, p1, p2, p3), (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w is tm)),    // T
+            (Seq(p0, p1), (o is tm)         & (n isnot tm) & (e is tm)    & (s isnot tm) & (w is tm)),    // -
+            (Seq(p0, p1, p2, p3), (o is tm) & (n isnot tm) & (e is tm)    & (s is tm)    & (w isnot tm)), // corner down right "r"
+            (Seq(p0, p1, p2, p3), (o is tm) & (n isnot tm) & (e isnot tm) & (s is tm)    & (w isnot tm)), // end of a bar (up i) connection down
+            (Seq(p0), (o is tm)             & adjacent.map(_ isnot tm)) // • no connections
+          )
+        val extConds =
+          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          Seq(
+            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm) & (nw is tm)), // corner in top-left corner of the tile
+            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e is tm)    & (s isnot tm) & (w is tm) & (nE is tm) & (nw is tm)), // double corners top-left and top-right
+            (Seq(p0), (o isnot tm)             & around.map(_ is tm)) // four corners
+          )
+        val intConds =
+          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          Seq(
+            (Seq(p0, p1, p2, p3), (o is tm)                 & adjacent.map(_ is tm) & (nE is tm)    & (se is tm)    & (sw is tm)    & (nw isnot tm)), // corner in top-left corner of the tile
+            (Seq(p0, p1, p2, p3), (o is tm)                 & adjacent.map(_ is tm) & (nE isnot tm) & (se is tm)    & (sw is tm)    & (nw isnot tm)), // corner in top-left and top-right corner of the tile
+            (Seq(p0, p1), (o is tm)                         & adjacent.map(_ is tm) & (nE is tm)    & (se isnot tm) & (sw is tm)    & (nw isnot tm)), // corner in top-left and bottom-right corner of the tile
+            (Seq(p0, p1, p2, p3), (o is tm)                 & adjacent.map(_ is tm) & (nE isnot tm) & (se isnot tm) & (sw is tm)    & (nw isnot tm)), // corner in top-left top-right and bottom-right corner of the tile
+            (Seq(p0), (o is tm)                             & adjacent.map(_ is tm) & (nE isnot tm) & (se isnot tm) & (sw isnot tm) & (nw isnot tm)), // 4 corners of the tile
+            (Seq(p0, p1, p2, p3), (o is tm)                 & (n isnot tm)          & (e is tm)     & (s is tm)     & (w isnot tm)  & (se isnot tm)), // tunnel corner
+            (Seq(p0, p1, p2, p3, m0, m1, m2, m3), (o is tm) & (n isnot tm)          & (e is tm)     & (s is tm)     & (w is tm)     & (se is tm)    & (sw isnot tm)), // T only one bottom left corner
+            (Seq(p0, p1, p2, p3), (o is tm)                 & (n isnot tm)          & (e is tm)     & (s is tm)     & (w is tm)     & (se isnot tm) & (sw isnot tm))  // T both
+          )
+        val allConds = defConds
+          ++ (if (sd.shadowType.extCorner) extConds else Seq())
+          ++ (if (sd.shadowType.intCorner) intConds else Seq())
+
+        s"Index ${defTile.tile.write}\nNoDefaultRule\n"
+          + sd.conds.map(_.write).mkString + "NewRun\n"
+          + (
+            for {
+              (tile, (dirs, conds)) <- (sd.tiles zip allConds)
+              d                     <- dirs
+            } yield s"Index ${tile.rotate(d).write}\nNoDefaultRule\n"
+              + conds.map(_.rotate(d).write).mkString
+          ).mkString + "NewRun\n"
+
+  given Writable[Shape] with
+    extension (sp: Shape)
+      def write(using defTile: DefaultTile): String = ???
+      // val tmp = s"Index ${defTile.tile.write}\nNoDefaultRule\n" +
+      //   (
+      //     for {
+      //       x <- 0 until sp.oldPattern.xSize
+      //       y <- 0 until sp.oldPattern.ySize
+      //     } yield (Pos(x, y) is sp.oldPattern(x, y)).write
+      //   ).mkString +
+      //   "NewRun\n"
+      // val noOverlaps = "Index 0\n" + (
+      //   for {
+      //     x <- 1 until sp.oldPattern.xSize
+      //     y <- 1 until sp.oldPattern.ySize
+      //   } yield (Pos(0, 0) is defTile.tm).write +
+      //     (Pos(-x, -y) is defTile.tm).write
+      // )
+      // val core = ???
+      // tmp + noOverlaps + core
 
   given Writable[Comment] with
     extension (c: Comment)
@@ -139,16 +163,17 @@ object BasicWriter {
       def write(using DefaultTile): String =
         s"[${r.name}]\n\n" + r.cmds
           .map {
-            case r: Replace => r.write
-            case s: Shadow  => s.write
-            case c: Comment => c.write
+            case re: Replace => re.write
+            case sd: Shadow  => sd.write
+            case sp: Shape   => sp.write
+            case co: Comment => co.write
           }
           .mkString("\n")
 
   given Writable[RuleFile] with
-    extension (a: RuleFile)
+    extension (rf: RuleFile)
       def write(using DefaultTile): String =
         s"# Generated with ddnettools (v${BuildInfo.gitDescription}) by lomination\n" +
           "# https://github.com/lomination/ddnettools" + "\n\n\n\n" +
-          a.rules.map(_.write).mkString("\n")
+          rf.rules.map(_.write).mkString("\n")
 }

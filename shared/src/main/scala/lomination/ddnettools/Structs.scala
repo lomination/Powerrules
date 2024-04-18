@@ -12,13 +12,20 @@ case class Replace(
     tiles: Seq[Tile],
     conds: Seq[Cond] = Seq(),
     random: Random = Random.always,
-    rotations: Seq[Dir] = Seq(Dir.default)
+    rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
 
 case class Shadow(
     tiles: Seq[Tile],
     conds: Seq[Cond] = Seq(),
     shadowType: ShadowType = ShadowType.default
+) extends Command
+
+case class Shape(
+    newPattern: Seq[Seq[Tile]],
+    oldPattern: Seq[Cond],
+    random: Random = Random.always,
+    rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
 
 case class Comment(str: String) extends Command
@@ -29,11 +36,11 @@ sealed trait Matcher:
   def rotate(dir: Dir): Matcher
 
 object FullMatcher extends Matcher:
-  def not: Matcher                       = EmptyMatcher
+  def not: EmptyMatcher.type             = EmptyMatcher
   def rotate(dir: Dir): FullMatcher.type = this
 
 object EmptyMatcher extends Matcher:
-  def not: Matcher                        = FullMatcher
+  def not: FullMatcher.type               = FullMatcher
   def rotate(dir: Dir): EmptyMatcher.type = this
 
 case class GenericMatcher(op: Operator, tms: TileMatcher*) extends Matcher:
@@ -41,34 +48,35 @@ case class GenericMatcher(op: Operator, tms: TileMatcher*) extends Matcher:
   def not: Matcher                     = GenericMatcher(Operator.fromOrdinal((op.ordinal + 1) % 2), tms*)
   def rotate(dir: Dir): GenericMatcher = GenericMatcher(op, tms.map(_.rotate(dir))*)
 
-case class TileMatcher(id: Int, dir: Dir | AnyDir.type = Dir.default):
+case class TileMatcher(id: Int, dir: Dir | AnyDir.type = Dir.p0):
   def rotate(dir: Dir): TileMatcher = this.dir match
     case AnyDir => TileMatcher(id, AnyDir)
     case d: Dir => TileMatcher(id, dir rotate d)
 
 // others
-case class Tile(id: Int, dir: Dir = Dir.default):
-  def this(id: Int) = this(id, Dir.default)
-  def rotate(d: Dir): Tile = Tile(id, d rotate dir)
+case class Tile(id: Int, dir: Dir = Dir.p0):
+  def this(id: Int) = this(id, Dir.p0)
+  def rotate(d: Dir): Tile       = Tile(id, d rotate dir)
+  def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
-case class DefaultTile(id: Int, dir: Dir = Dir.default):
+case class DefaultTile(id: Int, dir: Dir = Dir.p0):
   val tile: Tile      = Tile(id, dir)
   val tm: TileMatcher = TileMatcher(id, dir)
 
 case class Cond(pos: Pos, matcher: Matcher):
-  /** `rotate` does not rotate the macher! */
-  def rotate(dir: Dir): Cond   = Cond(pos.rotate(dir), matcher)
-  def &(cond: Cond): Seq[Cond] = Seq(this, cond)
+  /** Does not rotate the matcher! */
+  def rotate(dir: Dir): Cond         = Cond(pos.rotate(dir), matcher)
+  def &(cond: Cond): Seq[Cond]       = Seq(this, cond)
   def &(conds: Seq[Cond]): Seq[Cond] = this +: conds
 
 extension (thiss: Seq[Cond])
-  def &(cond: Cond): Seq[Cond] = thiss :+ cond
+  def &(cond: Cond): Seq[Cond]       = thiss :+ cond
   def &(conds: Seq[Cond]): Seq[Cond] = thiss ++ conds
 
 case class Pos(x: Int, y: Int):
   def rotate(dir: Dir): Pos = dir match
     case Dir(Sign.+, n) => this.clockwise(n.ordinal)
-    case Dir(Sign.-, n) => this.anticlockwise(n.ordinal)
+    case Dir(Sign.-, n) => Pos(-x, y).anticlockwise(n.ordinal)
   def clockwise(n: Int): Pos =
     if (n <= 0) this
     else Pos(-y, x).clockwise(n - 1)
@@ -94,7 +102,7 @@ object Pos:
   val sw: Pos   = Pos(-1, 1)
   val w: Pos    = Pos(-1, 0)
   val nw: Pos   = Pos(-1, -1)
-  // .
+  ////
   def adjacent: Seq[Pos]               = Seq(n, e, s, w)
   def adjacentExept(pos: Pos*)         = adjacent.filterNot(pos.contains(_))
   def around: Seq[Pos]                 = Seq(n, ne, e, se, s, sw, w, nw)
@@ -109,15 +117,14 @@ case class Dir(sign: Sign, n: Times):
   )
 
 object Dir:
-  val default: Dir = Dir(Sign.+, Times.Zero)
-  val p0: Dir      = Dir(Sign.+, Times.Zero)
-  val p1: Dir      = Dir(Sign.+, Times.One)
-  val p2: Dir      = Dir(Sign.+, Times.Two)
-  val p3: Dir      = Dir(Sign.+, Times.Three)
-  val m0: Dir      = Dir(Sign.-, Times.Zero)
-  val m1: Dir      = Dir(Sign.-, Times.One)
-  val m2: Dir      = Dir(Sign.-, Times.Two)
-  val m3: Dir      = Dir(Sign.-, Times.Three)
+  val p0: Dir = Dir(Sign.+, Times.Zero)
+  val p1: Dir = Dir(Sign.+, Times.One)
+  val p2: Dir = Dir(Sign.+, Times.Two)
+  val p3: Dir = Dir(Sign.+, Times.Three)
+  val m0: Dir = Dir(Sign.-, Times.Zero)
+  val m1: Dir = Dir(Sign.-, Times.One)
+  val m2: Dir = Dir(Sign.-, Times.Two)
+  val m3: Dir = Dir(Sign.-, Times.Three)
 
 object AnyDir
 
@@ -126,10 +133,10 @@ case class Random(percent: Float) extends AnyVal
 object Random:
   val always = Random(100f)
 
-case class ShadowType(extCorner: Boolean, intCorner: Boolean, soft: Boolean)
+case class ShadowType(extCorner: Boolean, intCorner: Boolean)
 
 object ShadowType:
-  val default = ShadowType(true, false, false)
+  val default = ShadowType(false, false)
 
 // enums
 enum Sign     { case +, -                  }
