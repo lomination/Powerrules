@@ -59,6 +59,6 @@ class MacroParser() extends RegexParsers {
   }
   def macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent
   def macName: Parser[String]        = "\\w+".r
-  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',') }
+  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').map( _.trim ) }
   def macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
 }
