@@ -7,7 +7,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     name         := "DDNetTools",
-    version      := "0.1",
+    version      := "0.2",
     scalaVersion := scala3Version,
     scalacOptions ++= Seq(
       "-encoding", "utf8",
