@@ -173,7 +173,7 @@ object BasicWriter {
   given Writable[RuleFile] with
     extension (rf: RuleFile)
       def write(using DefaultTile): String =
-        s"# Generated with ddnettools (v${BuildInfo.gitDescription}) by lomination\n" +
+        s"# Generated with ddnettools (${BuildInfo.version}) by lomination\n" +
           "# https://github.com/lomination/ddnettools" + "\n\n\n\n" +
           rf.rules.map(_.write).mkString("\n")
 }

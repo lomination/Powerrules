@@ -7,7 +7,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     name         := "DDNetTools",
-    version      := "0.1.0-SNAPSHOT",
+    version      := "0.1",
     scalaVersion := scala3Version,
     scalacOptions ++= Seq(
       "-encoding", "utf8",
@@ -23,14 +23,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
     ),
     buildInfoPackage := "lomination.ddnettools.build",
     buildInfoKeys ++= Seq[BuildInfoKey](
-      version,
-      scalaVersion,
-      BuildInfoKey.apply(
-        "gitDescription", {
-          import scala.sys.process._
-          "git describe --match=Nothing --always --abbrev=9 --dirty".!!.trim
-        }
-      )
+      version
     )
   )
   .jsSettings(

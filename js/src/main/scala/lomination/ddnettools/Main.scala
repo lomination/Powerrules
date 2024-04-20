@@ -1,20 +1,17 @@
 package lomination.ddnettools
 
+import scala.util.{Success, Failure}
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 import org.scalajs.dom
+import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
 import scalatags.Text.all.*
-import org.scalajs.dom.HTMLTextAreaElement
-import org.scalajs.dom.HTMLButtonElement
-import scala.util.Success
-import lomination.ddnettools.writers.Writable
 import lomination.ddnettools.RuleFile
-import lomination.ddnettools.parser.MyParser
-import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
-import scala.util.Failure
-import org.scalajs.dom.HTMLSpanElement
 import lomination.ddnettools.build.BuildInfo
+import lomination.ddnettools.parser.MyParser
+import lomination.ddnettools.writers.Writable
+import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main: Unit =
@@ -22,7 +19,7 @@ def main: Unit =
     "DOMContentLoaded",
     { _ =>
       val version = dom.document.getElementById("version").asInstanceOf[HTMLSpanElement]
-      version.textContent = BuildInfo.gitDescription
+      version.textContent = BuildInfo.version
 
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
       val output  = dom.document.getElementById("output").asInstanceOf[HTMLTextAreaElement]
