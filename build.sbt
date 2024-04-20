@@ -9,6 +9,13 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
     name         := "DDNetTools",
     version      := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
+    scalacOptions ++= Seq(
+      "-encoding", "utf8",
+      "-Xfatal-warnings",
+      "-deprecation",
+      "-feature",
+      "-unchecked"
+    ),
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %%% "scala-parser-combinators" % "2.3.0",
       "org.log4s"              %%% "log4s"                    % "1.10.0",
