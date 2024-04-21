@@ -26,10 +26,10 @@ jobs:
         run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Set version and commit changes
         run: |
-          sed -i 's/ version *:=.*/ version := "'${{ inputs.version }}'"/g' build.sbt
+          sed -i 's/ \(version *:=\).*/\1 "'${{ inputs.version }}'"/g' build.sbt
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
-          sed -i 's/ version *:=.*/ version := "'${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT'"/g' build.sbt
+          sed -i 's/ \(version *:=\).*/\1 "'${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT'"/g' build.sbt
           git commit -am "Set version to ${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT"
       - name: Push changes
         run: git push && git push --tags
@@ -41,6 +41,6 @@ jobs:
             github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'build.yml',
+              workflow_id: 'build.yaml',
               ref: '${{ inputs.version }}',
             })
