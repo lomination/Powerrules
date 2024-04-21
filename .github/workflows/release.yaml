@@ -1,0 +1,46 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (example: 1.0.2)"
+        required: true
+        type: string
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print release info
+        run: |
+          echo "::notice::Release v${{ inputs.version }} from branch ${{ github.ref_name }}"
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ inputs.version }}
+          level: patch
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: setup git user
+        run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Set version and commit changes
+        run: |
+          sed -i 's/ version *:=.*/ version := "'${{ inputs.version }}'"/g' build.sbt
+          git commit -am "Set version to ${{ inputs.version }}"
+          git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
+          sed -i 's/ version *:=.*/ version := "'${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT'"/g' build.sbt
+          git commit -am "Set version to ${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT"
+      - name: Push changes
+        run: git push && git push --tags
+      - name: Trigger Workflow to generate release
+        uses: actions/github-script@v6
+        with:
+          # This workflow is not triggered automatically because the tag is pushed with a workflow github_token, so we trigger it manually
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build.yml',
+              ref: '${{ inputs.version }}',
+            })
