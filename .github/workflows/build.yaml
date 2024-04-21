@@ -22,11 +22,11 @@ jobs:
         run: sbt test
       - run: npm run build4gh_pages
       - name: Setup Pages
-        if: github.ref == 'refs/heads/main'
+        if: github.ref_type == 'tag'
         uses: actions/configure-pages@v3
     
       - name: Upload Artifact
-        if: github.ref == 'refs/heads/main'
+        if: github.ref_type == 'tag'
         uses: actions/upload-pages-artifact@v1
         with:
           path: "./dist"
