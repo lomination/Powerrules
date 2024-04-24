@@ -1,8 +1,8 @@
 package lomination.ddnettools.parser
 
-import scala.util.parsing.combinator.*
-import scala.util.matching.Regex
 import scala.util.Try
+import scala.util.matching.Regex
+import scala.util.parsing.combinator.*
 import org.log4s.getLogger
 import lomination.ddnettools.*
 
@@ -88,7 +88,7 @@ class RuleFileParser() extends RegexParsers {
   def stm[A](name: Parser[String], content: Parser[A]) = (" +".r | (wsNl ~ ind(1))) ~ name ~ (" +".r | (wsNl ~ ind(2))) ~> content
 
   def whS: Parser[Seq[Tile]]                 = stm("with", rep1sep(tile, " +".r | (wsNl ~ ind(2))))
-  def ifS: Parser[Seq[Cond]]                 = stm(("if" | "when"), rep1sep(cond, " +& +".r | (" +&".r ~ wsNl ~ ind(2))))
+  def ifS: Parser[Seq[Cond]]                 = stm("if" | "when", rep1sep(cond, " +& +".r | (" +&".r ~ wsNl ~ ind(2))))
   def raS: Parser[Random]                    = stm("random", random)
   def roS: Parser[Seq[Dir]]                  = stm("rotate", rep1sep(dir, spa | (wsNl ~ ind(2))))
   def tyS: Parser[ShadowType]                = stm("type", sdType)

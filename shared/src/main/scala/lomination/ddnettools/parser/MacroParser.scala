@@ -1,10 +1,10 @@
 package lomination.ddnettools.parser
 
 import scala.annotation.nowarn
+import scala.util.Try
+import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
 import scala.util.parsing.input.Reader
-import scala.util.matching.Regex
-import scala.util.Try
 import org.log4s.getLogger
 import lomination.ddnettools.*
 
@@ -59,6 +59,6 @@ class MacroParser() extends RegexParsers {
   }
   def macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent
   def macName: Parser[String]        = "\\w+".r
-  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').toSeq.map( _.trim ) }
+  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').toSeq.map(_.trim) }
   def macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
 }
