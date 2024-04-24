@@ -32,6 +32,31 @@ class RuleFileParser() extends RegexParsers {
 
   def ind(n: Int): Regex = List.fill(n)("  ").mkString.r // indent
 
+  def newShape() = ???
+  // val newMap = map ++ Map('!' -> EmptyMatcher, '.' -> FullMatcher)
+  //   Shape(
+  //     newP.map(
+  //       _.map(c =>
+  //         newMap.get(c) match
+  //           case Some(t: Tile)    => t
+  //           case Some(m: Matcher) => throw IllegalArgumentException("")
+  //           case None             => throw IllegalArgumentException("")
+  //       )
+  //     ),
+  //     (for {
+  //       x <- 0 until oldP(0).length
+  //       y <- 0 until oldP.length
+  //       c = oldP(y)(x)
+  //       if c == '?'
+  //     } yield newMap.get(c) match
+  //       case Some(m: Matcher) => (Pos(x, y) is m)
+  //       case Some(t: Tile)    => (Pos(x, y) is t.toTileMatcher)
+  //       case None             => throw IllegalArgumentException("")
+  //     ),
+  //     ra.getOrElse(Random.always),
+  //     ro.getOrElse(Seq(Dir.p0))
+  //   )
+
   // general
   def rules: Parser[RuleFile]          = ws ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ ws ^^ { case d ~ r => RuleFile(d.getOrElse(DefaultTile(255, Dir.m3)), r) }
   def defaultTile: Parser[DefaultTile] = ":" ~> id ~ dir.? ^^ { case i ~ d => DefaultTile(i, d.getOrElse(Dir.m3)) }
@@ -52,31 +77,7 @@ class RuleFileParser() extends RegexParsers {
   def sdKw: Parser[Unit]     = ("shadow" | "sd") ^^ { _ => () }
   // shape
   type PreShape = Seq[Seq[Char]] ~ Seq[Seq[Char]] ~ Map[Char, Tile | Matcher] ~ Option[Random] ~ Option[Seq[Dir]]
-  def shape: Parser[Shape] = sp ^^ { case newP ~ oldP ~ map ~ ra ~ ro =>
-    val newMap = map ++ Map('!' -> EmptyMatcher, '.' -> FullMatcher)
-    Shape(
-      newP.map(
-        _.map(c =>
-          newMap.get(c) match
-            case Some(t: Tile)    => t
-            case Some(m: Matcher) => throw IllegalArgumentException("")
-            case None             => throw IllegalArgumentException("")
-        )
-      ),
-      (for {
-        x <- 0 until oldP(0).length
-        y <- 0 until oldP.length
-        c = oldP(y)(x)
-        if c == '?'
-      } yield newMap.get(c) match
-        case Some(m: Matcher) => (Pos(x, y) is m)
-        case Some(t: Tile)    => (Pos(x, y) is t.toTileMatcher)
-        case None             => throw IllegalArgumentException("")
-      ),
-      ra.getOrElse(Random.always),
-      ro.getOrElse(Seq(Dir.p0))
-    )
-  }
+  def shape: Parser[Shape] = sp ^^ { case newP ~ oldP ~ map ~ ra ~ ro => newShape() }
   def sp: Parser[PreShape] = spKw ~> paS ~ paS ~ usS ~ raS.? ~ roS.?
   def spKw: Parser[Unit]   = ("shape" | "sp") ^^ { _ => () }
 
@@ -104,7 +105,7 @@ class RuleFileParser() extends RegexParsers {
   def emptyM: Parser[EmptyMatcher.type] = ("empty" | "is +empty".r | "isnot +full".r) ^^ { _ => EmptyMatcher }
   def genericM: Parser[GenericMatcher]  = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
   def op: Parser[Operator]              = "isnot|is".r ^^ { o => if (o == "is") Operator.Equal else Operator.NotEqual }
-  def tileM: Parser[TileMatcher]        = id ~ (dir | anyDir).? ^^ { case i ~ d => TileMatcher(i, d.getOrElse(AnyDir)) }
+  def tileM: Parser[TileMatcher]        = (id | "outside") ~ (dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id match { case id: Int => id; case _: String => -1 }, dir.getOrElse(AnyDir)) }
   def anyDir: Parser[AnyDir.type]       = "*" ^^ { _ => AnyDir }
   // tile
   def tile: Parser[Tile] = id ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
