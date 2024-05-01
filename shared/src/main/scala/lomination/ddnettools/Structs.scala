@@ -46,12 +46,12 @@ object EmptyMatcher extends Matcher:
   def not: FullMatcher.type               = FullMatcher
   def rotate(dir: Dir): EmptyMatcher.type = this
 
-case class GenericMatcher(op: Operator, tms: TileMatcher*) extends Matcher:
-  def this(tms: TileMatcher*) = this(Operator.Equal, tms*)
-  def not: Matcher                     = GenericMatcher(Operator.fromOrdinal((op.ordinal + 1) % 2), tms*)
+case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
+  def this(tms: TileMatcher*) = this(Op.Is, tms*)
+  def not: Matcher                     = GenericMatcher(Op.fromOrdinal((op.ordinal + 1) % 2), tms*)
   def rotate(dir: Dir): GenericMatcher = GenericMatcher(op, tms.map(_.rotate(dir))*)
 
-case class TileMatcher(id: Int, dir: Dir | AnyDir.type = Dir.p0):
+case class TileMatcher(id: Int, dir: Dir | AnyDir.type = AnyDir):
   def rotate(dir: Dir): TileMatcher = this.dir match
     case AnyDir => TileMatcher(id, AnyDir)
     case d: Dir => TileMatcher(id, dir rotate d)
@@ -107,11 +107,11 @@ case class Pos(x: Int, y: Int):
   def is(matcher: Matcher): Cond =
     Cond(this, matcher)
   def is(tm: TileMatcher): Cond =
-    Cond(this, GenericMatcher(Operator.Equal, tm))
+    Cond(this, GenericMatcher(Op.Is, tm))
   def isnot(matcher: Matcher): Cond =
     Cond(this, matcher.not)
   def isnot(tm: TileMatcher): Cond =
-    Cond(this, GenericMatcher(Operator.NotEqual, tm))
+    Cond(this, GenericMatcher(Op.Isnot, tm))
 
 object Pos:
   val zero: Pos = Pos(0, 0)
@@ -162,4 +162,4 @@ object ShadowType:
 // enums
 enum Sign     { case +, -                  }
 enum Times    { case Zero, One, Two, Three }
-enum Operator { case Equal, NotEqual       }
+enum Op { case Is, Isnot       }

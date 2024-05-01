@@ -56,7 +56,7 @@ class RuleFileParser() extends RegexParsers {
         oldP.map(
           _.map(c =>
             newMap.get(c) match
-              case Some(t: Tile)    => Some(GenericMatcher(Operator.Equal, t.toTileMatcher))
+              case Some(t: Tile)    => Some(GenericMatcher(Op.Is, t.toTileMatcher))
               case Some(m: Matcher) => Some(m)
               case None             => None
           )
@@ -115,7 +115,7 @@ class RuleFileParser() extends RegexParsers {
   def fullM: Parser[FullMatcher.type]   = ("full" | "is +full".r | "isnot +empty".r) ^^ { _ => FullMatcher }
   def emptyM: Parser[EmptyMatcher.type] = ("empty" | "is +empty".r | "isnot +full".r) ^^ { _ => EmptyMatcher }
   def genericM: Parser[GenericMatcher]  = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
-  def op: Parser[Operator]              = "isnot|is".r ^^ { o => if (o == "is") Operator.Equal else Operator.NotEqual }
+  def op: Parser[Op]              = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot }
   def tileM: Parser[TileMatcher]        = (id | "outside") ~ (dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id match { case id: Int => id; case _: String => -1 }, dir.getOrElse(AnyDir)) }
   def anyDir: Parser[AnyDir.type]       = "*" ^^ { _ => AnyDir }
   // tile

@@ -20,7 +20,7 @@ shape
     d -> 51
     1 -> is 1*
   tile 1+0
-  random 1%
+  random 10%
   rotate +0-0
 
 /*
