@@ -1,7 +1,6 @@
 package lomination.ddnettools.writers
 
 import lomination.ddnettools.*
-import lomination.ddnettools.Pos.aroundExept
 import lomination.ddnettools.build.BuildInfo
 
 object BasicWriter {
@@ -65,27 +64,28 @@ object BasicWriter {
         else
           val tLen = r.tiles.length
           val rLen = r.rotations.length
-          val tmp = s"Index ${defTile.tile.write}\n" +
+          val tmp = s"Index ${defTile.toTile.write}\n" +
             "NoDefaultRule\n" +
             r.conds.map(_.write).mkString +
             r.random.write +
             "NewRun\n"
-          val core = (
-            for {
-              i <- 0 until tLen
-              j <- 0 until rLen
-            } yield
-              val chance = tLen * rLen - i * rLen - j
-              s"Index ${r.tiles(i).rotate(r.rotations(j)).write}\n" +
-                s"Pos 0 0 INDEX ${defTile.tm.write}\n" +
-                (if (chance > 1) s"Random $chance\nNewRun\n" else "")
-          ).mkString + "NewRun\n"
+          val core =
+            (
+              for {
+                i <- 0 until tLen
+                j <- 0 until rLen
+                chance = tLen * rLen - i * rLen - j
+              } yield s"Index ${r.tiles(i).rotate(r.rotations(j)).write}\n" +
+                s"Pos 0 0 INDEX ${defTile.toTm.write}\n" +
+                (if (chance > 1) s"Random $chance\n" else "") +
+                "NewRun\n"
+            ).mkString
           tmp + core
 
   given Writable[Shadow] with
     extension (sd: Shadow)
       def write(using defTile: DefaultTile): String =
-        val tm = defTile.tm
+        val tm = defTile.toTm
         val defConds =
           import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
           import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
@@ -122,36 +122,61 @@ object BasicWriter {
           ++ (if (sd.shadowType.extCorner) extConds else Seq())
           ++ (if (sd.shadowType.intCorner) intConds else Seq())
 
-        s"Index ${defTile.tile.write}\nNoDefaultRule\n"
-          + sd.conds.map(_.write).mkString + "NewRun\n"
-          + (
+        s"Index ${defTile.toTile.write}\nNoDefaultRule\n" +
+          sd.conds.map(_.write).mkString + "NewRun\n" +
+          (
             for {
               (tile, (dirs, conds)) <- (sd.tiles zip allConds)
               d                     <- dirs
-            } yield s"Index ${tile.rotate(d).write}\nNoDefaultRule\n"
-              + conds.map(_.rotate(d).write).mkString
+            } yield s"Index ${tile.rotate(d).write}\nNoDefaultRule\n" +
+              conds.map(_.rotate(d).write).mkString
           ).mkString + "NewRun\n"
 
   given Writable[Shape] with
     extension (sp: Shape)
-      def write(using defTile: DefaultTile): String = ???
-      // val tmp = s"Index ${defTile.tile.write}\nNoDefaultRule\n" +
-      //   (
-      //     for {
-      //       x <- 0 until sp.oldPattern.xSize
-      //       y <- 0 until sp.oldPattern.ySize
-      //     } yield (Pos(x, y) is sp.oldPattern(x, y)).write
-      //   ).mkString +
-      //   "NewRun\n"
-      // val noOverlaps = "Index 0\n" + (
-      //   for {
-      //     x <- 1 until sp.oldPattern.xSize
-      //     y <- 1 until sp.oldPattern.ySize
-      //   } yield (Pos(0, 0) is defTile.tm).write +
-      //     (Pos(-x, -y) is defTile.tm).write
-      // )
-      // val core = ???
-      // tmp + noOverlaps + core
+      def write(using defTile: DefaultTile): String =
+        val tmp = s"Index ${defTile.toTile.rotate(sp.rotations.last).write}\nNoDefaultRule\n" +
+          (
+            for {
+              x <- 0 until sp.oldPattern.sizeX
+              y <- 0 until sp.oldPattern.sizeY
+              t <- sp.oldPattern(x, y)
+            } yield (Pos(x, y) is t).write
+          ).mkString +
+          sp.random.write +
+          "NewRun\n"
+        val noOverlaps =
+          (
+            for {
+              x <- (-sp.oldPattern.sizeX + 1) until sp.oldPattern.sizeX
+              y <- (-sp.oldPattern.sizeY + 1) until sp.oldPattern.sizeY
+              if (!(x >= 0 && y >= 0))
+            } yield s"Index ${sp.defTile.write}\n" +
+              (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
+              (Pos(-x, -y) is defTile.toTm.rotate(sp.rotations.last)).write +
+              "NewRun\n"
+          ).mkString
+        val newTmp =
+          (
+            for {
+              i <- 0 until sp.rotations.length - 1
+            } yield s"Index ${defTile.toTile.rotate(sp.rotations(i)).write}\n" +
+              (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
+              s"Random ${sp.rotations.length - i}\n" +
+              "NewRun\n"
+          ).mkString
+        val core =
+          (
+            for {
+              dir <- sp.rotations
+              pattern = sp.newPattern.rotate(dir)
+              x <- 0 until pattern.sizeX
+              y <- 0 until pattern.sizeY
+              t <- pattern(x, y)
+            } yield s"Index ${t.rotate(dir).write}\n" +
+              (Pos(-x, -y) is defTile.toTm.rotate(dir)).write
+          ).mkString
+        tmp + noOverlaps + (if (sp.rotations.sizeIs > 1) newTmp else "") + core
 
   given Writable[Comment] with
     extension (c: Comment)

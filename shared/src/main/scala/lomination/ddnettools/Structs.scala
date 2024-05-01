@@ -1,5 +1,7 @@
 package lomination.ddnettools
 
+import scala.annotation.nowarn
+
 // general
 case class RuleFile(defTile: DefaultTile, rules: Seq[Rule])
 
@@ -22,8 +24,9 @@ case class Shadow(
 ) extends Command
 
 case class Shape(
-    newPattern: Seq[Seq[Tile]],
-    oldPattern: Seq[Cond],
+    newPattern: Grid[Option[Tile]],
+    oldPattern: Grid[Option[Matcher]],
+    defTile: Tile,
     random: Random = Random.always,
     rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
@@ -54,14 +57,32 @@ case class TileMatcher(id: Int, dir: Dir | AnyDir.type = Dir.p0):
     case d: Dir => TileMatcher(id, dir rotate d)
 
 // others
+case class Grid[A](rows: Seq[Seq[A]]):
+  def apply(x: Int, y: Int) = rows(y)(x)
+  def toSeq: Seq[Seq[A]]    = rows
+  def sizeX: Int            = rows(0).length
+  def sizeY: Int            = rows.length
+  def size: (Int, Int)      = (sizeX, sizeY)
+  @nowarn
+  def rotate(dir: Dir): Grid[A] =
+    dir match
+      case Dir.p0 => this
+      case Dir.p1 => Grid(rows.transpose.map(_.reverse))
+      case Dir.p2 => Grid(rows.map(_.reverse).reverse)
+      case Dir.p3 => Grid(rows.map(_.reverse).transpose)
+      case Dir.m0 => Grid(rows.map(_.reverse))
+      case Dir.m1 => Grid(rows.transpose)
+      case Dir.m2 => Grid(rows.reverse)
+      case Dir.m3 => Grid(rows.transpose.map(_.reverse).reverse)
+
 case class Tile(id: Int, dir: Dir = Dir.p0):
   def this(id: Int) = this(id, Dir.p0)
   def rotate(d: Dir): Tile       = Tile(id, d rotate dir)
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
 case class DefaultTile(id: Int, dir: Dir = Dir.p0):
-  val tile: Tile      = Tile(id, dir)
-  val tm: TileMatcher = TileMatcher(id, dir)
+  def toTile: Tile      = Tile(id, dir)
+  def toTm: TileMatcher = TileMatcher(id, dir)
 
 case class Cond(pos: Pos, matcher: Matcher):
   /** Does not rotate the matcher! */
