@@ -28,14 +28,9 @@ object BasicWriter {
   given Writable[Cond] with
     extension (c: Cond)
       def write(using DefaultTile): String =
-        s"Pos ${c.pos.write} ${c.matcher.write}\n"
-
-  given Writable[Matcher] with
-    extension (m: Matcher)
-      def write(using DefaultTile): String = m match
-        case FullMatcher              => "FULL"
-        case EmptyMatcher             => "EMPTY"
-        case GenericMatcher(op, tms*) => s"${op.write} ${tms.map(_.write).mkString(" OR ")}"
+        c match
+          case Cond(pos, FullMatcher(op))          => s"Pos ${pos.write} ${if (op == Op.Is) "FULL" else "EMPTY"}\n"
+          case Cond(pos, GenericMatcher(op, tms*)) => s"Pos ${pos.write} ${op.write} ${tms.map(_.write).mkString(" OR ")}\n"
 
   given Writable[TileMatcher] with
     extension (tm: TileMatcher)

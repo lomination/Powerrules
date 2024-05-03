@@ -56,10 +56,14 @@ class ParseReplace extends FunSuite {
 
 class ParseShadow extends FunSuite {
   test("shadow") {
-    val input    = "shadow with 1 14+1 75+1 24+1 76+2 52 if 0 0 is full"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.shadow, input)
-    val expected = Shadow(Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)), Seq(Pos(0, 0) is FullMatcher), ShadowType.default)
+    val input  = "shadow with 1 14+1 75+1 24+1 76+2 52 if 0 0 is full"
+    val parser = RuleFileParser()
+    val result = parser.parse(parser.shadow, input)
+    val expected = Shadow(
+      Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)),
+      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      ShadowType.default
+    )
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
@@ -87,7 +91,7 @@ class ParseShadow extends FunSuite {
         Tile(0x60, Dir.p1),
         Tile(0xb4)
       ),
-      (Pos(0, 0) is FullMatcher) & (Pos(0, -1) is EmptyMatcher),
+      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is FullMatcher(Op.Isnot)),
       ShadowType(false, true)
     )
     assert(result.successful, s"PARSING ERROR: $result")
@@ -115,7 +119,7 @@ class ParseShape extends FunSuite {
     val result = parser.parse(parser.shape, input)
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
-      Grid(Seq(Seq(Some(FullMatcher), Some(FullMatcher)), Seq(Some(FullMatcher), Some(FullMatcher)))),
+      Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
       Tile(5)
     )
     assert(result.successful, s"PARSING ERROR: $result")

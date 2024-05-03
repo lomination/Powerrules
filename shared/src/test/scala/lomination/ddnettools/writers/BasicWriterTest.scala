@@ -7,13 +7,13 @@ import lomination.ddnettools.writers.BasicWriter.{given Writable[?]}
 class WriteReplace extends FunSuite {
   given DefaultTile = DefaultTile(255)
   test("basic replace") {
-    val struct   = Replace(Seq(Tile(0x12)), Seq(Pos(0, 0) is FullMatcher))
+    val struct   = Replace(Seq(Tile(0x12)), Seq(Pos(0, 0) is FullMatcher(Op.Is)))
     val result   = struct.write
     val expected = "Index 18 NONE\nNoDefaultRule\nPos 0 0 FULL\nNewRun\n"
     assert(clue(result) == clue(expected))
   }
   test("replace with random") {
-    val struct   = Replace(Seq(Tile(0xa)), Seq(Pos(0, 0) is FullMatcher), random = Random(75))
+    val struct   = Replace(Seq(Tile(0xa)), Seq(Pos(0, 0) is FullMatcher(Op.Is)), random = Random(75))
     val result   = struct.write
     val expected = "Index 10 NONE\nNoDefaultRule\nPos 0 0 FULL\nRandom 75%\nNewRun\n"
     assert(clue(result) == clue(expected))

@@ -25,9 +25,9 @@ class RuleFileParser() extends RegexParsers {
         scala.util.Failure(exception)
 
   // regex
-  lazy val wsNl: Regex        = "[\n ]*\n".r
-  lazy val sdTypeR: Regex     = "([+-])e([+-])i".r
-  def ind(n: Int): Regex = List.fill(n)("  ").mkString.r
+  lazy val wsNl: Regex    = "[\n ]*\n".r
+  lazy val sdTypeR: Regex = "([+-])e([+-])i".r
+  def ind(n: Int): Regex  = List.fill(n)("  ").mkString.r
 
   // general
   lazy val rules: P[RuleFile]          = wsNl.? ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(DefaultTile(255, Dir.m3)), r) }
@@ -77,7 +77,7 @@ class RuleFileParser() extends RegexParsers {
   type SpReqStm = (ApplyStm, OnStm, UsingStm, NeutralStm)
   type SpOptStm = (Option[RandomStm], Option[RotateStm])
   lazy val shape: P[Shape] = ("shape" | "sp") ~> spReqStm ~ spOptStm ^^ { case (applyStm, onStm, usingStm, neutralStm) ~ (randomStm, rotateStm) =>
-    val newMap = (usingStm.map ++ Map('!' -> EmptyMatcher, '.' -> FullMatcher)).toMap
+    val newMap = (usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is))).toMap
     Shape(
       applyStm.chars.map(c =>
         newMap.get(c) match
@@ -128,9 +128,8 @@ class RuleFileParser() extends RegexParsers {
   // others
   lazy val cond: P[Cond]                      = (pos <~ " +".r) ~ matcher ^^ { case p ~ m => Cond(p, m) }
   lazy val pos: P[Pos]                        = ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
-  lazy val matcher: P[Matcher]                = fullM | emptyM | genericM
-  lazy val fullM: P[FullMatcher.type]         = ("full" | "is +full".r | "isnot +empty".r) ^^ { _ => FullMatcher }
-  lazy val emptyM: P[EmptyMatcher.type]       = ("empty" | "is +empty".r | "isnot +full".r) ^^ { _ => EmptyMatcher }
+  lazy val matcher: P[Matcher]                = fullM | genericM
+  lazy val fullM: P[FullMatcher]              = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w.startsWith("f")) o else o.not) }
   lazy val genericM: P[GenericMatcher]        = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
   lazy val op: P[Op]                          = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot }
   lazy val tileM: P[TileMatcher]              = (numId | outsideId) ~ (dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }

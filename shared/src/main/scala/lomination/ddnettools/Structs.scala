@@ -1,7 +1,5 @@
 package lomination.ddnettools
 
-import scala.annotation.nowarn
-
 // general
 case class RuleFile(defTile: DefaultTile, rules: Seq[Rule])
 
@@ -38,17 +36,13 @@ sealed trait Matcher:
   def not: Matcher
   def rotate(dir: Dir): Matcher
 
-object FullMatcher extends Matcher:
-  def not: EmptyMatcher.type             = EmptyMatcher
-  def rotate(dir: Dir): FullMatcher.type = this
-
-object EmptyMatcher extends Matcher:
-  def not: FullMatcher.type               = FullMatcher
-  def rotate(dir: Dir): EmptyMatcher.type = this
+case class FullMatcher(op: Op) extends Matcher:
+  def not: FullMatcher              = FullMatcher(op.not)
+  def rotate(dir: Dir): FullMatcher = this
 
 case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
   def this(tms: TileMatcher*) = this(Op.Is, tms*)
-  def not: Matcher                     = GenericMatcher(Op.fromOrdinal((op.ordinal + 1) % 2), tms*)
+  def not: GenericMatcher              = GenericMatcher(op.not, tms*)
   def rotate(dir: Dir): GenericMatcher = GenericMatcher(op, tms.map(_.rotate(dir))*)
 
 case class TileMatcher(id: Int, dir: Dir | AnyDir.type = AnyDir):
@@ -91,11 +85,12 @@ case class Cond(pos: Pos, matcher: Matcher):
   def &(cond: Cond): Seq[Cond]       = Seq(this, cond)
   def &(conds: Seq[Cond]): Seq[Cond] = this +: conds
 
-extension (thiss: Seq[Cond])
-  def &(cond: Cond): Seq[Cond]       = thiss :+ cond
-  def &(conds: Seq[Cond]): Seq[Cond] = thiss ++ conds
+extension (seq: Seq[Cond])
+  def &(cond: Cond): Seq[Cond]       = seq :+ cond
+  def &(conds: Seq[Cond]): Seq[Cond] = seq ++ conds
 
 case class Pos(x: Int, y: Int):
+  def +(pos: Pos): Pos = Pos(x + pos.x, y + pos.y)
   def rotate(dir: Dir): Pos = dir match
     case Dir(Sign.+, n) => this.clockwise(n.ordinal)
     case Dir(Sign.-, n) => Pos(-x, y).anticlockwise(n.ordinal)
@@ -105,14 +100,12 @@ case class Pos(x: Int, y: Int):
   def anticlockwise(n: Int): Pos =
     if (n <= 0) this
     else Pos(y, -x).anticlockwise(n - 1)
-  def is(matcher: Matcher): Cond =
-    Cond(this, matcher)
-  def is(tm: TileMatcher): Cond =
-    Cond(this, GenericMatcher(Op.Is, tm))
-  def isnot(matcher: Matcher): Cond =
-    Cond(this, matcher.not)
-  def isnot(tm: TileMatcher): Cond =
-    Cond(this, GenericMatcher(Op.Isnot, tm))
+  def is(matcher: Matcher): Cond    = Cond(this, matcher)
+  def is(tm: TileMatcher): Cond     = Cond(this, GenericMatcher(Op.Is, tm))
+  def isnot(matcher: Matcher): Cond = Cond(this, matcher.not)
+  def isnot(tm: TileMatcher): Cond  = Cond(this, GenericMatcher(Op.Isnot, tm))
+  def adjacent: Seq[Pos]            = Pos.adjacent.map(this + _)
+  def around: Seq[Pos]              = Pos.around.map(this + _)
 
 object Pos:
   val zero: Pos = Pos(0, 0)
@@ -163,4 +156,6 @@ object ShadowType:
 // enums
 enum Sign  { case +, -                  }
 enum Times { case Zero, One, Two, Three }
-enum Op    { case Is, Isnot             }
+enum Op:
+  case Is, Isnot
+  def not: Op = if (this == Op.Is) Op.Isnot else Op.Is
