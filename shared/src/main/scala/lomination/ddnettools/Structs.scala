@@ -24,9 +24,9 @@ case class Shadow(
 ) extends Command
 
 case class Shape(
-    newPattern: Grid[Option[Tile]],
-    oldPattern: Grid[Option[Matcher]],
-    defTile: Tile,
+    applyPat: Grid[Option[Tile]],
+    onPat: Grid[Option[Matcher]],
+    neutral: Tile,
     random: Random = Random.always,
     rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
@@ -63,17 +63,18 @@ case class Grid[A](rows: Seq[Seq[A]]):
   def sizeX: Int            = rows(0).length
   def sizeY: Int            = rows.length
   def size: (Int, Int)      = (sizeX, sizeY)
-  @nowarn
   def rotate(dir: Dir): Grid[A] =
     dir match
-      case Dir.p0 => this
-      case Dir.p1 => Grid(rows.transpose.map(_.reverse))
-      case Dir.p2 => Grid(rows.map(_.reverse).reverse)
-      case Dir.p3 => Grid(rows.map(_.reverse).transpose)
-      case Dir.m0 => Grid(rows.map(_.reverse))
-      case Dir.m1 => Grid(rows.transpose)
-      case Dir.m2 => Grid(rows.reverse)
-      case Dir.m3 => Grid(rows.transpose.map(_.reverse).reverse)
+      case Dir(Sign.+, Times.Zero)  => this
+      case Dir(Sign.+, Times.One)   => Grid(rows.transpose.map(_.reverse))
+      case Dir(Sign.+, Times.Two)   => Grid(rows.map(_.reverse).reverse)
+      case Dir(Sign.+, Times.Three) => Grid(rows.map(_.reverse).transpose)
+      case Dir(Sign.-, Times.Zero)  => Grid(rows.map(_.reverse))
+      case Dir(Sign.-, Times.One)   => Grid(rows.transpose)
+      case Dir(Sign.-, Times.Two)   => Grid(rows.reverse)
+      case Dir(Sign.-, Times.Three) => Grid(rows.transpose.map(_.reverse).reverse)
+  def map[B](f: A => B): Grid[B] =
+    Grid(rows.map(_.map(f)))
 
 case class Tile(id: Int, dir: Dir = Dir.p0):
   def this(id: Int) = this(id, Dir.p0)
@@ -160,6 +161,6 @@ object ShadowType:
   val default = ShadowType(false, false)
 
 // enums
-enum Sign     { case +, -                  }
-enum Times    { case Zero, One, Two, Three }
-enum Op { case Is, Isnot       }
+enum Sign  { case +, -                  }
+enum Times { case Zero, One, Two, Three }
+enum Op    { case Is, Isnot             }

@@ -85,7 +85,7 @@ object BasicWriter {
   given Writable[Shadow] with
     extension (sd: Shadow)
       def write(using defTile: DefaultTile): String =
-        val tm = defTile.toTm
+        val tm  = defTile.toTm
         val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1))
         val defConds =
           import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
@@ -140,25 +140,25 @@ object BasicWriter {
       def write(using defTile: DefaultTile): String =
         val tmp =
           s"Index ${defTile.toTile.rotate(sp.rotations.last).write}\n" +
-          "NoDefaultRule\n" +
-          (Pos(-1, -1) isnot TileMatcher(-1)).write +
-          (Pos(sp.newPattern.sizeX, sp.newPattern.sizeY) isnot TileMatcher(-1)).write +
-          (
-            for {
-              x <- 0 until sp.oldPattern.sizeX
-              y <- 0 until sp.oldPattern.sizeY
-              t <- sp.oldPattern(x, y)
-            } yield (Pos(x, y) is t).write
-          ).mkString +
-          sp.random.write +
-          "NewRun\n"
+            "NoDefaultRule\n" +
+            (Pos(-1, -1) isnot TileMatcher(-1)).write +
+            (Pos(sp.applyPat.sizeX, sp.applyPat.sizeY) isnot TileMatcher(-1)).write +
+            (
+              for {
+                x <- 0 until sp.onPat.sizeX
+                y <- 0 until sp.onPat.sizeY
+                t <- sp.onPat(x, y)
+              } yield (Pos(x, y) is t).write
+            ).mkString +
+            sp.random.write +
+            "NewRun\n"
         val noOverlaps =
           (
             for {
-              x <- (-sp.oldPattern.sizeX + 1) until sp.oldPattern.sizeX
-              y <- (-sp.oldPattern.sizeY + 1) until sp.oldPattern.sizeY
+              x <- (-sp.onPat.sizeX + 1) until sp.onPat.sizeX
+              y <- (-sp.onPat.sizeY + 1) until sp.onPat.sizeY
               if (!(x >= 0 && y >= 0))
-            } yield s"Index ${sp.defTile.write}\n" +
+            } yield s"Index ${sp.neutral.write}\n" +
               (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
               (Pos(-x, -y) is defTile.toTm.rotate(sp.rotations.last)).write +
               "NewRun\n"
@@ -176,7 +176,7 @@ object BasicWriter {
           (
             for {
               dir <- sp.rotations
-              pattern = sp.newPattern.rotate(dir)
+              pattern = sp.applyPat.rotate(dir)
               x <- 0 until pattern.sizeX
               y <- 0 until pattern.sizeY
               t <- pattern(x, y)

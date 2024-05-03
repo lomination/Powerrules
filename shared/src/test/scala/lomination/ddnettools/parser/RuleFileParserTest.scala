@@ -98,10 +98,10 @@ class ParseShadow extends FunSuite {
 class ParseShape extends FunSuite {
   test("shape") {
     val input = "shape\n" +
-      "  pattern\n" +
+      "  apply\n" +
       "    1 2\n" +
       "    3 4\n" +
-      "  pattern\n" +
+      "  on\n" +
       "    d d\n" +
       "    d d\n" +
       "  using\n" +
@@ -110,7 +110,7 @@ class ParseShape extends FunSuite {
       "    3 -> 3+0\n" +
       "    4 -> 4+0\n" +
       "    d -> is full\n" +
-      "  tile 5+0"
+      "  neutral 5+0"
     val parser = RuleFileParser()
     val result = parser.parse(parser.shape, input)
     val expected = Shape(
@@ -119,9 +119,9 @@ class ParseShape extends FunSuite {
       Tile(5)
     )
     assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get.newPattern) == clue(expected.newPattern))
-    assert(clue(result.get.oldPattern) == clue(expected.oldPattern))
-    assert(clue(result.get.defTile) == clue(expected.defTile))
+    assert(clue(result.get.applyPat) == clue(expected.applyPat))
+    assert(clue(result.get.onPat) == clue(expected.onPat))
+    assert(clue(result.get.neutral) == clue(expected.neutral))
   }
 }
 
