@@ -40,6 +40,10 @@ case class FullMatcher(op: Op) extends Matcher:
   def not: FullMatcher              = FullMatcher(op.not)
   def rotate(dir: Dir): FullMatcher = this
 
+object NotEdgeMatcher extends Matcher:
+  def not: NotEdgeMatcher.type = ???
+  def rotate(dir: Dir): NotEdgeMatcher.type = this
+
 case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
   def this(tms: TileMatcher*) = this(Op.Is, tms*)
   def not: GenericMatcher              = GenericMatcher(op.not, tms*)

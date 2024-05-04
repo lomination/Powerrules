@@ -128,8 +128,9 @@ class RuleFileParser() extends RegexParsers {
   // others
   lazy val cond: P[Cond]                      = (pos <~ " +".r) ~ matcher ^^ { case p ~ m => Cond(p, m) }
   lazy val pos: P[Pos]                        = ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
-  lazy val matcher: P[Matcher]                = fullM | genericM
+  lazy val matcher: P[Matcher]                = fullM | notEdgeM | genericM
   lazy val fullM: P[FullMatcher]              = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w.startsWith("f")) o else o.not) }
+  lazy val notEdgeM: P[NotEdgeMatcher.type]   = "isnot +edge".r ^^ { _ => NotEdgeMatcher }
   lazy val genericM: P[GenericMatcher]        = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
   lazy val op: P[Op]                          = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot }
   lazy val tileM: P[TileMatcher]              = (numId | outsideId) ~ (dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }

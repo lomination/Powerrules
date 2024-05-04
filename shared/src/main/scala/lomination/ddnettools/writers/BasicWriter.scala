@@ -30,6 +30,7 @@ object BasicWriter {
       def write(using DefaultTile): String =
         c match
           case Cond(pos, FullMatcher(op))          => s"Pos ${pos.write} ${if (op == Op.Is) "FULL" else "EMPTY"}\n"
+          case Cond(pos, NotEdgeMatcher)           => pos.adjacent.map(p => s"Pos ${p.write} NOTINDEX -1\n").mkString
           case Cond(pos, GenericMatcher(op, tms*)) => s"Pos ${pos.write} ${op.write} ${tms.map(_.write).mkString(" OR ")}\n"
 
   given Writable[TileMatcher] with
