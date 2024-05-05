@@ -74,9 +74,9 @@ class RuleFileParser() extends RegexParsers {
     )
   }
   // shape
-  type SpReqStm = (ApplyStm, OnStm, UsingStm, NeutralStm)
-  type SpOptStm = (Option[RandomStm], Option[RotateStm])
-  lazy val shape: P[Shape] = ("shape" | "sp") ~> spReqStm ~ spOptStm ^^ { case (applyStm, onStm, usingStm, neutralStm) ~ (randomStm, rotateStm) =>
+  type SpReqStm = (ApplyStm, OnStm, UsingStm, NeutralStm, RandomStm)
+  type SpOptStm = (Option[RotateStm])
+  lazy val shape: P[Shape] = ("shape" | "sp") ~> spReqStm ~ spOptStm ^^ { case (applyStm, onStm, usingStm, neutralStm, randomStm) ~ (rotateStm) =>
     val newMap = (usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is))).toMap
     Shape(
       applyStm.chars.map(c =>
@@ -92,24 +92,20 @@ class RuleFileParser() extends RegexParsers {
           case None             => None
       ),
       neutralStm.tile,
-      randomStm.getOrElse(RandomStm(Random.always)).chance,
+      randomStm.chance,
       rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
     )
   }
-  lazy val spReqStm: P[SpReqStm] = (applyStm | onStm | usingStm | neutralStm).+ ^^ { seq =>
+  lazy val spReqStm: P[SpReqStm] = (applyStm | onStm | usingStm | neutralStm | randStm).+ ^^ { seq =>
     (
       seq.collectFirst { case stm: ApplyStm => stm }.get,
       seq.collectFirst { case stm: OnStm => stm }.get,
       seq.collectFirst { case stm: UsingStm => stm }.get,
-      seq.collectFirst { case stm: NeutralStm => stm }.get
+      seq.collectFirst { case stm: NeutralStm => stm }.get,
+      seq.collectFirst { case stm: RandomStm => stm }.get
     )
   }
-  lazy val spOptStm: P[SpOptStm] = (randStm | rotStm).* ^^ { seq =>
-    (
-      seq.collectFirst { case stm: RandomStm => stm },
-      seq.collectFirst { case stm: RotateStm => stm }
-    )
-  }
+  lazy val spOptStm: P[SpOptStm] = rotStm.?
   // comment
   lazy val comment: P[Comment] = "#[^\n]*".r ^^ { case str => Comment(str) }
 
