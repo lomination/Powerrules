@@ -114,13 +114,15 @@ class ParseShape extends FunSuite {
       "    3 -> 3+0\n" +
       "    4 -> 4+0\n" +
       "    d -> is full\n" +
-      "  neutral 5+0"
+      "  neutral 5+0\n" +
+      "  random 50%"
     val parser = RuleFileParser()
     val result = parser.parse(parser.shape, input)
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
       Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
-      Tile(5)
+      Tile(5),
+      Random(50f)
     )
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get.applyPat) == clue(expected.applyPat))
