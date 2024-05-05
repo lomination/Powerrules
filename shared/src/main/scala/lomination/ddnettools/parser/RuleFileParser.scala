@@ -124,20 +124,25 @@ class RuleFileParser() extends RegexParsers {
   // others
   lazy val cond: P[Cond]                      = (pos <~ " +".r) ~ matcher ^^ { case p ~ m => Cond(p, m) }
   lazy val pos: P[Pos]                        = ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
-  lazy val matcher: P[Matcher]                = fullM | notEdgeM | genericM
-  lazy val fullM: P[FullMatcher]              = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w.startsWith("f")) o else o.not) }
+  lazy val matcher: P[Matcher]                = fullM | notEdgeM | genericM | edgeMErr | error("matcher")
+  lazy val fullM: P[FullMatcher]              = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) }
   lazy val notEdgeM: P[NotEdgeMatcher.type]   = "isnot +edge".r ^^ { _ => NotEdgeMatcher }
   lazy val genericM: P[GenericMatcher]        = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
   lazy val op: P[Op]                          = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot }
-  lazy val tileM: P[TileMatcher]              = (numId | outsideId) ~ (dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
+  lazy val tileM: P[TileMatcher]              = tileId ~ (dir | anyDir | error("tile direction")).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
   lazy val anyDir: P[AnyDir.type]             = "*" ^^ { _ => AnyDir }
-  lazy val tile: P[Tile]                      = (numId | outsideId) ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
+  lazy val tile: P[Tile]                      = tileId ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
+  lazy val tileId: P[Int]                     = numId | outsideId | error("tile id")
   lazy val numId: P[Int]                      = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
-  lazy val outsideId: P[Int]                  = "outside" ^^ { _ => -1 }
+  lazy val outsideId: P[Int]                  = ("outside" | "-1") ^^ { _ => -1 }
   lazy val dir: P[Dir]                        = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
   lazy val random: P[Random]                  = "\\d+(?:\\.\\d*)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
   lazy val charGrid: P[Grid[Char]]            = rep1sep(rep1sep(char, " *".r), wsNl ~ ind(2)) ^^ { Grid(_) }
   lazy val char: P[Char]                      = "[\\S]".r ^^ { _.charAt(0) }
   lazy val mapLine: P[(Char, Tile | Matcher)] = ("[\\S]".r <~ " +-> +".r) ~ (tile | matcher) ^^ { case c ~ mt => c.charAt(0) -> mt }
   lazy val sdType: P[ShadowType]              = "[+-]e[+-]i".r ^^ { case sdTypeR(e, i) => ShadowType(if (e == "+") true else false, if (i == "+") true else false) }
+
+  // errors
+  def error(parsed: String): P[Nothing] = "[^\n]+".r <~ "[\\S\\s]*" ^^ { firstLn => throw IllegalArgumentException(s"The given $parsed `$firstLn` is not valid") }
+  lazy val edgeMErr: P[Matcher]   = "is +edge".r ^^ { _ => throw IllegalArgumentException("The edge matcher cannot be positive due to language restriction. Please do not use `is edge`") }
 }

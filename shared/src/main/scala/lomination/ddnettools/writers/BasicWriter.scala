@@ -87,33 +87,33 @@ object BasicWriter {
           import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
           import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
-            (Seq(p0), (o is tmB)             & adjacent.map(_ is tmB)), // square
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w is tmB)),    // T
-            (Seq(p0, p1), (o is tmB)         & (n isnot tmB) & (e is tmB)    & (s isnot tmB) & (w is tmB)),    // -
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w isnot tmB)), // corner down right "r"
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e isnot tmB) & (s is tmB)    & (w isnot tmB)), // end of a bar (up i) connection down
-            (Seq(p0), (o is tmB)             & adjacent.map(_ isnot tmB)) // • no connections
+            (Seq(p0), (o is tmB)             & adjacent.map(_ is tmB)), // d1
+            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w is tmB)),    // d2
+            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w isnot tmB)), // d3
+            (Seq(p0, p1), (o is tmB)         & (n isnot tmB) & (e is tmB)    & (s isnot tmB) & (w is tmB)),    // d4
+            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e isnot tmB) & (s is tmB)    & (w isnot tmB)), // d5
+            (Seq(p0), (o is tmB)             & adjacent.map(_ isnot tmB)) // d6
           )
         val extConds =
           import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
           import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
-            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm) & (nw is tm)), // corner in top-left corner of the tile
-            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e is tm)    & (s isnot tm) & (w is tm) & (nE is tm) & (nw is tm)), // double corners top-left and top-right
-            (Seq(p0), (o isnot tm)             & around.map(_ is tm)) // four corners
+            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm) & (nw is tm)), // e1
+            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e is tm)    & (s isnot tm) & (w is tm) & (nE is tm) & (nw is tm)), // e2
+            (Seq(p0), (o isnot tm)             & around.map(_ is tm)) // e3
           )
         val intConds =
           import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
           import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE is tmB)    & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // corner in top-left corner of the tile
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // corner in top-left and top-right corner of the tile
-            (Seq(p0, p1), (o is tmB)                         & adjacent.map(_ is tmB) & (nE is tmB)    & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // corner in top-left and bottom-right corner of the tile
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // corner in top-left top-right and bottom-right corner of the tile
-            (Seq(p0), (o is tmB)                             & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw isnot tmB) & (nw isnot tmB)), // 4 corners of the tile
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w isnot tmB)  & (se isnot tmB)), // tunnel corner
-            (Seq(p0, p1, p2, p3, m0, m1, m2, m3), (o is tmB) & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se is tmB)    & (sw isnot tmB)), // T only one bottom left corner
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se isnot tmB) & (sw isnot tmB))  // T both
+            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE is tmB)    & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i1
+            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i2
+            (Seq(p0, p1), (o is tmB)                         & adjacent.map(_ is tmB) & (nE is tmB)    & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // i3
+            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // i4
+            (Seq(p0), (o is tmB)                             & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw isnot tmB) & (nw isnot tmB)), // i5
+            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w isnot tmB)  & (se isnot tmB)), // i6
+            (Seq(p0, p1, p2, p3, m0, m1, m2, m3), (o is tmB) & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se is tmB)    & (sw isnot tmB)), // i7
+            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se isnot tmB) & (sw isnot tmB))  // i8
           )
         val allConds = defConds
           ++ (if (sd.shadowType.extCorner) extConds else Seq())
@@ -138,11 +138,11 @@ object BasicWriter {
           s"Index ${defTile.toTile.rotate(sp.rotations.last).write}\n" +
             "NoDefaultRule\n" +
             (Pos(-1, -1) isnot TileMatcher(-1)).write +
-            (Pos(sp.applyPat.sizeX, sp.applyPat.sizeY) isnot TileMatcher(-1)).write +
+            (Pos(sp.applyPat.xSize, sp.applyPat.ySize) isnot TileMatcher(-1)).write +
             (
               for {
-                x <- 0 until sp.onPat.sizeX
-                y <- 0 until sp.onPat.sizeY
+                x <- 0 until sp.onPat.xSize
+                y <- 0 until sp.onPat.ySize
                 t <- sp.onPat(x, y)
               } yield (Pos(x, y) is t).write
             ).mkString +
@@ -151,8 +151,8 @@ object BasicWriter {
         val noOverlaps =
           (
             for {
-              x <- (-sp.onPat.sizeX + 1) until sp.onPat.sizeX
-              y <- (-sp.onPat.sizeY + 1) until sp.onPat.sizeY
+              x <- (-sp.onPat.xSize + 1) until sp.onPat.xSize
+              y <- (-sp.onPat.ySize + 1) until sp.onPat.ySize
               if (!(x >= 0 && y >= 0))
             } yield s"Index ${sp.neutral.write}\n" +
               (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
@@ -173,8 +173,8 @@ object BasicWriter {
             for {
               dir <- sp.rotations
               pattern = sp.applyPat.rotate(dir)
-              x <- 0 until pattern.sizeX
-              y <- 0 until pattern.sizeY
+              x <- 0 until pattern.xSize
+              y <- 0 until pattern.ySize
               t <- pattern(x, y)
             } yield s"Index ${t.rotate(dir).write}\n" +
               (Pos(-x, -y) is defTile.toTm.rotate(dir)).write

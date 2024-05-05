@@ -1,5 +1,7 @@
 package lomination.ddnettools
 
+import org.log4s.getLogger
+
 // general
 case class RuleFile(defTile: DefaultTile, rules: Seq[Rule])
 
@@ -56,11 +58,19 @@ case class TileMatcher(id: Int, dir: Dir | AnyDir.type = AnyDir):
 
 // others
 case class Grid[A](rows: Seq[Seq[A]]):
+  val logger = getLogger
+  val ySize: Int = rows.length
+  val xSize: Int = rows(0).length
+  for (i <- 1 until ySize) yield
+    if (rows(i).sizeIs > xSize)
+      logger.warn(s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration")
+    if (rows(i).sizeIs > xSize)
+      val msg = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
+      val exception = IndexOutOfBoundsException(msg)
+      logger.error(exception)(msg)
+      throw exception
   def apply(x: Int, y: Int) = rows(y)(x)
   def toSeq: Seq[Seq[A]]    = rows
-  def sizeX: Int            = rows(0).length
-  def sizeY: Int            = rows.length
-  def size: (Int, Int)      = (sizeX, sizeY)
   def rotate(dir: Dir): Grid[A] =
     dir match
       case Dir(Sign.+, Times.Zero)  => this
