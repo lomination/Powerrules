@@ -27,7 +27,7 @@ case class Shape(
     applyPat: Grid[Option[Tile]],
     onPat: Grid[Option[Matcher]],
     neutral: Tile,
-    random: Random = Random.always,
+    random: Random,
     rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
 
