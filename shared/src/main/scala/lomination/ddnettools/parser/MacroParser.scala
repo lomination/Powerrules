@@ -54,11 +54,11 @@ class MacroParser() extends RegexParsers {
 
   // macros
   type PreMacro = String ~ Option[Seq[String]] ~ String
-  def mac: Parser[Macro] = macDef ^^ { case name ~ params ~ content =>
+  lazy val mac: Parser[Macro] = macDef ^^ { case name ~ params ~ content =>
     Macro(name, params.getOrElse(Seq()), content)
   }
-  def macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent
-  def macName: Parser[String]        = "\\w+".r
-  def macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').toSeq.map(_.trim) }
-  def macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
+  lazy val macDef: Parser[PreMacro]       = "(?:[ \n]*\n)?def +".r ~> macName ~ (macParams.? <~ " *=(?:[ \n]*\n| *)".r) ~ macContent
+  lazy val macName: Parser[String]        = "\\w+".r
+  lazy val macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').toSeq.map(_.trim) }
+  lazy val macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
 }
