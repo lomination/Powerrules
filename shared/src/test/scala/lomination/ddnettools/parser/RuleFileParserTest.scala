@@ -106,14 +106,13 @@ class ParseShape extends FunSuite {
       "    1 2\n" +
       "    3 4\n" +
       "  on\n" +
-      "    d d\n" +
-      "    d d\n" +
+      "    . .\n" +
+      "    . .\n" +
       "  using\n" +
       "    1 -> 1+0\n" +
       "    2 -> 2+0\n" +
       "    3 -> 3+0\n" +
       "    4 -> 4+0\n" +
-      "    d -> is full\n" +
       "  neutral 5+0\n" +
       "  random 50%"
     val parser = RuleFileParser()

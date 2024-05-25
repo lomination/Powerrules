@@ -1,6 +1,6 @@
 package lomination.ddnettools.parser
 
-import lomination.ddnettools.{Tile, Cond, Random, Dir, ShadowType, Grid, Matcher}
+import lomination.ddnettools.{Tile, Cond, Random, Dir, ShadowType, Grid, GenericMatcher}
 
 trait Statements
 
@@ -11,5 +11,5 @@ case class RotateStm(rotations: Seq[Dir])           extends Statements
 case class TypeStm(sdType: ShadowType)              extends Statements
 case class ApplyStm(chars: Grid[Char])              extends Statements
 case class OnStm(chars: Grid[Char])                 extends Statements
-case class UsingStm(map: Map[Char, Tile | Matcher]) extends Statements
+case class UsingStm(map: Map[Char, Tile | GenericMatcher]) extends Statements
 case class NeutralStm(tile: Tile)                   extends Statements

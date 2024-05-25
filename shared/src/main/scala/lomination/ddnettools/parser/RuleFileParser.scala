@@ -31,7 +31,7 @@ class RuleFileParser() extends RegexParsers {
 
   // general
   lazy val rules: P[RuleFile]          = wsNl.? ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(DefaultTile(255, Dir.m3)), r) }
-  lazy val defaultTile: P[DefaultTile] = ":" ~> numId ~ dir.? ^^ { case i ~ d => DefaultTile(i, d.getOrElse(Dir.p0)) }
+  lazy val defaultTile: P[DefaultTile] = ":" ~> numericId ~ dir.? ^^ { case i ~ d => DefaultTile(i, d.getOrElse(Dir.p0)) }
   lazy val rule: P[Rule]               = (ruleName <~ wsNl) ~ repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
   lazy val ruleName: P[String]         = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
 
@@ -77,7 +77,7 @@ class RuleFileParser() extends RegexParsers {
   type SpReqStm = (ApplyStm, OnStm, UsingStm, NeutralStm, RandomStm)
   type SpOptStm = (Option[RotateStm])
   lazy val shape: P[Shape] = ("shape" | "sp") ~> spReqStm ~ spOptStm ^^ { case (applyStm, onStm, usingStm, neutralStm, randomStm) ~ (rotateStm) =>
-    val newMap = (usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is))).toMap
+    val newMap = usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is)) - '?'
     Shape(
       applyStm.chars.map(c =>
         newMap.get(c) match
@@ -98,11 +98,11 @@ class RuleFileParser() extends RegexParsers {
   }
   lazy val spReqStm: P[SpReqStm] = (applyStm | onStm | usingStm | neutralStm | randStm).+ ^^ { seq =>
     (
-      seq.collectFirst { case stm: ApplyStm => stm }.get,
-      seq.collectFirst { case stm: OnStm => stm }.get,
-      seq.collectFirst { case stm: UsingStm => stm }.get,
-      seq.collectFirst { case stm: NeutralStm => stm }.get,
-      seq.collectFirst { case stm: RandomStm => stm }.get
+    seq.collectFirst { case stm: ApplyStm => stm } match { case Some(value) => value; case None => throw IllegalArgumentException("Missing apply statement in shape command") },
+    seq.collectFirst { case stm: OnStm => stm } match { case Some(value) => value; case None => throw IllegalArgumentException("Missing on statement in shape command") },
+    seq.collectFirst { case stm: UsingStm => stm } match { case Some(value) => value; case None => throw IllegalArgumentException("Missing using statement in shape command") },
+    seq.collectFirst { case stm: NeutralStm => stm } match { case Some(value) => value; case None => throw IllegalArgumentException("Missing neutral statement in shape command") },
+    seq.collectFirst { case stm: RandomStm => stm } match { case Some(value) => value; case None => throw IllegalArgumentException("Missing random statement in shape command") },
     )
   }
   lazy val spOptStm: P[SpOptStm] = rotStm.?
@@ -118,7 +118,7 @@ class RuleFileParser() extends RegexParsers {
   lazy val typeStm: P[TypeStm]               = stm("type")(sdType) ^^ { TypeStm(_) }
   lazy val applyStm: P[ApplyStm]             = stm("apply")(charGrid) ^^ { ApplyStm(_) }
   lazy val onStm: P[OnStm]                   = stm("on")(charGrid) ^^ { OnStm(_) }
-  lazy val usingStm: P[UsingStm]             = stm("using")(rep1sep(mapLine, wsNl ~ ind(2))) ^^ { (m: Seq[(Char, Tile | Matcher)]) => UsingStm(m.toMap) }
+  lazy val usingStm: P[UsingStm]             = stm("using")(rep1sep(mapLine, wsNl ~ ind(2))) ^^ { (m: Seq[(Char, Tile | GenericMatcher)]) => UsingStm(m.toMap) }
   lazy val neutralStm: P[NeutralStm]         = stm("neutral")(tile) ^^ { NeutralStm(_) }
 
   // others
@@ -129,20 +129,19 @@ class RuleFileParser() extends RegexParsers {
   lazy val notEdgeM: P[NotEdgeMatcher.type]   = "isnot +edge".r ^^ { _ => NotEdgeMatcher }
   lazy val genericM: P[GenericMatcher]        = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
   lazy val op: P[Op]                          = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot }
-  lazy val tileM: P[TileMatcher]              = tileId ~ (dir | anyDir | error("tile direction")).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
+  lazy val tileM: P[TileMatcher]              = (numericId | outsideId) ~ (dir | anyDir | error("tile direction")).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
   lazy val anyDir: P[AnyDir.type]             = "*" ^^ { _ => AnyDir }
-  lazy val tile: P[Tile]                      = tileId ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
-  lazy val tileId: P[Int]                     = numId | outsideId | error("tile id")
-  lazy val numId: P[Int]                      = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
+  lazy val tile: P[Tile]                      = numericId ~ dir.? ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
+  lazy val numericId: P[Int]                  = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
   lazy val outsideId: P[Int]                  = ("outside" | "-1") ^^ { _ => -1 }
   lazy val dir: P[Dir]                        = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
-  lazy val random: P[Random]                  = "\\d+(?:\\.\\d*)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
+  lazy val random: P[Random]                  = "\\d+(?:\\.\\d+)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
   lazy val charGrid: P[Grid[Char]]            = rep1sep(rep1sep(char, " *".r), wsNl ~ ind(2)) ^^ { Grid(_) }
   lazy val char: P[Char]                      = "[\\S]".r ^^ { _.charAt(0) }
-  lazy val mapLine: P[(Char, Tile | Matcher)] = ("[\\S]".r <~ " +-> +".r) ~ (tile | matcher) ^^ { case c ~ mt => c.charAt(0) -> mt }
+  lazy val mapLine: P[(Char, Tile | GenericMatcher)] = ("[\\S]".r <~ " *-> *".r) ~ (tile | genericM) ^^ { case c ~ tOrTm => c.charAt(0) -> tOrTm }
   lazy val sdType: P[ShadowType]              = "[+-]e[+-]i".r ^^ { case sdTypeR(e, i) => ShadowType(if (e == "+") true else false, if (i == "+") true else false) }
 
   // errors
-  def error(parsed: String): P[Nothing] = "[^\n]+".r <~ "[\\S\\s]*" ^^ { firstLn => throw IllegalArgumentException(s"The given $parsed `$firstLn` is not valid") }
-  lazy val edgeMErr: P[Matcher]   = "is +edge".r ^^ { _ => throw IllegalArgumentException("The edge matcher cannot be positive due to language restriction. Please do not use `is edge`") }
+  def error(parsed: String): P[Nothing] = "[^\n]+".r <~ "[\\S\\s]*" ^^ { firstLn => throw IllegalArgumentException(s"The given $parsed `${firstLn.substring(0, Math.min(10, firstLn.length))}` is not valid") }
+  lazy val edgeMErr: P[Matcher]     = "is +edge".r ^^ { _ => throw IllegalArgumentException("The edge matcher cannot be positive due to language restriction. Please do not use `is edge`") }
 }
