@@ -1,12 +1,12 @@
 {
-  "name": "ddnettools",
+  "name": "powerrules",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build4gh_pages": "vite build --base=/ddnettools/",
+    "build4gh_pages": "vite build --base=/powerrules/",
     "preview": "vite preview"
   },
   "devDependencies": {

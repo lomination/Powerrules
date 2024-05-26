@@ -1,7 +1,7 @@
-package lomination.ddnettools.writers
+package lomination.powerrules.writers
 
-import lomination.ddnettools.*
-import lomination.ddnettools.build.BuildInfo
+import lomination.powerrules.*
+import lomination.powerrules.build.BuildInfo
 
 object BasicWriter {
 
@@ -84,8 +84,8 @@ object BasicWriter {
         val tm  = defTile.toTm
         val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1))
         val defConds =
-          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
             (Seq(p0), (o is tmB)             & adjacent.map(_ is tmB)), // d1
             (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w is tmB)),    // d2
@@ -95,16 +95,16 @@ object BasicWriter {
             (Seq(p0), (o is tmB)             & adjacent.map(_ isnot tmB)) // d6
           )
         val extConds =
-          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
             (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm) & (nw is tm)), // e1
             (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e is tm)    & (s isnot tm) & (w is tm) & (nE is tm) & (nw is tm)), // e2
             (Seq(p0), (o isnot tm)             & around.map(_ is tm)) // e3
           )
         val intConds =
-          import lomination.ddnettools.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.ddnettools.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
+          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
+          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
           Seq(
             (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE is tmB)    & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i1
             (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i2
@@ -201,7 +201,7 @@ object BasicWriter {
   given Writable[RuleFile] with
     extension (rf: RuleFile)
       def write(using DefaultTile): String =
-        s"# Generated with ddnettools (${BuildInfo.version}) by lomination\n" +
-          "# https://github.com/lomination/ddnettools" + "\n\n\n\n" +
+        s"# Generated with powerrules (${BuildInfo.version}) by lomination\n" +
+          "# https://github.com/lomination/powerrules" + "\n\n\n\n" +
           rf.rules.map(_.write).mkString("\n")
 }

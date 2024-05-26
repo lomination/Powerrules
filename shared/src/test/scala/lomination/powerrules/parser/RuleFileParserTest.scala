@@ -1,7 +1,7 @@
-package lomination.ddnettools.parser
+package lomination.powerrules.parser
 
 import munit.FunSuite
-import lomination.ddnettools.*
+import lomination.powerrules.*
 
 class ParseReplace extends FunSuite {
   test("replace") {

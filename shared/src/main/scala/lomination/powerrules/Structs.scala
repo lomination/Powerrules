@@ -1,4 +1,4 @@
-package lomination.ddnettools
+package lomination.powerrules
 
 import org.log4s.getLogger
 

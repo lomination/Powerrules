@@ -1,4 +1,4 @@
-package lomination.ddnettools
+package lomination.powerrules
 
 import scala.util.{Success, Failure}
 import scala.scalajs.js
@@ -7,11 +7,11 @@ import scala.scalajs.js.annotation.*
 import org.scalajs.dom
 import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
 import scalatags.Text.all.*
-import lomination.ddnettools.RuleFile
-import lomination.ddnettools.build.BuildInfo
-import lomination.ddnettools.parser.MyParser
-import lomination.ddnettools.writers.Writable
-import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.RuleFile
+import lomination.powerrules.build.BuildInfo
+import lomination.powerrules.parser.MyParser
+import lomination.powerrules.writers.Writable
+import lomination.powerrules.writers.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main: Unit =

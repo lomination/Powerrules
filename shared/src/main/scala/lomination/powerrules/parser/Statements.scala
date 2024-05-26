@@ -1,6 +1,6 @@
-package lomination.ddnettools.parser
+package lomination.powerrules.parser
 
-import lomination.ddnettools.{Tile, Cond, Random, Dir, ShadowType, Grid, GenericMatcher}
+import lomination.powerrules.{Tile, Cond, Random, Dir, ShadowType, Grid, GenericMatcher}
 
 trait Statements
 

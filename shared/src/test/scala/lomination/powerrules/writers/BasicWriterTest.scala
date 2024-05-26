@@ -1,8 +1,8 @@
-package lomination.ddnettools.writers
+package lomination.powerrules.writers
 
 import munit.FunSuite
-import lomination.ddnettools.*
-import lomination.ddnettools.writers.BasicWriter.{given Writable[?]}
+import lomination.powerrules.*
+import lomination.powerrules.writers.BasicWriter.{given Writable[?]}
 
 class WriteReplace extends FunSuite {
   given DefaultTile = DefaultTile(255)

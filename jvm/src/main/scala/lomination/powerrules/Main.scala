@@ -1,11 +1,11 @@
-package lomination.ddnettools
+package lomination.powerrules
 
 import scala.io.Source
 import scala.util.Using
 import java.io.PrintWriter
-import lomination.ddnettools.parser.MyParser
-import lomination.ddnettools.writers.Writable
-import lomination.ddnettools.writers.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.parser.MyParser
+import lomination.powerrules.writers.Writable
+import lomination.powerrules.writers.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main =

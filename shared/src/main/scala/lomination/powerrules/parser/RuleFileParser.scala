@@ -1,10 +1,10 @@
-package lomination.ddnettools.parser
+package lomination.powerrules.parser
 
 import scala.util.Try
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
 import org.log4s.getLogger
-import lomination.ddnettools.*
+import lomination.powerrules.*
 
 class RuleFileParser() extends RegexParsers {
   override protected val whiteSpace: Regex = "".r

@@ -6,8 +6,8 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name         := "DDNetTools",
-version      := "0.3.4-SNAPSHOT",
+    name         := "Powerrules",
+    version      := "0.3.4-SNAPSHOT",
     scalaVersion := scala3Version,
     scalacOptions ++= Seq(
       "-encoding", "utf8",
@@ -21,7 +21,7 @@ version      := "0.3.4-SNAPSHOT",
       "org.log4s"              %%% "log4s"                    % "1.10.0",
       "org.scalameta"          %%% "munit"                    % "1.0.0-M11" % Test
     ),
-    buildInfoPackage := "lomination.ddnettools.build",
+    buildInfoPackage := "lomination.powerrules.build",
     buildInfoKeys ++= Seq[BuildInfoKey](
       version
     )
@@ -30,7 +30,7 @@ version      := "0.3.4-SNAPSHOT",
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("ddnettools")))
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("powerrules")))
     },
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.4.0",

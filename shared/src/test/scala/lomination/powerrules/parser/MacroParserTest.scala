@@ -1,4 +1,4 @@
-package lomination.ddnettools.parser
+package lomination.powerrules.parser
 
 import scala.util.Try
 import munit.FunSuite

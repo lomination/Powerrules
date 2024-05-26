@@ -1,4 +1,4 @@
-package lomination.ddnettools
+package lomination.powerrules
 
 import munit.FunSuite
 

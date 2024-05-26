@@ -1,8 +1,8 @@
-package lomination.ddnettools.parser
+package lomination.powerrules.parser
 
 import scala.util.{Try, Success, Failure}
 import org.log4s.getLogger
-import lomination.ddnettools.RuleFile
+import lomination.powerrules.RuleFile
 
 case class MyParser():
   val logger = getLogger
