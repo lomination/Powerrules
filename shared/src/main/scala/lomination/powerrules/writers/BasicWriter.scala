@@ -127,7 +127,7 @@ object BasicWriter {
             for {
               (tile, (dirs, conds)) <- (sd.tiles zip allConds)
               d                     <- dirs
-            } yield s"Index ${tile.rotate(d).write}\nNoDefaultRule\n" +
+            } yield s"Index ${tile.rotate(d).write}\n" +
               conds.map(_.rotate(d).write).mkString
           ).mkString + "NewRun\n"
 
@@ -201,7 +201,7 @@ object BasicWriter {
   given Writable[RuleFile] with
     extension (rf: RuleFile)
       def write(using DefaultTile): String =
-        s"# Generated with powerrules (${BuildInfo.version}) by lomination\n" +
-          "# https://github.com/lomination/powerrules" + "\n\n\n\n" +
+        s"# Generated with Powerrules (version ${BuildInfo.version}) by lomination\n" +
+          "# https://github.com/lomination/Powerrules" + "\n\n\n\n" +
           rf.rules.map(_.write).mkString("\n")
 }
