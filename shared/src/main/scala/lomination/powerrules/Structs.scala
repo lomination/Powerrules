@@ -43,7 +43,7 @@ case class FullMatcher(op: Op) extends Matcher:
   def rotate(dir: Dir): FullMatcher = this
 
 object NotEdgeMatcher extends Matcher:
-  def not: NotEdgeMatcher.type = ???
+  def not: NotEdgeMatcher.type              = ???
   def rotate(dir: Dir): NotEdgeMatcher.type = this
 
 case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
@@ -58,14 +58,14 @@ case class TileMatcher(id: Int, dir: Dir | AnyDir.type = AnyDir):
 
 // others
 case class Grid[A](rows: Seq[Seq[A]]):
-  val logger = getLogger
+  val logger     = getLogger
   val ySize: Int = rows.length
   val xSize: Int = rows(0).length
   for (i <- 1 until ySize) yield
     if (rows(i).sizeIs > xSize)
       logger.warn(s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration")
     if (rows(i).sizeIs > xSize)
-      val msg = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
+      val msg       = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
       val exception = IndexOutOfBoundsException(msg)
       logger.error(exception)(msg)
       throw exception
