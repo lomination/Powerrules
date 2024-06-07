@@ -7,12 +7,12 @@ object BasicWriter {
 
   given Writable[Op] with
     extension (o: Op)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         if (o == Op.Is) "INDEX" else "NOTINDEX"
 
   given Writable[Dir] with
     extension (d: Dir)
-      def write(using DefaultTile): String = d match
+      def write(using TmpTile): String = d match
         case Dir(Sign.+, Times.Zero)  => "NONE"
         case Dir(Sign.+, Times.One)   => "ROTATE"
         case Dir(Sign.+, Times.Two)   => "XFLIP YFLIP"
@@ -23,11 +23,11 @@ object BasicWriter {
         case Dir(Sign.-, Times.Three) => "XFLIP ROTATE"
 
   given Writable[Pos] with
-    extension (p: Pos) def write(using DefaultTile): String = s"${p.x} ${p.y}"
+    extension (p: Pos) def write(using TmpTile): String = s"${p.x} ${p.y}"
 
   given Writable[Cond] with
     extension (c: Cond)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         c match
           case Cond(pos, FullMatcher(op))          => s"Pos ${pos.write} ${if (op == Op.Is) "FULL" else "EMPTY"}\n"
           case Cond(pos, NotEdgeMatcher)           => pos.adjacent.map(p => s"Pos ${p.write} NOTINDEX -1\n").mkString
@@ -35,22 +35,22 @@ object BasicWriter {
 
   given Writable[TileMatcher] with
     extension (tm: TileMatcher)
-      def write(using DefaultTile): String = tm match
+      def write(using TmpTile): String = tm match
         case TileMatcher(id, AnyDir)   => s"$id"
         case TileMatcher(id, dir: Dir) => s"$id ${dir.write}"
 
   given Writable[Tile] with
-    extension (t: Tile) def write(using DefaultTile): String = s"${t.id} ${t.dir.write}"
+    extension (t: Tile) def write(using TmpTile): String = s"${t.id} ${t.dir.write}"
 
   given Writable[Random] with
     extension (r: Random)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         if (r.percent >= 100f) ""
         else s"Random ${r.percent.toString().replaceAll("\\.0+", "")}%\n"
 
   given Writable[Replace] with
     extension (r: Replace)
-      def write(using defTile: DefaultTile): String =
+      def write(using defTile: TmpTile): String =
         if (r.tiles.sizeIs == 1 && r.rotations.sizeIs == 1)
           s"Index ${r.tiles(0).rotate(r.rotations(0)).write}\n" +
             "NoDefaultRule\n" +
@@ -80,60 +80,44 @@ object BasicWriter {
 
   given Writable[Shadow] with
     extension (sd: Shadow)
-      def write(using defTile: DefaultTile): String =
-        val tm  = defTile.toTm
-        val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1))
-        val defConds =
-          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
-          Seq(
-            (Seq(p0), (o is tmB)             & adjacent.map(_ is tmB)), // d1
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w is tmB)),    // d2
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e is tmB)    & (s is tmB)    & (w isnot tmB)), // d3
-            (Seq(p0, p1), (o is tmB)         & (n isnot tmB) & (e is tmB)    & (s isnot tmB) & (w is tmB)),    // d4
-            (Seq(p0, p1, p2, p3), (o is tmB) & (n isnot tmB) & (e isnot tmB) & (s is tmB)    & (w isnot tmB)), // d5
-            (Seq(p0), (o is tmB)             & adjacent.map(_ isnot tmB)) // d6
-          )
-        val extConds =
-          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
-          Seq(
-            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e isnot tm) & (s isnot tm) & (w is tm) & (nw is tm)), // e1
-            (Seq(p0, p1, p2, p3), (o isnot tm) & (n is tm) & (e is tm)    & (s isnot tm) & (w is tm) & (nE is tm) & (nw is tm)), // e2
-            (Seq(p0), (o isnot tm)             & around.map(_ is tm)) // e3
-          )
-        val intConds =
-          import lomination.powerrules.Pos.{zero as o, n, ne as nE, e, se, s, sw, w, nw, around, adjacent}
-          import lomination.powerrules.Dir.{p0, p1, p2, p3, m0, m1, m2, m3}
-          Seq(
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE is tmB)    & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i1
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se is tmB)    & (sw is tmB)    & (nw isnot tmB)), // i2
-            (Seq(p0, p1), (o is tmB)                         & adjacent.map(_ is tmB) & (nE is tmB)    & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // i3
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw is tmB)    & (nw isnot tmB)), // i4
-            (Seq(p0), (o is tmB)                             & adjacent.map(_ is tmB) & (nE isnot tmB) & (se isnot tmB) & (sw isnot tmB) & (nw isnot tmB)), // i5
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w isnot tmB)  & (se isnot tmB)), // i6
-            (Seq(p0, p1, p2, p3, m0, m1, m2, m3), (o is tmB) & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se is tmB)    & (sw isnot tmB)), // i7
-            (Seq(p0, p1, p2, p3), (o is tmB)                 & (n isnot tmB)          & (e is tmB)     & (s is tmB)     & (w is tmB)     & (se isnot tmB) & (sw isnot tmB))  // i8
-          )
-        val allConds = defConds
-          ++ (if (sd.shadowType.extCorner) extConds else Seq())
-          ++ (if (sd.shadowType.intCorner) intConds else Seq())
-
-        s"Index ${defTile.toTile.write}\n" +
-          "NoDefaultRule\n" +
-          sd.conds.map(_.write).mkString +
-          "NewRun\n" +
+      def write(using defTile: TmpTile): String =
+        import lomination.powerrules.writers.{defaultTileConds, externalTileConds, internalTileConds, toConds}
+        val tm  = defTile.toGm                                         // matches the tmp tile
+        val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1)) // matches the tmp tile or a border
+        val tmp =
+          s"Index ${defTile.toTile.write}\n" +
+            "NoDefaultRule\n" +
+            sd.conds.map(_.write).mkString +
+            "NewRun\n"
+        val defT =
           (
             for {
-              (tile, (dirs, conds)) <- (sd.tiles zip allConds)
-              d                     <- dirs
-            } yield s"Index ${tile.rotate(d).write}\n" +
-              conds.map(_.rotate(d).write).mkString
-          ).mkString + "NewRun\n"
+              (tile, (dirs, conds)) <- (sd.defTiles zip defaultTileConds(sd.softMode)(tmB))
+              dir                   <- dirs
+            } yield s"Index ${tile.rotate(dir).write}\n" +
+              conds.map(_.rotatePos(dir).write).mkString
+          ).mkString
+        val extT =
+          (
+            for {
+              (tile, (dirs, conds)) <- (sd.defTiles zip externalTileConds(sd.softMode)(tm))
+              dir                   <- dirs
+            } yield s"Index ${tile.rotate(dir).write}\n" +
+              conds.map(_.rotatePos(dir).write).mkString
+          ).mkString
+        val intT =
+          (
+            for {
+              (tile, (dirs, conds)) <- (sd.defTiles zip internalTileConds(sd.softMode)(tmB))
+              dir                   <- dirs
+            } yield s"Index ${tile.rotate(dir).write}\n" +
+              conds.map(_.rotatePos(dir).write).mkString
+          ).mkString
+        tmp + defT + extT + intT + "NewRun\n"
 
   given Writable[Shape] with
     extension (sp: Shape)
-      def write(using defTile: DefaultTile): String =
+      def write(using defTile: TmpTile): String =
         val tmp =
           s"Index ${defTile.toTile.rotate(sp.rotations.last).write}\n" +
             "NoDefaultRule\n" +
@@ -183,12 +167,12 @@ object BasicWriter {
 
   given Writable[Comment] with
     extension (c: Comment)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         c.str + "\n"
 
   given Writable[Rule] with
     extension (r: Rule)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         s"[${r.name}]\n\n" + r.cmds
           .map {
             case re: Replace => re.write
@@ -200,7 +184,7 @@ object BasicWriter {
 
   given Writable[RuleFile] with
     extension (rf: RuleFile)
-      def write(using DefaultTile): String =
+      def write(using TmpTile): String =
         s"# Generated with Powerrules (version ${BuildInfo.version}) by lomination\n" +
           "# https://github.com/lomination/Powerrules" + "\n\n\n\n" +
           rf.rules.map(_.write).mkString("\n")

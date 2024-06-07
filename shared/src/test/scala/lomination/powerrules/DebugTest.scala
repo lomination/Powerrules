@@ -5,7 +5,7 @@ import munit.FunSuite
 // specific tests, can be ignored
 
 class DebugTest extends FunSuite {
-  given DefaultTile = DefaultTile(255)
+  given TmpTile = TmpTile(255)
   test("wrong rotate of pos in conds while writing shadow") {
     val m        = FullMatcher(Op.Is)
     val conds    = Seq(Pos.zero is m, Pos.n isnot m, Pos.e isnot m, Pos.s is m, Pos.w isnot m)

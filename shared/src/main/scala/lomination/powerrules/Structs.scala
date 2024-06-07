@@ -3,7 +3,7 @@ package lomination.powerrules
 import org.log4s.getLogger
 
 // general
-case class RuleFile(defTile: DefaultTile, rules: Seq[Rule])
+case class RuleFile(defTile: TmpTile, rules: Seq[Rule])
 
 case class Rule(name: String, cmds: Seq[Command])
 
@@ -18,9 +18,11 @@ case class Replace(
 ) extends Command
 
 case class Shadow(
-    tiles: Seq[Tile],
+    defTiles: Seq[Tile],
+    extTiles: Seq[Tile] = Seq(),
+    intTiles: Seq[Tile] = Seq(),
     conds: Seq[Cond] = Seq(),
-    shadowType: ShadowType = ShadowType.default
+    softMode: Boolean = false
 ) extends Command
 
 case class Shape(
@@ -85,17 +87,16 @@ case class Grid[A](rows: Seq[Seq[A]]):
     Grid(rows.map(_.map(f)))
 
 case class Tile(id: Int, dir: Dir = Dir.p0):
-  def this(id: Int) = this(id, Dir.p0)
   def rotate(d: Dir): Tile       = Tile(id, d rotate dir)
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
-case class DefaultTile(id: Int, dir: Dir = Dir.p0):
-  def toTile: Tile      = Tile(id, dir)
-  def toTm: TileMatcher = TileMatcher(id, dir)
+case class TmpTile(id: Int, dir: Dir = Dir.p0):
+  def toTile: Tile         = Tile(id, dir)
+  def toTm: TileMatcher    = TileMatcher(id, dir)
+  def toGm: GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, dir))
 
 case class Cond(pos: Pos, matcher: Matcher):
-  /** Does not rotate the matcher! */
-  def rotate(dir: Dir): Cond         = Cond(pos.rotate(dir), matcher)
+  def rotatePos(dir: Dir): Cond      = Cond(pos.rotate(dir), matcher)
   def &(cond: Cond): Seq[Cond]       = Seq(this, cond)
   def &(conds: Seq[Cond]): Seq[Cond] = this +: conds
 
@@ -122,20 +123,17 @@ case class Pos(x: Int, y: Int):
   def around: Seq[Pos]              = Pos.around.map(this + _)
 
 object Pos:
-  val zero: Pos = Pos(0, 0)
-  val n: Pos    = Pos(0, -1)
-  val ne: Pos   = Pos(1, -1)
-  val e: Pos    = Pos(1, 0)
-  val se: Pos   = Pos(1, 1)
-  val s: Pos    = Pos(0, 1)
-  val sw: Pos   = Pos(-1, 1)
-  val w: Pos    = Pos(-1, 0)
-  val nw: Pos   = Pos(-1, -1)
-  ////
-  def adjacent: Seq[Pos]               = Seq(n, e, s, w)
-  def adjacentExept(pos: Pos*)         = adjacent.filterNot(pos.contains(_))
-  def around: Seq[Pos]                 = Seq(n, ne, e, se, s, sw, w, nw)
-  def aroundExept(pos: Pos*): Seq[Pos] = around.filterNot(pos.contains(_))
+  val zero: Pos          = Pos(0, 0)
+  val n: Pos             = Pos(0, -1)
+  val ne: Pos            = Pos(1, -1)
+  val e: Pos             = Pos(1, 0)
+  val se: Pos            = Pos(1, 1)
+  val s: Pos             = Pos(0, 1)
+  val sw: Pos            = Pos(-1, 1)
+  val w: Pos             = Pos(-1, 0)
+  val nw: Pos            = Pos(-1, -1)
+  def adjacent: Seq[Pos] = Seq(n, e, s, w)
+  def around: Seq[Pos]   = Seq(n, ne, e, se, s, sw, w, nw)
 
 case class Dir(sign: Sign, n: Times):
   def this(i: Int, n: Int) =
@@ -155,21 +153,21 @@ object Dir:
   val m2: Dir = Dir(Sign.-, Times.Two)
   val m3: Dir = Dir(Sign.-, Times.Three)
 
+  def positive: Seq[Dir] = Seq(p0, p1, p2, p3)
+  def negative: Seq[Dir] = Seq(m0, m1, m2, m3)
+  def all: Seq[Dir]      = Seq(p0, p1, p2, p3, m0, m1, m2, m3)
+
 object AnyDir
 
 case class Random(percent: Float) extends AnyVal
-
 object Random:
   val always = Random(100f)
 
-case class ShadowType(extCorner: Boolean, intCorner: Boolean)
-
-object ShadowType:
-  val default = ShadowType(false, false)
-
 // enums
-enum Sign  { case +, -                  }
-enum Times { case Zero, One, Two, Three }
+enum Sign:
+  case +, -
+enum Times:
+  case Zero, One, Two, Three
 enum Op:
   case Is, Isnot
   def not: Op = if (this == Op.Is) Op.Isnot else Op.Is

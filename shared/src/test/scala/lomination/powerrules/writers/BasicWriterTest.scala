@@ -5,7 +5,7 @@ import lomination.powerrules.*
 import lomination.powerrules.writers.BasicWriter.{given Writable[?]}
 
 class WriteReplace extends FunSuite {
-  given DefaultTile = DefaultTile(255)
+  given TmpTile = TmpTile(255)
   test("basic replace") {
     val struct   = Replace(Seq(Tile(0x12)), Seq(Pos(0, 0) is FullMatcher(Op.Is)))
     val result   = struct.write
@@ -72,7 +72,7 @@ class WriteReplace extends FunSuite {
 }
 
 // class WriteShadow extends FunSuite {
-//   given DefaultTile = DefaultTile(255)
+//   given TmpTile = TmpTile(255)
 //   test("shadow") {
 //     val struct   = Shadow((1 to 6).map(Tile(_)))
 //     val result   = struct.write
@@ -87,7 +87,7 @@ class WriteReplace extends FunSuite {
 // }
 
 class WriteComment extends FunSuite {
-  given DefaultTile = DefaultTile(255)
+  given TmpTile = TmpTile(255)
   test("basic comment") {
     val struct   = Comment("# this is my comment")
     val result   = struct.write

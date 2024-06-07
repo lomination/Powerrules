@@ -56,43 +56,35 @@ class ParseReplace extends FunSuite {
 
 class ParseShadow extends FunSuite {
   test("shadow") {
-    val input  = "shadow with 1 14+1 75+1 24+1 76+2 52 if 0 0 is full"
+    val input = "shadow\n" +
+      "  with 1 14+1 75+1 24+1 76+2 52\n" +
+      "  if 0 0 is full"
     val parser = RuleFileParser()
     val result = parser.parse(parser.shadow, input)
     val expected = Shadow(
       Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)),
+      Seq(),
+      Seq(),
       Seq(Pos(0, 0) is FullMatcher(Op.Is)),
-      ShadowType.default
+      false
     )
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("shadow -e+i") {
+  test("shadow with internal") {
     val input = "shadow\n" +
-      "  with 1 14+1 75+1 24+1 76+2 52 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4\n" +
-      "  if 0 0 is full & 0 -1 is empty\n" +
-      "  type -e+i"
+      "  with 1 14+1 75+1 24+1 76+2 52\n" +
+      "  withint 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4\n" +
+      "  if 0 0 is full\n" +
+      "  mode normal"
     val parser = RuleFileParser()
     val result = parser.parse(parser.shadow, input)
     val expected = Shadow(
-      Seq(
-        Tile(0x1),
-        Tile(0x14, Dir.p1),
-        Tile(0x75, Dir.p1),
-        Tile(0x24, Dir.p1),
-        Tile(0x76, Dir.p2),
-        Tile(0x52),
-        Tile(0x35, Dir.p2),
-        Tile(0x85, Dir.p2),
-        Tile(0xb0, Dir.p1),
-        Tile(0xb1, Dir.p3),
-        Tile(0xb2),
-        Tile(0xb3, Dir.p1),
-        Tile(0x60, Dir.p1),
-        Tile(0xb4)
-      ),
-      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is FullMatcher(Op.Isnot)),
-      ShadowType(false, true)
+      Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)),
+      Seq(),
+      Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4)),
+      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      false
     )
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
@@ -224,7 +216,7 @@ class ParseDefaultTile extends FunSuite {
     val input    = ":ff-3"
     val parser   = RuleFileParser()
     val result   = parser.parse(parser.defaultTile, input)
-    val expected = DefaultTile(0xff, Dir.m3)
+    val expected = TmpTile(0xff, Dir.m3)
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
   }

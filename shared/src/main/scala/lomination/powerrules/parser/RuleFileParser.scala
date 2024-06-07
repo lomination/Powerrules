@@ -25,15 +25,14 @@ class RuleFileParser() extends RegexParsers {
         scala.util.Failure(exception)
 
   // regex
-  lazy val wsNl: Regex    = "[\n ]*\n".r
-  lazy val sdTypeR: Regex = "([+-])e([+-])i".r
-  def ind(n: Int): Regex  = List.fill(n)("  ").mkString.r
+  lazy val wsNl: Regex   = "[\n ]*\n".r
+  def ind(n: Int): Regex = List.fill(n)("  ").mkString.r
 
   // general
-  lazy val rules: P[RuleFile]          = wsNl.? ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(DefaultTile(255, Dir.m3)), r) }
-  lazy val defaultTile: P[DefaultTile] = ":" ~> numericId ~ dir.? ^^ { case i ~ d => DefaultTile(i, d.getOrElse(Dir.p0)) }
-  lazy val rule: P[Rule]               = (ruleName <~ wsNl) ~ repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
-  lazy val ruleName: P[String]         = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
+  lazy val rules: P[RuleFile]      = wsNl.? ~> (defaultTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(TmpTile(255, Dir.m3)), r) }
+  lazy val defaultTile: P[TmpTile] = ":" ~> numericId ~ dir.? ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) }
+  lazy val rule: P[Rule]           = (ruleName <~ wsNl) ~ repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
+  lazy val ruleName: P[String]     = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
 
   // commands
   lazy val command: P[Command] = replace | shadow | shape | comment
@@ -58,19 +57,23 @@ class RuleFileParser() extends RegexParsers {
   }
   // shadow
   type SdReqStm = (WithStm)
-  type SdOptStm = (Option[IfStm], Option[TypeStm])
-  lazy val shadow: P[Shadow] = ("shadow" | "sd") ~> sdReqStm ~ sdOptStm ^^ { case (withStm) ~ (ifStm, typeStm) =>
+  type SdOptStm = (Option[WithExternalStm], Option[WithInternalStm], Option[IfStm], Option[ModeStm])
+  lazy val shadow: P[Shadow] = ("shadow" | "sd") ~> sdReqStm ~ sdOptStm ^^ { case (withStm) ~ (withExtStm, withIntStm, ifStm, modeStm) =>
     Shadow(
       withStm.tiles,
+      withExtStm.getOrElse(WithExternalStm(Seq())).tiles,
+      withIntStm.getOrElse(WithInternalStm(Seq())).tiles,
       ifStm.getOrElse(IfStm(Seq())).conds,
-      typeStm.getOrElse(TypeStm(ShadowType.default)).sdType
+      modeStm.getOrElse(ModeStm(false)).softMode
     )
   }
-  lazy val sdReqStm: P[SdReqStm] = withStm
-  lazy val sdOptStm: P[SdOptStm] = (ifStm | typeStm).* ^^ { seq =>
+  lazy val sdReqStm: P[SdReqStm] = (withStm)
+  lazy val sdOptStm: P[SdOptStm] = (withExtStm | withIntStm | ifStm | modeStm).* ^^ { seq =>
     (
+      seq.collectFirst { case stm: WithExternalStm => stm },
+      seq.collectFirst { case stm: WithInternalStm => stm },
       seq.collectFirst { case stm: IfStm => stm },
-      seq.collectFirst { case stm: TypeStm => stm }
+      seq.collectFirst { case stm: ModeStm => stm }
     )
   }
   // shape
@@ -112,10 +115,12 @@ class RuleFileParser() extends RegexParsers {
   // statements
   def stm[A](name: P[String])(content: P[A]) = (" +".r | (wsNl ~ ind(1))) ~ name ~ (" +".r | (wsNl ~ ind(2))) ~> content
   lazy val withStm: P[WithStm]               = stm("with")(rep1sep(tile, " +".r | (wsNl ~ ind(2)))) ^^ { WithStm(_) }
+  lazy val withExtStm: P[WithExternalStm]    = stm("withext" | "withe")(rep1sep(tile, " +".r | (wsNl ~ ind(2)))) ^^ { WithExternalStm(_) }
+  lazy val withIntStm: P[WithInternalStm]    = stm("withint" | "withi")(rep1sep(tile, " +".r | (wsNl ~ ind(2)))) ^^ { WithInternalStm(_) }
   lazy val ifStm: P[IfStm]                   = stm("if" | "when")(rep1sep(cond, " +& +".r | (" +&".r ~ wsNl ~ ind(2)))) ^^ { IfStm(_) }
   lazy val randStm: P[RandomStm]             = stm("random")(random) ^^ { RandomStm(_) }
   lazy val rotStm: P[RotateStm]              = stm("rotate")(rep1sep(dir, " *".r | (wsNl ~ ind(2)))) ^^ { RotateStm(_) }
-  lazy val typeStm: P[TypeStm]               = stm("type")(sdType) ^^ { TypeStm(_) }
+  lazy val modeStm: P[ModeStm]               = stm("mode")(mode) ^^ { ModeStm(_) }
   lazy val applyStm: P[ApplyStm]             = stm("apply")(charGrid) ^^ { ApplyStm(_) }
   lazy val onStm: P[OnStm]                   = stm("on")(charGrid) ^^ { OnStm(_) }
   lazy val usingStm: P[UsingStm]             = stm("using")(rep1sep(mapLine, wsNl ~ ind(2))) ^^ { (m: Seq[(Char, Tile | GenericMatcher)]) => UsingStm(m.toMap) }
@@ -139,7 +144,7 @@ class RuleFileParser() extends RegexParsers {
   lazy val charGrid: P[Grid[Char]]                   = rep1sep(rep1sep(char, " *".r), wsNl ~ ind(2)) ^^ { Grid(_) }
   lazy val char: P[Char]                             = "[\\S]".r ^^ { _.charAt(0) }
   lazy val mapLine: P[(Char, Tile | GenericMatcher)] = ("[\\S]".r <~ " *-> *".r) ~ (tile | genericM) ^^ { case c ~ tOrTm => c.charAt(0) -> tOrTm }
-  lazy val sdType: P[ShadowType]                     = "[+-]e[+-]i".r ^^ { case sdTypeR(e, i) => ShadowType(if (e == "+") true else false, if (i == "+") true else false) }
+  lazy val mode: P[Boolean]                          = "solf|normal".r ^^ { case m => m == "soft" }
 
   // errors
   def error(parsed: String): P[Nothing] = "[^\n]+".r <~ "[\\S\\s]*" ^^ { firstLn => throw IllegalArgumentException(s"The given $parsed `${firstLn.substring(0, Math.min(10, firstLn.length))}` is not valid") }
