@@ -29,7 +29,7 @@ def main: Unit =
         "click",
         { _ =>
           parser(input.value) match
-            case Success(autorule) => output.value = autorule.write(using autorule.defTile)
+            case Success(autorule) => output.value = autorule.write(using autorule.tmpTile)
             case Failure(error)    => output.value = s"ERROR: ${error.getMessage}"
         }
       )

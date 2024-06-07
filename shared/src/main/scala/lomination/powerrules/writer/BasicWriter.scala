@@ -50,7 +50,7 @@ object BasicWriter {
 
   given Writable[Replace] with
     extension (r: Replace)
-      def write(using defTile: TmpTile): String =
+      def write(using tmpTile: TmpTile): String =
         if (r.tiles.sizeIs == 1 && r.rotations.sizeIs == 1)
           s"Index ${r.tiles(0).rotate(r.rotations(0)).write}\n" +
             "NoDefaultRule\n" +
@@ -60,7 +60,7 @@ object BasicWriter {
         else
           val tLen = r.tiles.length
           val rLen = r.rotations.length
-          val tmp = s"Index ${defTile.toTile.write}\n" +
+          val tmp = s"Index ${tmpTile.toTile.write}\n" +
             "NoDefaultRule\n" +
             r.conds.map(_.write).mkString +
             r.random.write +
@@ -72,7 +72,7 @@ object BasicWriter {
                 j <- 0 until rLen
                 chance = tLen * rLen - i * rLen - j
               } yield s"Index ${r.tiles(i).rotate(r.rotations(j)).write}\n" +
-                s"Pos 0 0 INDEX ${defTile.toTm.write}\n" +
+                s"Pos 0 0 INDEX ${tmpTile.toTm.write}\n" +
                 (if (chance > 1) s"Random $chance\n" else "") +
                 "NewRun\n"
             ).mkString
@@ -80,12 +80,12 @@ object BasicWriter {
 
   given Writable[Shadow] with
     extension (sd: Shadow)
-      def write(using defTile: TmpTile): String =
+      def write(using tmpTile: TmpTile): String =
         import lomination.powerrules.writer.{defaultTileConds, externalTileConds, internalTileConds, toConds}
-        val tm  = defTile.toGm                                         // matches the tmp tile
-        val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1)) // matches the tmp tile or a border
+        val tm  = tmpTile.toGm                                         // matches the tmp tile
+        val tmB = GenericMatcher(Op.Is, tmpTile.toTm, TileMatcher(-1)) // matches the tmp tile or a border
         val tmp =
-          s"Index ${defTile.toTile.write}\n" +
+          s"Index ${tmpTile.toTile.write}\n" +
             "NoDefaultRule\n" +
             sd.conds.map(_.write).mkString +
             "NewRun\n"
@@ -117,9 +117,9 @@ object BasicWriter {
 
   given Writable[Shape] with
     extension (sp: Shape)
-      def write(using defTile: TmpTile): String =
+      def write(using tmpTile: TmpTile): String =
         val tmp =
-          s"Index ${defTile.toTile.rotate(sp.rotations.last).write}\n" +
+          s"Index ${tmpTile.toTile.rotate(sp.rotations.last).write}\n" +
             "NoDefaultRule\n" +
             (Pos(-1, -1) isnot TileMatcher(-1)).write +
             (Pos(sp.applyPat.xSize, sp.applyPat.ySize) isnot TileMatcher(-1)).write +
@@ -139,16 +139,16 @@ object BasicWriter {
               y <- (-sp.onPat.ySize + 1) until sp.onPat.ySize
               if (!(x >= 0 && y >= 0))
             } yield s"Index ${sp.neutral.write}\n" +
-              (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
-              (Pos(-x, -y) is defTile.toTm.rotate(sp.rotations.last)).write +
+              (Pos(0, 0) is tmpTile.toTm.rotate(sp.rotations.last)).write +
+              (Pos(-x, -y) is tmpTile.toTm.rotate(sp.rotations.last)).write +
               "NewRun\n"
           ).mkString
         val newTmp =
           (
             for {
               i <- 0 until sp.rotations.length - 1
-            } yield s"Index ${defTile.toTile.rotate(sp.rotations(i)).write}\n" +
-              (Pos(0, 0) is defTile.toTm.rotate(sp.rotations.last)).write +
+            } yield s"Index ${tmpTile.toTile.rotate(sp.rotations(i)).write}\n" +
+              (Pos(0, 0) is tmpTile.toTm.rotate(sp.rotations.last)).write +
               s"Random ${sp.rotations.length - i}\n" +
               "NewRun\n"
           ).mkString
@@ -161,7 +161,7 @@ object BasicWriter {
               y <- 0 until pattern.ySize
               t <- pattern(x, y)
             } yield s"Index ${t.rotate(dir).write}\n" +
-              (Pos(-x, -y) is defTile.toTm.rotate(dir)).write
+              (Pos(-x, -y) is tmpTile.toTm.rotate(dir)).write
           ).mkString
         tmp + noOverlaps + (if (sp.rotations.sizeIs > 1) newTmp else "") + core
 

@@ -3,7 +3,7 @@ package lomination.powerrules
 import org.log4s.getLogger
 
 // general
-case class RuleFile(defTile: TmpTile, rules: Seq[Rule])
+case class RuleFile(tmpTile: TmpTile, rules: Seq[Rule])
 
 case class Rule(name: String, cmds: Seq[Command])
 
