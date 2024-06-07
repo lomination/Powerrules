@@ -4,7 +4,7 @@ import scala.util.{Try, Success, Failure}
 import org.log4s.getLogger
 import lomination.powerrules.RuleFile
 
-case class MyParser():
+case class GlobalParser():
   val logger = getLogger
 
   def apply(input: String): Try[RuleFile] =

@@ -9,7 +9,7 @@ import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
 import scalatags.Text.all.*
 import lomination.powerrules.RuleFile
 import lomination.powerrules.build.BuildInfo
-import lomination.powerrules.parser.MyParser
+import lomination.powerrules.parser.GlobalParser
 import lomination.powerrules.writer.Writable
 import lomination.powerrules.writer.BasicWriter.{given Writable[RuleFile]}
 
@@ -24,7 +24,7 @@ def main: Unit =
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
       val output  = dom.document.getElementById("output").asInstanceOf[HTMLTextAreaElement]
       val convert = dom.document.getElementById("convert").asInstanceOf[HTMLButtonElement]
-      val parser  = MyParser()
+      val parser  = GlobalParser()
       convert.addEventListener(
         "click",
         { _ =>
