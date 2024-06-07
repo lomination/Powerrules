@@ -70,27 +70,27 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         )
       ),
       ( // d6
-        Dir.positive,
-        Seq(
-          X, X, X,
-          X, O, X,
-          O, X, X
-        )
-      ),
-      ( // d7
-        Seq(Dir.p0, Dir.p1),
-        Seq(
-          O, X, X,
-          X, O, X,
-          X, X, O
-        )
-      ),
-      ( // d8
         Seq(Dir.p0),
         Seq(
           X, X, X,
           X, O, X,
           X, X, X
+        )
+      ),
+      ( // d7
+        Dir.positive,
+        Seq(
+          O, X, X,
+          X, O, X,
+          X, X, X
+        )
+      ),
+      ( // d8
+        Seq(Dir.p0, Dir.p1),
+        Seq(
+          O, X, X,
+          X, O, X,
+          X, X, O
         )
       )
     )
