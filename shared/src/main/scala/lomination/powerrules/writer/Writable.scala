@@ -1,4 +1,4 @@
-package lomination.powerrules.writers
+package lomination.powerrules.writer
 
 import lomination.powerrules.TmpTile
 

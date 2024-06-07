@@ -1,4 +1,4 @@
-package lomination.powerrules.writers
+package lomination.powerrules.writer
 
 import lomination.powerrules.*
 import lomination.powerrules.build.BuildInfo
@@ -81,7 +81,7 @@ object BasicWriter {
   given Writable[Shadow] with
     extension (sd: Shadow)
       def write(using defTile: TmpTile): String =
-        import lomination.powerrules.writers.{defaultTileConds, externalTileConds, internalTileConds, toConds}
+        import lomination.powerrules.writer.{defaultTileConds, externalTileConds, internalTileConds, toConds}
         val tm  = defTile.toGm                                         // matches the tmp tile
         val tmB = GenericMatcher(Op.Is, defTile.toTm, TileMatcher(-1)) // matches the tmp tile or a border
         val tmp =

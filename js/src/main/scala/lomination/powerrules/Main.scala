@@ -10,8 +10,8 @@ import scalatags.Text.all.*
 import lomination.powerrules.RuleFile
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.parser.MyParser
-import lomination.powerrules.writers.Writable
-import lomination.powerrules.writers.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.writer.Writable
+import lomination.powerrules.writer.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main: Unit =

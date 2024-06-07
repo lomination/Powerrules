@@ -1,8 +1,8 @@
-package lomination.powerrules.writers
+package lomination.powerrules.writer
 
 import munit.FunSuite
 import lomination.powerrules.*
-import lomination.powerrules.writers.BasicWriter.{given Writable[?]}
+import lomination.powerrules.writer.BasicWriter.{given Writable[?]}
 
 class WriteReplace extends FunSuite {
   given TmpTile = TmpTile(255)
