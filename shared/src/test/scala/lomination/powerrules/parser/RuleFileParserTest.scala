@@ -215,7 +215,7 @@ class ParseDefaultTile extends FunSuite {
   test("basic default tile") {
     val input    = ":ff-3"
     val parser   = RuleFileParser()
-    val result   = parser.parse(parser.defaultTile, input)
+    val result   = parser.parse(parser.tmpTile, input)
     val expected = TmpTile(0xff, Dir.m3)
     assert(result.successful, s"PARSING ERROR: $result")
     assert(clue(result.get) == clue(expected))
