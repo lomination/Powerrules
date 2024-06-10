@@ -74,7 +74,7 @@ class ParseShadow extends FunSuite {
   test("shadow with internal") {
     val input = "shadow\n" +
       "  with 1 14+1 75+1 24+1 76+2 52\n" +
-      "  withint 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4\n" +
+      "  withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4\n" +
       "  if 0 0 is full\n" +
       "  mode normal"
     val parser = RuleFileParser()
