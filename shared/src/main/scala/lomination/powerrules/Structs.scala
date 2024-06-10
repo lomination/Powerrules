@@ -45,7 +45,7 @@ case class FullMatcher(op: Op) extends Matcher:
   def rotate(dir: Dir): FullMatcher = this
 
 case object NotEdgeMatcher extends Matcher:
-  def not: NotEdgeMatcher.type              = ???
+  def not: NotEdgeMatcher.type              = throw UnsupportedOperationException("NotEdgeMatcher cannot be positive")
   def rotate(dir: Dir): NotEdgeMatcher.type = this
 
 case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
