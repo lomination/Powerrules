@@ -44,7 +44,7 @@ case class FullMatcher(op: Op) extends Matcher:
   def not: FullMatcher              = FullMatcher(op.not)
   def rotate(dir: Dir): FullMatcher = this
 
-object NotEdgeMatcher extends Matcher:
+case object NotEdgeMatcher extends Matcher:
   def not: NotEdgeMatcher.type              = ???
   def rotate(dir: Dir): NotEdgeMatcher.type = this
 
@@ -122,7 +122,7 @@ case class Pos(x: Int, y: Int):
   def adjacent: Seq[Pos]            = Pos.adjacent.map(this + _)
   def around: Seq[Pos]              = Pos.around.map(this + _)
 
-object Pos:
+case object Pos:
   val zero: Pos          = Pos(0, 0)
   val n: Pos             = Pos(0, -1)
   val ne: Pos            = Pos(1, -1)
@@ -143,7 +143,7 @@ case class Dir(sign: Sign, n: Times):
     Times.fromOrdinal((n.ordinal + dir.n.ordinal) % 4)
   )
 
-object Dir:
+case object Dir:
   val p0: Dir = Dir(Sign.+, Times.Zero)
   val p1: Dir = Dir(Sign.+, Times.One)
   val p2: Dir = Dir(Sign.+, Times.Two)
@@ -157,10 +157,10 @@ object Dir:
   def negative: Seq[Dir] = Seq(m0, m1, m2, m3)
   def all: Seq[Dir]      = Seq(p0, p1, p2, p3, m0, m1, m2, m3)
 
-object AnyDir
+case object AnyDir
 
 case class Random(percent: Float) extends AnyVal
-object Random:
+case object Random:
   val always = Random(100f)
 
 // enums
