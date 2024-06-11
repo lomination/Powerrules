@@ -164,17 +164,25 @@ class WriteComment extends FunSuite {
   given TmpTile = TmpTile(255)
 
   test("WriteComment (1)") {
-    val struct   = Comment("""# this is my comment""")
+    val struct   = Comment("""# comment content""")
     val result   = struct.write
-    val expected = """|# this is my comment
+    val expected = """|# comment content
                       |""".stripMargin
     assert(clue(struct.write) == clue(expected))
   }
 
   test("WriteComment (2): with special characters") {
-    val struct   = Comment("""# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    val struct   = Comment("""# comment content: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
     val result   = struct.write
-    val expected = """|# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    val expected = """|# comment content: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+                      |""".stripMargin
+    assert(clue(struct.write) == clue(expected))
+  }
+
+  test("WriteComment (3): with trailing spaces") {
+    val struct   = Comment("""# comment content     """)
+    val result   = struct.write
+    val expected = """|# comment content
                       |""".stripMargin
     assert(clue(struct.write) == clue(expected))
   }

@@ -168,7 +168,7 @@ object BasicWriter {
   given Writable[Comment] with
     extension (c: Comment)
       def write(using TmpTile): String =
-        c.str + "\n"
+        c.str.trim + "\n"
 
   given Writable[Rule] with
     extension (r: Rule)
