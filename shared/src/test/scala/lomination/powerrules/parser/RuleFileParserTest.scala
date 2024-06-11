@@ -537,3 +537,45 @@ class ParseTmpTile extends FunSuite {
   }
 
 }
+
+class ParsePos extends FunSuite {
+  
+  val P = RuleFileParser
+
+  test("ParsePos (1)") {
+    val input    = "ne"
+    val result   = P.parse(P.pos, input)
+    val expected = Pos.ne
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParsePos (2)") {
+    val input    = "sse"
+    val result   = P.parse(P.pos, input)
+    val expected = Pos(1, 2)
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParsePos (3): suffled") {
+    val input    = "nwnnw"
+    val result   = P.parse(P.pos, input)
+    val expected = Pos(-2, -3)
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParsePos (4): unvalid") {
+    val input    = "nse"
+    val result   = P.parse(P.pos, input)
+    assert(!result.successful, "Parsing should have failed")
+  }
+
+  test("ParsePos (5): unvalid") {
+    val input    = "nenneewen"
+    val result   = P.parse(P.pos, input)
+    assert(!result.successful, "Parsing should have failed")
+  }
+
+}

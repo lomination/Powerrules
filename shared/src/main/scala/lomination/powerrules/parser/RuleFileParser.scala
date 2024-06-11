@@ -116,7 +116,9 @@ object RuleFileParser extends RegexParsers {
 
   // others
   lazy val cond: P[Cond]                             = (pos <~! " +".r) ~! matcher ^^ { case p ~ m => Cond(p, m) }
-  lazy val pos: P[Pos]                               = r(msgPos)(("-?\\d+".r <~! " +".r) ~! "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) })
+  lazy val pos: P[Pos]                               = coords | cardPts // | posErr
+  lazy val coords: P[Pos]                             = ("-?\\d+".r <~! " +".r) ~! "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
+  lazy val cardPts: P[Pos]                            = ("[nsew]+".r ^^ { (str: String) => str.toSeq }) >> { s => if (s.contains('n') && s.contains('s') || s.contains('w') && s.contains('e')) err(msgCardPts) else success(Pos(s.count(_ == 'e') - s.count(_ == 'w'), s.count(_ == 's') - s.count(_ == 'n'))) }
   lazy val matcher: P[Matcher]                       = fullM | notEdgeM | genericM | errEdgeM
   lazy val fullM: P[FullMatcher]                     = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) }
   lazy val notEdgeM: P[NotEdgeMatcher.type]          = "isnot +edge".r ^^^ NotEdgeMatcher
@@ -147,8 +149,9 @@ object RuleFileParser extends RegexParsers {
   lazy val errStm: P[Nothing]               = guard("\\S".r) - ("with|withexternal|withinternal|if|when|random|rotate|apply|on|using|neutral") >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Command")))
   lazy val errCommand: P[Nothing]           = err("Command not found." + wiki("Command"))
   lazy val errEdgeM: P[Nothing]             = "is +edge".r >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
-  def msgIndent(n: Int): String             = s"Wrong indentation. Expected $n ident(s) = ${2 * n} spaces." + wiki("Command")
-  lazy val msgPos: String                   = "The given postition is not valid. Use 'x y' where x and y are signed intergers." + wiki("Condition#Position")
+  // def msgIndent(n: Int): String             = s"Wrong indentation. Expected $n ident(s) = ${2 * n} spaces." + wiki("Command")
+  // lazy val msgPos: String                   = "The given postition is not valid. Use 'x y' where x and y are signed intergers." + wiki("Condition#Position")
+  lazy val msgCardPts                       = "The given position with cardinal points is not valid because opposite cardinal points were found. Do not use 'n' and 's' at the same time, and likewise for 'w' and 'e'." + wiki("Condition#Position")
   lazy val msgOp: String                    = "The given operator is not valid. Expected 'is' or 'isnot'." + wiki("Condition#Operator")
   lazy val msgTmId: String                  = "The given tile matcher index is not valid. Expected a numeric hexadecimal index value between '0' and 'ff', or '-1' or the 'outside' keyword." + wiki("Tile#index", "Tile#outside", "Tile#tile-matcher") // ensure it is the right page
   lazy val msgTmDir: String                 = "The given direction is not valid. Expected whether a sign followed by a digit from '0' to '3' or the wildcard '*'." + wiki("Tile#direction", "Tile#any-direction", "Tile#tile-matcher")                  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
