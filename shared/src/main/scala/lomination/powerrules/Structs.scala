@@ -44,6 +44,8 @@ case class FullMatcher(op: Op) extends Matcher:
   def not: FullMatcher              = FullMatcher(op.not)
   def rotate(dir: Dir): FullMatcher = this
 
+// negative, so use '<pos> is NotEdgeMatcher'
+// using '<pos> isnot NotEdgeMatcher' will throw an UnsupportedOperationException
 case object NotEdgeMatcher extends Matcher:
   def not: NotEdgeMatcher.type              = throw UnsupportedOperationException("NotEdgeMatcher cannot be positive")
   def rotate(dir: Dir): NotEdgeMatcher.type = this
@@ -136,8 +138,6 @@ case object Pos:
   def around: Seq[Pos]   = Seq(n, ne, e, se, s, sw, w, nw)
 
 case class Dir(sign: Sign, n: Times):
-  def this(i: Int, n: Int) =
-    this(if (i >= 0) Sign.+ else Sign.-, Times.fromOrdinal(n % 4))
   def rotate(dir: Dir): Dir = Dir(
     if (sign == dir.sign) Sign.+ else Sign.-,
     Times.fromOrdinal((n.ordinal + dir.n.ordinal) % 4)

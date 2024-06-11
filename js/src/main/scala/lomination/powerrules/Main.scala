@@ -24,11 +24,10 @@ def main: Unit =
       val input   = dom.document.getElementById("input").asInstanceOf[HTMLTextAreaElement]
       val output  = dom.document.getElementById("output").asInstanceOf[HTMLTextAreaElement]
       val convert = dom.document.getElementById("convert").asInstanceOf[HTMLButtonElement]
-      val parser  = GlobalParser()
       convert.addEventListener(
         "click",
         { _ =>
-          parser(input.value) match
+          GlobalParser(input.value) match
             case Success(autorule) => output.value = autorule.write(using autorule.tmpTile)
             case Failure(error)    => output.value = s"ERROR: ${error.getMessage}"
         }

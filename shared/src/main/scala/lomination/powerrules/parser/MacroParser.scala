@@ -8,7 +8,7 @@ import scala.util.parsing.input.Reader
 import org.log4s.getLogger
 import lomination.powerrules.*
 
-class MacroParser() extends RegexParsers {
+object MacroParser extends RegexParsers {
   override protected val whiteSpace: Regex = "".r
 
   val logger = getLogger

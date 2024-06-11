@@ -5,57 +5,41 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
 import lomination.powerrules.*
 
-class RuleFileParser() extends RegexParsers {
+object RuleFileParser extends RegexParsers {
   override def skipWhitespace: Boolean     = false
-  override protected val whiteSpace: Regex = "".r
+  override protected val whiteSpace: Regex = "".r // probably not necessary
 
   val logger = org.log4s.getLogger
 
   def apply(input: String): Try[RuleFile] =
     parseAll(rules, input) match
       case Success(result, next) =>
-        logger.info("P succeed")
+        logger.info("Parser succeed")
         scala.util.Success(result)
       case Error(msg, next) =>
         val exception = ParsingError(s"Error: fail to parse rule file (at l:${next.pos.line}, c:${next.pos.column}).\n\n" + msg)
-        logger.warn(exception)("P generated a handled error (parse result = error)")
+        logger.warn(exception)("Parser generated a handled error (parse result = error)")
         scala.util.Failure(exception)
       case Failure(msg, next) =>
         val exception = ParsingError(s"Error: fail to parse rule file (at l:${next.pos.line}, c:${next.pos.column}).\n\n" + msg)
-        logger.warn(exception)("P generated an unhandled error (parse result = failure)")
+        logger.warn(exception)("Parser generated an unhandled error (parse result = failure)")
         scala.util.Failure(exception)
 
   type P[T] = Parser[T]
 
-  // extension (p: Parser[T]) def r[T](f: String => String) = Parser[T]{ in =>
-  //   this(in) match {
-  //     case Error(msg, next) => Error(f(msg), next)
-  //     case Failure(msg, next) => Error(f(msg), next)
-  //     case other          => other
-  //   }
-  // }
-
-  // def rr[T](parser: P[T])(edit: String => String): P[T] = parser andThen {res => res match
-  //   case Error(msg, next) => Error(edit(msg), next)
-  //   case Failure(msg, next) => Error(edit(msg), next)
-  //   case other          => other
-  // }
-
   lazy val wsNl: P[Unit]   = "[\n ]*\n".r ^^^ ()
-  def ind(n: Int): P[Unit] = r(msgIndent)(List.fill(n)("  ").mkString.r ^^^ ())
-
-  def r[T](msg: String)(parser: P[T]): P[T] = parser withErrorMessage msg withFailureMessage msg
-  def wiki(pages: String*): String = pages.map((p: String) => s"https://github.com/lomination/Powerrules/wiki/${p}").mkString("\nFor more information, see the wiki:\n", ",\n", "") // github wiki reference
+  def ind(n: Int): P[Unit] = /*r(msgIndent(n))*/ (List.fill(n)("  ").mkString.r ^^^ ())
 
   // general
-  lazy val rules: P[RuleFile]  = wsNl.? ~> (tmpTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(TmpTile(255, Dir.m3)), r) }
-  lazy val tmpTile: P[TmpTile] = ":" ~>! (numericId ~ dir.?) ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) }
-  lazy val rule: P[Rule]       = ((ruleName <~ wsNl) /* | errRuleName */ ) ~! repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
-  lazy val ruleName: P[String] = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
-  lazy val command: P[Command] = replace | shadow | shape | comment // | errCommand
-  lazy val replace: P[Replace] = ("replace" | "re") ~>! ((" +".r | (wsNl ~ ind(1))) ~>! (withStm | ifStm | randomStm | rotateStm | errStm)).+ >> { (seq: Seq[Statements]) =>
+  lazy val rules: P[RuleFile]                                      = wsNl.? ~> (tmpTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\n ]*".r ^^ { case d ~ r => RuleFile(d.getOrElse(TmpTile(255, Dir.m3)), r) }
+  lazy val tmpTile: P[TmpTile]                                     = ":" ~>! (numericId ~ dir.?) ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) }
+  lazy val rule: P[Rule]                                           = ((ruleName <~ wsNl) /* | errRuleName */ ) ~! repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
+  lazy val ruleName: P[String]                                     = "\\[[^\n]+\\]".r ^^ { case s => s.drop(1).dropRight(1) }
+  lazy val command: P[Command]                                     = replace | shadow | shape | comment | errCommand
+  def cmd(name: P[?])(statements: P[Statement]): P[Seq[Statement]] = name ~>! (((wsNl ~ ind(1)) | " +".r) ~> (statements | errStm)).+ <~ (wsNl | "[\n ]*$".r)
+  lazy val replace: P[Replace] = cmd("replace" | "re")(withStm | ifStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
     for {
-      withStm <- seq.collectFirst { case stm: WithStm => stm }.fold[P[WithStm]](err("Missing 'with' statement in with command." + wiki("Replace")))(success)
+      withStm <- seq.collectFirst { case stm: WithStm => stm }.fold[P[WithStm]](err("Missing 'with' statement in replace command." + wiki("Replace")))(success)
       ifStm     = seq.collectFirst { case stm: IfStm => stm }
       randomStm = seq.collectFirst { case stm: RandomStm => stm }
       rotateStm = seq.collectFirst { case stm: RotateStm => stm }
@@ -69,7 +53,7 @@ class RuleFileParser() extends RegexParsers {
   // 'with' statement must be tried after 'withexternal' and 'withinternal'
   // else they will be both considered as 'with' and 'external' or 'internal'
   // will grenerate a parsing error
-  lazy val shadow: P[Shadow] = ("shadow" | "sd") ~>! ((" +".r | (wsNl ~ ind(1))) ~>! (withExtStm | withIntStm | withStm | ifStm | modeStm | errStm)).+ >> { (seq: Seq[Statements]) =>
+  lazy val shadow: P[Shadow] = cmd("shadow" | "sd")(withExtStm | withIntStm | withStm | ifStm | modeStm) >> { (seq: Seq[Statement]) =>
     for {
       withStm <- seq.collectFirst { case stm: WithStm => stm }.fold[P[WithStm]](err("Missing 'with' statement in shadow command." + wiki("Shadow")))(success)
       withExtStm = seq.collectFirst { case stm: WithExternalStm => stm }
@@ -84,7 +68,7 @@ class RuleFileParser() extends RegexParsers {
       modeStm.getOrElse(ModeStm(false)).softMode
     )
   }
-  lazy val shape: P[Shape] = ("shape" | "sp") ~>! ((" +".r | (wsNl ~ ind(1))) ~>! (applyStm | onStm | usingStm | neutralStm | randomStm | rotateStm | errStm)).+ >> { (seq: Seq[Statements]) =>
+  lazy val shape: P[Shape] = cmd("shape" | "sp")(applyStm | onStm | usingStm | neutralStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
     for {
       applyStm   <- seq.collectFirst { case stm: ApplyStm => stm }.fold[P[ApplyStm]](err("Missing 'apply' statement in shape command." + wiki("Shape")))(success)
       onStm      <- seq.collectFirst { case stm: OnStm => stm }.fold[P[OnStm]](err("Missing 'on' statement in shape command." + wiki("Shape")))(success)
@@ -112,16 +96,16 @@ class RuleFileParser() extends RegexParsers {
         rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
       )
   }
-  lazy val comment: P[Comment] = "#[^\n]*".r ^^ { case str => Comment(str) }
+  lazy val comment: P[Comment] = "#[^\n]*".r <~ (wsNl | "[\n ]*$".r) ^^ { case str => Comment(str) }
 
   // statements
-  def stm[T](name: P[String])(content: P[T])               = name ~! (" +".r | (wsNl ~ ind(2))) ~>! content
-  def stmRep[T](name: P[String])(repeted: P[T], sep1: P[?], sep2: P[?]) = name ~! (" +".r | (wsNl ~ ind(2))) ~>! rep1sep(repeted, (sep1 | (sep2 ~ wsNl ~ ind(2))))
+  def stm[T](name: P[String])(content: P[T])                            = name ~! ((wsNl ~ ind(2)) | " +".r) ~>! content
+  def stmRep[T](name: P[String])(repeted: P[T], sep1: P[?], sep2: P[?]) = name ~! ((wsNl ~ ind(2)) | " +".r) ~>! rep1sep(repeted, ((sep2 ~ wsNl ~ ind(2)) | sep1))
 
   lazy val withStm: P[WithStm]            = stmRep("with")(tile, " +".r, "") ^^ { WithStm(_) }
   lazy val withExtStm: P[WithExternalStm] = stmRep("withexternal")(tile, " +".r, "") ^^ { WithExternalStm(_) }
   lazy val withIntStm: P[WithInternalStm] = stmRep("withinternal")(tile, " +".r, "") ^^ { WithInternalStm(_) }
-  lazy val ifStm: P[IfStm]                = stmRep("if" | "when")(cond, " +& +".r, " +&".r) ^^ { IfStm(_) }
+  lazy val ifStm: P[IfStm]                = stmRep("if" | "when")(cond, " +& +".r, " +& *".r) ^^ { IfStm(_) }
   lazy val randomStm: P[RandomStm]        = stm("random")(random) ^^ { RandomStm(_) }
   lazy val rotateStm: P[RotateStm]        = stmRep("rotate")(dir, " *".r, "") ^^ { RotateStm(_) }
   lazy val modeStm: P[ModeStm]            = stm("mode")(mode) ^^ { ModeStm(_) }
@@ -152,13 +136,22 @@ class RuleFileParser() extends RegexParsers {
   lazy val mode: P[Boolean]                          = "soft|normal".r ^^ { case m => m == "soft" }
 
   // errors
-  lazy val errStm: P[Nothing]   = err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Command"))
-  lazy val errEdgeM: P[Nothing] = "is +edge".r >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
-  lazy val msgIndent: String    = "Wrong indentation." + wiki("Command")
-  lazy val msgPos: String       = "The given postition is not valid. Use 'x y' where x and y are signed intergers." + wiki("Condition#Position")
-  lazy val msgOp: String        = "The given operator is not valid. Expected 'is' or 'isnot'." + wiki("Condition#Operator")
-  lazy val msgTmId: String      = "The given tile matcher index is not valid. Expected a numeric hexadecimal index value between '0' and 'ff', or '-1' or the 'outside' keyword." + wiki("Tile#index", "Tile#outside", "Tile#tile-matcher") // ensure it is the right page
-  lazy val msgTmDir: String     = "The given direction is not valid. Expected whether a sign followed by a digit from '0' to '3' or the wildcard '*'." + wiki("Tile#direction", "Tile#any-direction", "Tile#tile-matcher")                  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  lazy val msgId: String        = "The given tile index is not valid. Expected hexadecimal value between '0' and 'ff'." + wiki("Tile#index")
-  lazy val msgDir: String       = "The given tile direction is not valid. Expected a sign followed by a digit from '0' to '3'." + wiki("Tile#direction")
+  def editErr[T](edit: String => String)(parser: P[T]): P[T] = new P[T] {
+    def apply(in: Input): ParseResult[T] = parser(in) match
+      case Error(msg, next)   => Failure(edit(msg), next)
+      case Failure(msg, next) => Failure(edit(msg), next)
+      case other              => other
+  }
+  def r[T](msg: String)(parser: P[T]): P[T] = editErr(str => s"$msg\n\nDetails:\n$str")(parser)
+  def wiki(pages: String*): String          = pages.map((p: String) => s"https://github.com/lomination/Powerrules/wiki/${p}").mkString("\nFor more information, see the wiki:\n", ",\n", "")                                                            // github wiki reference
+  lazy val errStm: P[Nothing]               = guard("\\S".r) - ("with|withexternal|withinternal|if|when|random|rotate|apply|on|using|neutral") >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Command")))
+  lazy val errCommand: P[Nothing]           = err("Command not found." + wiki("Command"))
+  lazy val errEdgeM: P[Nothing]             = "is +edge".r >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
+  def msgIndent(n: Int): String             = s"Wrong indentation. Expected $n ident(s) = ${2 * n} spaces." + wiki("Command")
+  lazy val msgPos: String                   = "The given postition is not valid. Use 'x y' where x and y are signed intergers." + wiki("Condition#Position")
+  lazy val msgOp: String                    = "The given operator is not valid. Expected 'is' or 'isnot'." + wiki("Condition#Operator")
+  lazy val msgTmId: String                  = "The given tile matcher index is not valid. Expected a numeric hexadecimal index value between '0' and 'ff', or '-1' or the 'outside' keyword." + wiki("Tile#index", "Tile#outside", "Tile#tile-matcher") // ensure it is the right page
+  lazy val msgTmDir: String                 = "The given direction is not valid. Expected whether a sign followed by a digit from '0' to '3' or the wildcard '*'." + wiki("Tile#direction", "Tile#any-direction", "Tile#tile-matcher")                  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  lazy val msgId: String                    = "The given tile index is not valid. Expected hexadecimal value between '0' and 'ff'." + wiki("Tile#index")
+  lazy val msgDir: String                   = "The given tile direction is not valid. Expected a sign followed by a digit from '0' to '3'." + wiki("Tile#direction")
 }

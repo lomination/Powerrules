@@ -4,220 +4,536 @@ import munit.FunSuite
 import lomination.powerrules.*
 
 class ParseReplace extends FunSuite {
-  test("replace") {
-    val input    = "replace with 2e-2"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  val P = RuleFileParser
+
+  test("ParseReplace (1)") {
+    val input  = """replace with 2e-2"""
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x2e, Dir.m2)),
+      Seq(),
+      Random.always,
+      Seq(Dir.p0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("replace using re") {
-    val input    = "re with 2e-2"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseReplace (2): using re") {
+    val input  = """re with 2e-2"""
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x2e, Dir.m2)),
+      Seq(),
+      Random.always,
+      Seq(Dir.p0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("indented replace") {
-    val input    = "replace\n  with\n    2e-2"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x2e, Dir.m2)))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseReplace (3): indented") {
+    val input = """|replace
+                   |  with
+                   |    2e-2""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x2e, Dir.m2)),
+      Seq(),
+      Random.always,
+      Seq(Dir.p0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("replace with conds") {
-    val input    = "replace\n  with 1f-0\n  if 0 0 is 9+2 & -1 0 is 3-0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseReplace (4): with conds") {
+    val input = """|replace
+                   |  with 1f-0
+                   |  if 0 0 is 9+2 & -1 0 is 3-0""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
+      Random.always,
+      Seq(Dir.p0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("indented replace with conds") {
-    val input    = "replace\n  with 1f-0\n  if\n    0 0 is 9+2 &\n    -1 0 is 3-0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseReplace (5): indented with conds") {
+    val input = """|replace
+                   |  with 1f-0
+                   |  if
+                   |    0 0 is 9+2 &
+                   |    -1 0 is 3-0""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
+      Random.always,
+      Seq(Dir.p0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("complete replace") {
-    val input    = "replace\n  with 1f-0\n  when 0 0 is 9+2 & -1 0 is 3-0\n  random 0.33\n  rotate +0+1+2+3"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.command, input)
-    val expected = Replace(Seq(Tile(0x1f, Dir.m0)), (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)), Random(33), Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3))
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseReplace (6): all statements") {
+    val input = """|replace
+                   |  with 1f-0
+                   |  when 0 0 is 9+2 &
+                   |    -1 0 is 3-0
+                   |  random 0.33
+                   |  rotate +0+1+2+3""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
+      Random(33),
+      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
+  test("ParseReplace (7): random spaces") {
+    val input = """|replace       
+                   |   
+                   |
+                   |  with         1f-0 20-0        
+                   |
+                   |  when    0     0    is     9+2    &   
+                   |    -1    0  is      3-0
+                   |  random        
+                   |    0.33   
+                   |  rotate    +0+1   +2
+                   |    +3   
+                   |""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0), Tile(0x20, Dir.m0)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
+      Random(33),
+      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseReplace (8): disordered statements") {
+    val input = """|replace
+                   |  random 0.33
+                   |  rotate +0+1+2+3
+                   |  when 0 0 is 9+2
+                   |  with 1f-0""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0)),
+      Seq(Pos.zero is TileMatcher(9, Dir.p2)),
+      Random(33),
+      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseReplace (9): missing statement") {
+    val input = """|replace
+                   |  random 0.33
+                   |  rotate +0+1+2+3
+                   |  when 0 0 is 9+2""".stripMargin
+    val result = P.parse(P.command, input)
+    assert(!result.successful, s"Parsing should have failed")
+  }
+
 }
 
 class ParseShadow extends FunSuite {
-  test("shadow") {
-    val input = "shadow\n" +
-      "  with 1 14+1 75+1 24+1 76+2 52\n" +
-      "  if 0 0 is full"
-    val parser = RuleFileParser()
-    val result = parser.parse(parser.shadow, input)
+
+  val P = RuleFileParser
+
+  test("ParseShadow (1)") {
+    val input = """|shadow
+                   |  with 1 14+1 75+1 24+1 76+2 52
+                   |  if 0 0 is full""".stripMargin
+    val result = P.parse(P.shadow, input)
     val expected = Shadow(
-      Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)),
+      Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(),
       Seq(),
       Seq(Pos(0, 0) is FullMatcher(Op.Is)),
       false
     )
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("shadow with internal") {
-    val input = "shadow\n" +
-      "  with 1 14+1 75+1 24+1 76+2 52\n" +
-      "  withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4\n" +
-      "  if 0 0 is full\n" +
-      "  mode normal"
-    val parser = RuleFileParser()
-    val result = parser.parse(parser.shadow, input)
+
+  test("ParseShadow (2): all statements") {
+    val input = """|shadow
+                   |  with 1 14+1 75+1 24+1 76+2 52
+                   |  withexternal 45 47 49
+                   |  withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4
+                   |  if 0 0 is full
+                   |  mode soft""".stripMargin
+    val result = P.parse(P.shadow, input)
     val expected = Shadow(
-      Seq(Tile(0x1), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52)),
-      Seq(),
+      Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
+      Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
       Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4)),
       Seq(Pos(0, 0) is FullMatcher(Op.Is)),
-      false
+      true
     )
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
+  test("ParseShadow (3): disordered statements") {
+    val input = """|shadow
+                   |  if 0 0 is full
+                   |  withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4
+                   |  mode soft
+                   |  withexternal 45 47 49
+                   |  with 1 14+1 75+1 24+1 76+2 52""".stripMargin
+    val result = P.parse(P.shadow, input)
+    val expected = Shadow(
+      Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
+      Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
+      Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4)),
+      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      true
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseShadow (4): with indentation") {
+    val input = """|shadow
+                   |  if
+                   |    0 0 is full &
+                   |    0 -1 isnot edge
+                   |  withinternal
+                   |    35+2 85+2 b0+1 b1+3 b2 b3+1
+                   |    60+1
+                   |    b4
+                   |  mode
+                   |    soft
+                   |  withexternal 45 47 49
+                   |  with
+                   |    1 14+1 75+1
+                   |    24+1 76+2 52""".stripMargin
+    val result = P.parse(P.shadow, input)
+    val expected = Shadow(
+      Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
+      Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
+      Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2, Dir.p0), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4, Dir.p0)),
+      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is NotEdgeMatcher),
+      true
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseShadow (5): with random spaces") {
+    val input = """|shadow             
+                   |  if             
+                   |             
+                   |    0     0          is               full    &
+                   |    0   -1  isnot        edge
+                   |  withinternal   
+                   |     
+                   |           
+                   |    35+2       85+2    b0+1 b1+3 b2 b3+1
+                   |    60+1
+                   |    b4    
+                   |  mode   
+                   |    soft
+                   |  withexternal 45      47 49
+                   |  with      
+                   |    1 14+1         75+1
+                   |    24+1 76+2 52     
+                   |     """.stripMargin
+    val result = P.parse(P.shadow, input)
+    val expected = Shadow(
+      Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
+      Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
+      Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2, Dir.p0), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4, Dir.p0)),
+      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is NotEdgeMatcher),
+      true
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseShadow (5): missing statement") {
+    val input = """|shadow
+                   |  if 0 0 is full
+                   |  withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4
+                   |  mode soft
+                   |  withexternal 45 47 49""".stripMargin
+    val result = P.parse(P.shadow, input)
+    assert(!result.successful, s"Parsing should have failed")
+  }
+
 }
 
 class ParseShape extends FunSuite {
-  test("shape") {
-    val input = "shape\n" +
-      "  apply\n" +
-      "    1 2\n" +
-      "    3 4\n" +
-      "  on\n" +
-      "    . .\n" +
-      "    . .\n" +
-      "  using\n" +
-      "    1 -> 1+0\n" +
-      "    2 -> 2+0\n" +
-      "    3 -> 3+0\n" +
-      "    4 -> 4+0\n" +
-      "  neutral 5+0\n" +
-      "  random 50%"
-    val parser = RuleFileParser()
-    val result = parser.parse(parser.shape, input)
+
+  val P = RuleFileParser
+
+  test("ParseShape (1)") {
+    val input = """|shape
+                   |  apply
+                   |    1 2
+                   |    3 4
+                   |  on
+                   |    . .
+                   |    . .
+                   |  using
+                   |    1 -> 1+0
+                   |    2 -> 2+0
+                   |    3 -> 3+0
+                   |    4 -> 4+0
+                   |  neutral 5+0
+                   |  random 50%""".stripMargin
+    val result = P.parse(P.shape, input)
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
       Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
       Tile(5),
-      Random(50f)
+      Random(50f),
+      Seq(Dir.p0)
     )
-    assert(result.successful, s"PARSING ERROR: $result")
-    assert(clue(result.get.applyPat) == clue(expected.applyPat))
-    assert(clue(result.get.onPat) == clue(expected.onPat))
-    assert(clue(result.get.neutral) == clue(expected.neutral))
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
   }
+
+  test("ParseShape (2): all statements") {
+    val input = """|shape
+                   |  apply
+                   |    1 2
+                   |    3 4
+                   |  on
+                   |    . .
+                   |    . .
+                   |  using
+                   |    1 -> 1+0
+                   |    2 -> 2+0
+                   |    3 -> 3+0
+                   |    4 -> 4+0
+                   |  neutral 5+0
+                   |  random 50%
+                   |  rotate +0-0""".stripMargin
+    val result = P.parse(P.shape, input)
+    val expected = Shape(
+      Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
+      Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
+      Tile(5),
+      Random(50f),
+      Seq(Dir.p0, Dir.m0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseShape (3): disoredered statements") {
+    val input = """|shape
+                   |  using
+                   |    1 -> 1+0
+                   |    2 -> 2+0
+                   |    3 -> 3+0
+                   |    4 -> 4+0
+                   |  neutral 5+0
+                   |  random 50%
+                   |  on
+                   |    . .
+                   |    . .
+                   |  rotate +0-0
+                   |  apply
+                   |    1 2
+                   |    3 4""".stripMargin
+    val result = P.parse(P.shape, input)
+    val expected = Shape(
+      Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
+      Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
+      Tile(5),
+      Random(50f),
+      Seq(Dir.p0, Dir.m0)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseShape (4): missing statement") {
+    val input = """|shape
+                   |  apply
+                   |    1 2
+                   |    3 4
+                   |  on
+                   |    . .
+                   |    . .
+                   |  neutral 5+0
+                   |  random 50%""".stripMargin
+    val result = P.parse(P.shape, input)
+    assert(!result.successful, s"Parsing should have failed")
+  }
+
+  test("ParseShape (5): missing statement") {
+    val input = """|shape
+                   |  apply
+                   |    1 2
+                   |    3 4
+                   |  on
+                   |    . .
+                   |    . .
+                   |  using
+                   |    1 -> 1+0
+                   |    2 -> 2+0
+                   |    3 -> 3+0
+                   |    4 -> 4+0
+                   |  random 50%""".stripMargin
+    val result = P.parse(P.shape, input)
+    assert(!result.successful, s"Parsing should have failed")
+  }
+
 }
 
 class ParseComment extends FunSuite {
-  test("comment with #") {
-    val input    = "# this is my comment"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.comment, input)
-    val expected = Comment("# this is my comment")
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  val P = RuleFileParser
+
+  test("ParseComment(1)") {
+    val input    = """# a nice comment"""
+    val result   = P.parse(P.comment, input)
+    val expected = Comment("# a nice comment")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("comment containing special chars") {
-    val input    = """# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.comment, input)
-    val expected = Comment("""# this is my comment: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseComment(2): with special chars") {
+    val input    = """# a less nice comment... !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+    val result   = P.parse(P.comment, input)
+    val expected = Comment("""# a less nice comment... !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
+  test("ParseComment(3): with trailing spaces") {
+    val input = """|# another one    
+                   |      """.stripMargin
+    val result   = P.parse(P.comment, input)
+    val expected = Comment("# another one    ")
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParseComment(4): with trailing spaces") {
+    val input = """|# the last one      
+                   |      
+                   |""".stripMargin
+    val result   = P.parse(P.comment, input)
+    val expected = Comment("# the last one      ")
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
 }
 
 class ParseTile extends FunSuite {
-  test("basic tile") {
-    val input    = "02+0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
-    val expected = Tile(0x02, Dir.p0)
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  val P = RuleFileParser
+
+  test("ParseTile (1)") {
+    val input    = "12+0"
+    val result   = P.parse(P.tile, input)
+    val expected = Tile(0x12, Dir.p0)
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("1 digit tile") {
+
+  test("ParseTile (2): 1 digit index") {
     val input    = "3+0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
+    val result   = P.parse(P.tile, input)
     val expected = Tile(0x3, Dir.p0)
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("hexa tile") {
-    val input    = "0a+0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
-    val expected = Tile(0x0a, Dir.p0)
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseTile (3): index starting with '0'") {
+    val input    = "06+0"
+    val result   = P.parse(P.tile, input)
+    val expected = Tile(0x6, Dir.p0)
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("1 digit hexa tile") {
-    val input    = "b+0"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
-    val expected = Tile(0xb, Dir.p0)
-    assert(result.successful, s"PARSING ERROR: $result")
+
+  test("ParseTile (4): hexadecimal index") {
+    val input    = "4a+0"
+    val result   = P.parse(P.tile, input)
+    val expected = Tile(0x4a, Dir.p0)
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("positive dir tile") {
+
+  test("ParseTile (5): positive dir") {
     val input    = "a2+2"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
+    val result   = P.parse(P.tile, input)
     val expected = Tile(0xa2, Dir.p2)
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("negative dir tile") {
+
+  test("ParseTile (6): negative dir") {
     val input    = "b3-3"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tile, input)
+    val result   = P.parse(P.tile, input)
     val expected = Tile(0xb3, Dir.m3)
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
+  test("ParseTile (7): defualt dir") {
+    val input    = "c4"
+    val result   = P.parse(P.tile, input)
+    val expected = Tile(0xc4, Dir.p0)
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
 }
 
 class ParseRuleName extends FunSuite {
-  test("rule name") {
+
+  val P = RuleFileParser
+
+  test("ParseRuleName (1)") {
     val input    = "[test]"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.ruleName, input)
+    val result   = P.parse(P.ruleName, input)
     val expected = "test"
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
-  test("rule name with brackets") {
+
+  test("ParseRuleName (2): with brackets") {
     val input    = "[test with [brackets]]"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.ruleName, input)
+    val result   = P.parse(P.ruleName, input)
     val expected = "test with [brackets]"
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
 }
 
-class ParseDefaultTile extends FunSuite {
-  test("basic default tile") {
+class ParseTmpTile extends FunSuite {
+  
+  val P = RuleFileParser
+
+  test("ParseTmpTile (1)") {
     val input    = ":ff-3"
-    val parser   = RuleFileParser()
-    val result   = parser.parse(parser.tmpTile, input)
+    val result   = P.parse(P.tmpTile, input)
     val expected = TmpTile(0xff, Dir.m3)
-    assert(result.successful, s"PARSING ERROR: $result")
+    assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
+
 }
