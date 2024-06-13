@@ -115,25 +115,25 @@ object RuleFileParser extends RegexParsers {
   lazy val neutralStm: P[NeutralStm]      = stm("neutral")(tile) ^^ { NeutralStm(_) }
 
   // others
-  lazy val cond: P[Cond]                             = (pos <~! " +".r) ~! matcher ^^ { case p ~ m => Cond(p, m) }
-  lazy val pos: P[Pos]                               = coords | cardPts // | posErr
-  lazy val coords: P[Pos]                             = ("-?\\d+".r <~! " +".r) ~! "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
-  lazy val cardPts: P[Pos]                            = ("[nsew]+".r ^^ { (str: String) => str.toSeq }) >> { s => if (s.contains('n') && s.contains('s') || s.contains('w') && s.contains('e')) err(msgCardPts) else success(Pos(s.count(_ == 'e') - s.count(_ == 'w'), s.count(_ == 's') - s.count(_ == 'n'))) }
-  lazy val matcher: P[Matcher]                       = fullM | notEdgeM | genericM | errEdgeM
-  lazy val fullM: P[FullMatcher]                     = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) }
-  lazy val notEdgeM: P[NotEdgeMatcher.type]          = "isnot +edge".r ^^^ NotEdgeMatcher
-  lazy val genericM: P[GenericMatcher]               = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
-  lazy val op: P[Op]                                 = r(msgOp)("isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot })
-  lazy val tileM: P[TileMatcher]                     = r(msgTmId)(numericId | outsideId) ~! r(msgTmDir)(dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
-  lazy val anyDir: P[AnyDir.type]                    = "*" ^^^ AnyDir
-  lazy val tile: P[Tile]                             = r(msgId)(numericId) ~! r(msgDir)(dir.?) ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
-  lazy val numericId: P[Int]                         = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
-  lazy val outsideId: P[Int]                         = ("outside" | "-1") ^^^ -1
-  lazy val dir: P[Dir]                               = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
-  lazy val random: P[Random]                         = "\\d+(?:\\.\\d+)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
-  lazy val charGrid: P[Grid[Char]]                   = rep1sep(charLine, wsNl ~ ind(2)) ^^ { Grid(_) }
-  lazy val charLine: P[Seq[Char]]                    = rep1sep(char, " *".r)
-  lazy val char: P[Char]                             = "\\S".r ^^ { _.charAt(0) }
+  lazy val cond: P[Cond]                    = (pos <~! " +".r) ~! matcher ^^ { case p ~ m => Cond(p, m) }
+  lazy val pos: P[Pos]                      = coords | cardPts // | posErr
+  lazy val coords: P[Pos]                   = ("-?\\d+".r <~! " +".r) ~! "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
+  lazy val cardPts: P[Pos]                  = ("[nsew]*|o".r ^^ { (str: String) => str.toSeq }) >> { s => if (s.contains('n') && s.contains('s') || s.contains('w') && s.contains('e')) err(msgCardPts) else success(Pos(s.count(_ == 'e') - s.count(_ == 'w'), s.count(_ == 's') - s.count(_ == 'n'))) }
+  lazy val matcher: P[Matcher]              = fullM | notEdgeM | genericM | errEdgeM
+  lazy val fullM: P[FullMatcher]            = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) }
+  lazy val notEdgeM: P[NotEdgeMatcher.type] = "isnot +edge".r ^^^ NotEdgeMatcher
+  lazy val genericM: P[GenericMatcher]      = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms*) }
+  lazy val op: P[Op]                        = r(msgOp)("isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot })
+  lazy val tileM: P[TileMatcher]            = r(msgTmId)(numericId | outsideId) ~! r(msgTmDir)(dir | anyDir).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
+  lazy val anyDir: P[AnyDir.type]           = "*" ^^^ AnyDir
+  lazy val tile: P[Tile]                    = r(msgId)(numericId) ~! r(msgDir)(dir.?) ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) }
+  lazy val numericId: P[Int]                = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
+  lazy val outsideId: P[Int]                = ("outside" | "-1") ^^^ -1
+  lazy val dir: P[Dir]                      = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
+  lazy val random: P[Random]                = "\\d+(?:\\.\\d+)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
+  lazy val charGrid: P[Grid[Char]]          = rep1sep(charLine, wsNl ~ ind(2)) ^^ { Grid(_) }
+  lazy val charLine: P[Seq[Char]]           = rep1sep(char, " *".r)
+  lazy val char: P[Char]                    = "\\S".r ^^ { _.charAt(0) }
   lazy val mapLine: P[(Char, Tile | GenericMatcher)] = (char <~ " *-> *".r) ~ (tile | genericM) ^^ { case c ~ t => (c, t) }
   lazy val mode: P[Boolean]                          = "soft|normal".r ^^ { case m => m == "soft" }
 
@@ -145,16 +145,16 @@ object RuleFileParser extends RegexParsers {
       case other              => other
   }
   def r[T](msg: String)(parser: P[T]): P[T] = editErr(str => s"$msg\n\nDetails:\n$str")(parser)
-  def wiki(pages: String*): String          = pages.map((p: String) => s"https://github.com/lomination/Powerrules/wiki/${p}").mkString("\nFor more information, see the wiki:\n", ",\n", "")                                                            // github wiki reference
+  def wiki(pages: String*): String          = pages.map((p: String) => s"https://github.com/lomination/Powerrules/wiki/${p}").mkString("\nFor more information, see the wiki:\n", ",\n", "") // github wiki reference
   lazy val errStm: P[Nothing]               = guard("\\S".r) - ("with|withexternal|withinternal|if|when|random|rotate|apply|on|using|neutral") >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Command")))
   lazy val errCommand: P[Nothing]           = err("Command not found." + wiki("Command"))
   lazy val errEdgeM: P[Nothing]             = "is +edge".r >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
   // def msgIndent(n: Int): String             = s"Wrong indentation. Expected $n ident(s) = ${2 * n} spaces." + wiki("Command")
   // lazy val msgPos: String                   = "The given postition is not valid. Use 'x y' where x and y are signed intergers." + wiki("Condition#Position")
-  lazy val msgCardPts                       = "The given position with cardinal points is not valid because opposite cardinal points were found. Do not use 'n' and 's' at the same time, and likewise for 'w' and 'e'." + wiki("Condition#Position")
-  lazy val msgOp: String                    = "The given operator is not valid. Expected 'is' or 'isnot'." + wiki("Condition#Operator")
-  lazy val msgTmId: String                  = "The given tile matcher index is not valid. Expected a numeric hexadecimal index value between '0' and 'ff', or '-1' or the 'outside' keyword." + wiki("Tile#index", "Tile#outside", "Tile#tile-matcher") // ensure it is the right page
-  lazy val msgTmDir: String                 = "The given direction is not valid. Expected whether a sign followed by a digit from '0' to '3' or the wildcard '*'." + wiki("Tile#direction", "Tile#any-direction", "Tile#tile-matcher")                  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  lazy val msgId: String                    = "The given tile index is not valid. Expected hexadecimal value between '0' and 'ff'." + wiki("Tile#index")
-  lazy val msgDir: String                   = "The given tile direction is not valid. Expected a sign followed by a digit from '0' to '3'." + wiki("Tile#direction")
+  lazy val msgCardPts       = "The given position with cardinal points is not valid because opposite cardinal points were found. Do not use 'n' and 's' at the same time, and likewise for 'w' and 'e'." + wiki("Condition#Position")
+  lazy val msgOp: String    = "The given operator is not valid. Expected 'is' or 'isnot'." + wiki("Condition#Operator")
+  lazy val msgTmId: String  = "The given tile matcher index is not valid. Expected a numeric hexadecimal index value between '0' and 'ff', or '-1' or the 'outside' keyword." + wiki("Tile#index", "Tile#outside", "Tile#tile-matcher") // ensure it is the right page
+  lazy val msgTmDir: String = "The given direction is not valid. Expected whether a sign followed by a digit from '0' to '3' or the wildcard '*'." + wiki("Tile#direction", "Tile#any-direction", "Tile#tile-matcher")                  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  lazy val msgId: String    = "The given tile index is not valid. Expected hexadecimal value between '0' and 'ff'." + wiki("Tile#index")
+  lazy val msgDir: String   = "The given tile direction is not valid. Expected a sign followed by a digit from '0' to '3'." + wiki("Tile#direction")
 }

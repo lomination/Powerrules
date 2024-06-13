@@ -9,8 +9,8 @@ class WriteReplace extends FunSuite {
   given TmpTile = TmpTile(255)
 
   test("WriteReplace (1)") {
-    val struct   = Replace(Seq(Tile(0x12)), Seq(Pos(0, 0) is FullMatcher(Op.Is)))
-    val result   = struct.write
+    val struct = Replace(Seq(Tile(0x12)), Seq(Pos(0, 0) is FullMatcher(Op.Is)))
+    val result = struct.write
     val expected = """|Index 18 NONE
                       |NoDefaultRule
                       |Pos 0 0 FULL
@@ -20,8 +20,8 @@ class WriteReplace extends FunSuite {
   }
 
   test("WriteReplace (2): with random") {
-    val struct   = Replace(Seq(Tile(0xa)), Seq(Pos(0, 0) is FullMatcher(Op.Is)), random = Random(75))
-    val result   = struct.write
+    val struct = Replace(Seq(Tile(0xa)), Seq(Pos(0, 0) is FullMatcher(Op.Is)), random = Random(75))
+    val result = struct.write
     val expected = """|Index 10 NONE
                       |NoDefaultRule
                       |Pos 0 0 FULL
@@ -164,24 +164,24 @@ class WriteComment extends FunSuite {
   given TmpTile = TmpTile(255)
 
   test("WriteComment (1)") {
-    val struct   = Comment("""# comment content""")
-    val result   = struct.write
+    val struct = Comment("""# comment content""")
+    val result = struct.write
     val expected = """|# comment content
                       |""".stripMargin
     assert(clue(struct.write) == clue(expected))
   }
 
   test("WriteComment (2): with special characters") {
-    val struct   = Comment("""# comment content: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
-    val result   = struct.write
+    val struct = Comment("""# comment content: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+    val result = struct.write
     val expected = """|# comment content: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
                       |""".stripMargin
     assert(clue(struct.write) == clue(expected))
   }
 
   test("WriteComment (3): with trailing spaces") {
-    val struct   = Comment("""# comment content     """)
-    val result   = struct.write
+    val struct = Comment("""# comment content     """)
+    val result = struct.write
     val expected = """|# comment content
                       |""".stripMargin
     assert(clue(struct.write) == clue(expected))

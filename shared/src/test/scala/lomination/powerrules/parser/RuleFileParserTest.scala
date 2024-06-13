@@ -525,7 +525,7 @@ class ParseRuleName extends FunSuite {
 }
 
 class ParseTmpTile extends FunSuite {
-  
+
   val P = RuleFileParser
 
   test("ParseTmpTile (1)") {
@@ -539,7 +539,7 @@ class ParseTmpTile extends FunSuite {
 }
 
 class ParsePos extends FunSuite {
-  
+
   val P = RuleFileParser
 
   test("ParsePos (1)") {
@@ -567,15 +567,31 @@ class ParsePos extends FunSuite {
   }
 
   test("ParsePos (4): unvalid") {
-    val input    = "nse"
-    val result   = P.parse(P.pos, input)
+    val input  = "nse"
+    val result = P.parse(P.pos, input)
     assert(!result.successful, "Parsing should have failed")
   }
 
   test("ParsePos (5): unvalid") {
-    val input    = "nenneewen"
-    val result   = P.parse(P.pos, input)
+    val input  = "nenneewen"
+    val result = P.parse(P.pos, input)
     assert(!result.successful, "Parsing should have failed")
+  }
+
+  test("ParsePos (6): position o") {
+    val input  = "o"
+    val result = P.parse(P.pos, input)
+    val expected = Pos.zero
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
+
+  test("ParsePos (7): empty position") {
+    val input  = ""
+    val result = P.parse(P.pos, input)
+    val expected = Pos.zero
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
   }
 
 }
