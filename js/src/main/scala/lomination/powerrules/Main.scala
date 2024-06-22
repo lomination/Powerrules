@@ -1,12 +1,8 @@
 package lomination.powerrules
 
 import scala.util.{Success, Failure}
-import scala.scalajs.js
-import scala.scalajs.js.annotation.*
-
 import org.scalajs.dom
 import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
-import scalatags.Text.all.*
 import lomination.powerrules.RuleFile
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.parser.GlobalParser

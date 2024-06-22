@@ -3,7 +3,7 @@ package lomination.powerrules.parser
 import scala.util.Try
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
-import lomination.powerrules.*
+import lomination.powerrules.{AnyDir,Command,Comment,Cond,Dir,FullMatcher,GenericMatcher,Grid,Matcher,NotEdgeMatcher,Op,Pos,Replace,Random,Rule,RuleFile,Shadow,Shape,Sign,Tile,TileMatcher,Times,TmpTile}
 
 object RuleFileParser extends RegexParsers {
   override def skipWhitespace: Boolean     = false

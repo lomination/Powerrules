@@ -1,7 +1,7 @@
 package lomination.powerrules.parser
 
 import munit.FunSuite
-import lomination.powerrules.*
+import lomination.powerrules.{Comment,Dir,FullMatcher,Grid,NotEdgeMatcher,Op,Pos,Replace,Random,Shadow,Shape,Tile,TileMatcher,TmpTile}
 
 class ParseReplace extends FunSuite {
 

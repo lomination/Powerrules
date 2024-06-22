@@ -4,14 +4,11 @@ import scala.annotation.nowarn
 import scala.util.Try
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
-import scala.util.parsing.input.Reader
-import org.log4s.getLogger
-import lomination.powerrules.*
 
 object MacroParser extends RegexParsers {
   override protected val whiteSpace: Regex = "".r
 
-  val logger = getLogger
+  val logger = org.log4s.getLogger
 
   def apply(input: String, macroSeq: Seq[Macro] = Seq()): Try[String] =
     getMacro(macroSeq, input) match

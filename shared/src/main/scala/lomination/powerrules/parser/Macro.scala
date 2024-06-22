@@ -1,7 +1,6 @@
 package lomination.powerrules.parser
 
 import scala.util.{Try, Success, Failure}
-import org.log4s.*
 
 case class Macro(name: String, paramNames: Seq[String], content: String):
   if (paramNames == Seq(""))
@@ -11,7 +10,7 @@ case class Macro(name: String, paramNames: Seq[String], content: String):
     )
   if (paramNames.sizeIs != paramNames.toSet.size)
     logger.warn(s"Some parameters of macro $name have the same name.")
-  val logger = getLogger
+  val logger = org.log4s.getLogger
   def apply(paramValues: Seq[String]): Try[String] =
     val vLength = paramValues.size
     val nLength = paramNames.size

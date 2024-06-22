@@ -1,6 +1,6 @@
 package lomination.powerrules.writer
 
-import lomination.powerrules.*
+import lomination.powerrules.{AnyDir,Comment,Cond,Dir,FullMatcher,GenericMatcher,NotEdgeMatcher,Op,Pos,Replace,Random,Rule,RuleFile,Shadow,Shape,Sign,Tile,TileMatcher,Times,TmpTile}
 import lomination.powerrules.build.BuildInfo
 
 object BasicWriter {
@@ -29,8 +29,8 @@ object BasicWriter {
     extension (c: Cond)
       def write(using TmpTile): String =
         c match
-          case Cond(pos, FullMatcher(op))          => s"Pos ${pos.write} ${if (op == Op.Is) "FULL" else "EMPTY"}\n"
           case Cond(pos, NotEdgeMatcher)           => pos.adjacent.map(p => s"Pos ${p.write} NOTINDEX -1\n").mkString
+          case Cond(pos, FullMatcher(op))          => s"Pos ${pos.write} ${if (op == Op.Is) "FULL" else "EMPTY"}\n"
           case Cond(pos, GenericMatcher(op, tms*)) => s"Pos ${pos.write} ${op.write} ${tms.map(_.write).mkString(" OR ")}\n"
 
   given Writable[TileMatcher] with
