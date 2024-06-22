@@ -253,8 +253,7 @@ class ParseShadow extends FunSuite {
                    |    withexternal 45      47 49
                    |    with      
                    |        1 14+1         75+1
-                   |        24+1 76+2 52     
-                   |       """.stripMargin
+                   |        24+1 76+2 52""".stripMargin
     val result = P.parse(P.shadow, input)
     val expected = Shadow(
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),

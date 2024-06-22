@@ -27,14 +27,14 @@ object RuleFileParser extends RegexParsers {
         scala.util.Success(result)
       case Error(msg, next) =>
         val exception = ParsingError(s"Error: fail to parse rule file (at l:${next.pos.line}, c:${next.pos.column}).\n\n" + msg)
-        logger.warn(exception)("Parser generated a handled error (parse result = error)")
+        logger.error(exception)("Parser generated a handled error (parse result = error)")
         scala.util.Failure(exception)
       case Failure(msg, next) =>
         val exception = ParsingError(s"Error: fail to parse rule file (at l:${next.pos.line}, c:${next.pos.column}).\n\n" + msg)
-        logger.warn(exception)("Parser generated an unhandled error (parse result = failure)")
+        logger.error(exception)("Parser generated an unhandled error (parse result = failure)")
         scala.util.Failure(exception)
 
-  // ---------- Methods ---------- //
+  // ---------- Extensions ---------- //
 
   extension [T](p: P[T])
     /** Apply edit to the message in case of no success
@@ -46,7 +46,7 @@ object RuleFileParser extends RegexParsers {
       * @return
       *   A parser of the same type as `parser` but with `edit(msg)` as message in case of no success
       */
-    def editMsg(edit: String => String): P[T] = new P[T] {
+    def msg(edit: String => String): P[T] = new P[T] {
       def apply(in: Input): ParseResult[T] = p(in) match
         case Error(msg, next)   => Error(edit(msg), next)
         case Failure(msg, next) => Failure(edit(msg), next)
@@ -62,7 +62,27 @@ object RuleFileParser extends RegexParsers {
       * @return
       *   A parser of the same type as `parser` but with `s"$newMsg\n\nDetails:\n$oldMsg"` as message in case of no success
       */
-    def editMsg(msg: String): P[T] = p.editMsg(msg + "\n\nDetails:\n" + _)
+    def msg(msg: String): P[T] = p.msg(msg + "\n\nDetails:\n" + _)
+
+    /** Log when this is parsed
+      *
+      * @param name
+      * @return
+      */
+    def lg(name: String): P[T] = new P[T] {
+      def apply(in: Input): ParseResult[T] = p(in) match
+        case Error(msg, next) =>
+          logger.trace(s"[E $name]: Failed to parse $name (Error) (at l:${next.pos.line}, c:${next.pos.column})")
+          Error(msg, next)
+        case Failure(msg, next) =>
+          logger.trace(s"[F $name]: Failed to parse $name (Failure) (at l:${next.pos.line}, c:${next.pos.column})")
+          Failure(msg, next)
+        case s: Success[T] =>
+          logger.trace(s"[S $name]: $name has been successfully parsed (at l:${s.next.pos.line}, c:${s.next.pos.column})")
+          s
+    }
+
+  // ---------- Methods ---------- //
 
   /** A parser that parses a given number of indent (tab `\t` or four spaces)
     *
@@ -71,7 +91,7 @@ object RuleFileParser extends RegexParsers {
     * @return
     *   `Unit` on success
     */
-  def ind(n: Int): P[String] = s"(?:    |\t){$n}".r editMsg Msg.indent(n)
+  def ind(n: Int): P[String] = s"(?:    |\t){$n}".r msg Msg.indent(n)
 
   /** A parser that parses a command
     *
@@ -123,21 +143,21 @@ object RuleFileParser extends RegexParsers {
   lazy val wsNl: P[String] = "[\\s]*\n".r
 
   /** A parser of a global Powerrules file */
-  lazy val ruleFile: P[RuleFile] = wsNl.? ~> (tmpTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\\s]*".r ^^ { case t ~ r => RuleFile(t.getOrElse(TmpTile(255, Dir.m3)), r) }
+  lazy val ruleFile: P[RuleFile] = wsNl.? ~> (tmpTile <~ wsNl).? ~ rep1sep(rule, wsNl) <~ "[\\s]*".r ^^ { case t ~ r => RuleFile(t.getOrElse(TmpTile(255, Dir.m3)), r) } lg "ruleFile"
 
   /** A parser of a temporary tile */
-  lazy val tmpTile: P[TmpTile] = ":" ~>! numericId ~! dir.? ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) }
+  lazy val tmpTile: P[TmpTile] = ":" ~>! numericId ~! dir.? ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) } lg "temporaryTile"
 
   /** A parser of a rule */
-  lazy val rule: P[Rule] = (ruleName <~ wsNl) ~! repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) }
+  lazy val rule: P[Rule] = (ruleName <~ wsNl) ~! repsep(command, wsNl) ^^ { case n ~ c => Rule(n, c) } lg "rule"
 
   /** A parser of the name of a rule */
-  lazy val ruleName: P[String] = "\\[[^\n]+\\]".r ^^ { str => str.drop(1).dropRight(1) }
+  lazy val ruleName: P[String] = "\\[[^\n]+\\]".r ^^ { str => str.drop(1).dropRight(1) } lg "ruleName"
 
   // ---------- Commands ---------- //
 
   /** A parser of a command */
-  lazy val command: P[Command] = replace | shadow | shape | comment | Err.command
+  lazy val command: P[Command] = replace | shadow | shape | comment | Err.command lg "command"
 
   /** A parser of a replace command */
   lazy val replace: P[Replace] = cmd("replace" | "re")(withStm | ifStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
@@ -152,7 +172,7 @@ object RuleFileParser extends RegexParsers {
       randomStm.getOrElse(RandomStm(Random.always)).chance,
       rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
     )
-  }
+  } lg "replace"
 
   /** A parser of a shadow command */
   lazy val shadow: P[Shadow] = cmd("shadow" | "sd")(withExtStm | withIntStm | withStm | ifStm | modeStm) >> { (seq: Seq[Statement]) =>
@@ -173,7 +193,7 @@ object RuleFileParser extends RegexParsers {
       ifStm.getOrElse(IfStm(Seq())).conds,
       modeStm.getOrElse(ModeStm(false)).softMode
     )
-  }
+  } lg "shadow"
 
   /** A parser of a shape command */
   lazy val shape: P[Shape] = cmd("shape" | "sp")(applyStm | onStm | usingStm | neutralStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
@@ -203,82 +223,82 @@ object RuleFileParser extends RegexParsers {
         randomStm.chance,
         rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
       )
-  }
+  } lg "shape"
+
+  /** A parser of a comment */
+  lazy val comment: P[Comment] = "#[^\n]*".r <~ (wsNl | "[\\s]*$".r) ^^ { str => Comment(str) } lg "comment"
 
   // ---------- Statements ---------- //
 
-  /** A parser of a comment */
-  lazy val comment: P[Comment] = "#[^\n]*".r <~ (wsNl | "[\\s]*$".r) ^^ { str => Comment(str) }
-
   /** Parser of with statement */
-  lazy val withStm: P[WithStm] = stm("with")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithStm(_) }
+  lazy val withStm: P[WithStm] = stm("with")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithStm(_) } lg "withStatement"
 
   /** Parser of withexternal statement */
-  lazy val withExtStm: P[WithExternalStm] = stm("withexternal")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithExternalStm(_) }
+  lazy val withExtStm: P[WithExternalStm] = stm("withexternal")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithExternalStm(_) } lg "withExternalStatement"
 
   /** Parser of withinternal statement */
-  lazy val withIntStm: P[WithInternalStm] = stm("withinternal")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithInternalStm(_) }
+  lazy val withIntStm: P[WithInternalStm] = stm("withinternal")(tile)(wsNl ~ ind(2) | " +".r) ^^ { WithInternalStm(_) } lg "withInternalStatement"
 
   /** Parser of if statement */
-  lazy val ifStm: P[IfStm] = stm("if" | "when")(cond)(" *&".r ~ wsNl ~ ind(2) | " +& +".r) ^^ { IfStm(_) }
+  lazy val ifStm: P[IfStm] = stm("if" | "when")(cond)(" *&".r ~ wsNl ~ ind(2) | " +& +".r) ^^ { IfStm(_) } lg "ifStatement"
 
   /** Parser of random statement */
-  lazy val randomStm: P[RandomStm] = stm("random")(random) ^^ { RandomStm(_) }
+  lazy val randomStm: P[RandomStm] = stm("random")(random) ^^ { RandomStm(_) } lg "randomStatement"
 
   /** Parser of rotate statement */
-  lazy val rotateStm: P[RotateStm] = stm("rotate")(dir)(" *".r) ^^ { RotateStm(_) }
+  lazy val rotateStm: P[RotateStm] = stm("rotate")(dir)(" *".r) ^^ { RotateStm(_) } lg "rotateStatement"
 
   /** Parser of mode statement */
-  lazy val modeStm: P[ModeStm] = stm("mode")(mode) ^^ { ModeStm(_) }
+  lazy val modeStm: P[ModeStm] = stm("mode")(mode) ^^ { ModeStm(_) } lg "modeStatement"
 
   /** Parser of apply statement */
-  lazy val applyStm: P[ApplyStm] = stm("apply")(charGrid) ^^ { ApplyStm(_) }
+  lazy val applyStm: P[ApplyStm] = stm("apply")(charGrid) ^^ { ApplyStm(_) } lg "applyStatement"
 
   /** Parser of on statement */
-  lazy val onStm: P[OnStm] = stm("on")(charGrid) ^^ { OnStm(_) }
+  lazy val onStm: P[OnStm] = stm("on")(charGrid) ^^ { OnStm(_) } lg "onStatement"
 
   /** Parser of using statement */
-  lazy val usingStm: P[UsingStm] = stm("using")(mapLine)(wsNl ~ ind(2)) ^^ { (m: Seq[(Char, Tile | GenericMatcher)]) => UsingStm(m.toMap) }
+  lazy val usingStm: P[UsingStm] = stm("using")(dictLine)(wsNl ~ ind(2)) ^^ { (m: Seq[(Char, Tile | GenericMatcher)]) => UsingStm(m.toMap) } lg "usingStatement"
 
   /** Parser of neutral statement */
-  lazy val neutralStm: P[NeutralStm] = stm("neutral")(tile) ^^ { NeutralStm(_) }
+  lazy val neutralStm: P[NeutralStm] = stm("neutral")(tile) ^^ { NeutralStm(_) } lg "neutralStatement"
 
   // ---------- Other objects ---------- //
 
-  lazy val cond: P[Cond]  = (pos <~! " +".r) ~! matcher ^^ { case p ~ m => Cond(p, m) }
-  lazy val pos: P[Pos]    = (coords | cardPts | oPos) editMsg (Msg.pos)
-  lazy val coords: P[Pos] = guard("[-\\d]".r) ~>! ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) }
+  lazy val cond: P[Cond]  = (pos <~! " +".r) ~! matcher ^^ { case p ~ m => Cond(p, m) } lg "condition"
+  lazy val pos: P[Pos]    = (coords | cardPts | oPos) msg (Msg.pos) lg "position"
+  lazy val coords: P[Pos] = guard("[-\\d]".r) ~>! ("-?\\d+".r <~ " +".r) ~ "-?\\d+".r ^^ { case x ~ y => Pos(x.toInt, y.toInt) } lg "coordinatesPosition"
   lazy val cardPts: P[Pos] = guard("[nsew]".r) ~>! ("[nsew]+".r ^^ { (str: String) => str.toSeq }) >> { s =>
     if (s.contains('n') && s.contains('s') || s.contains('w') && s.contains('e')) err(Msg.cardPts) else success(Pos(s.count(_ == 'e') - s.count(_ == 'w'), s.count(_ == 's') - s.count(_ == 'n')))
-  }
-  lazy val oPos: P[Pos]                              = "o|there".r ^^^ Pos.zero
-  lazy val matcher: P[Matcher]                       = fullM | notEdgeM | genericM | Err.edgeM
-  lazy val fullM: P[FullMatcher]                     = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) }
-  lazy val notEdgeM: P[NotEdgeMatcher.type]          = "isnot +edge".r ^^^ NotEdgeMatcher
-  lazy val genericM: P[GenericMatcher]               = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms.toSeq*) }
-  lazy val op: P[Op]                                 = (commit("isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot })) editMsg (Msg.op)
-  lazy val tileM: P[TileMatcher]                     = (commit(numericId | outsideId) editMsg (Msg.tmId)) ~! (commit(dir | anyDir) editMsg (Msg.tmDir)).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
-  lazy val anyDir: P[AnyDir.type]                    = "*" ^^^ AnyDir
-  lazy val tile: P[Tile]                             = ( /* commit */ (numericId) editMsg (Msg.id)) ~! (commit(dir.?) editMsg (Msg.dir)) ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) } // removed commit to fix ParseShadow (5)
-  lazy val numericId: P[Int]                         = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) }
-  lazy val outsideId: P[Int]                         = ("outside" | "-1") ^^^ -1
-  lazy val dir: P[Dir]                               = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) }
-  lazy val random: P[Random]                         = "\\d+(?:\\.\\d+)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) }
-  lazy val charGrid: P[Grid[Char]]                   = rep1sep(charLine, wsNl ~ ind(2)) ^^ { Grid(_) }
-  lazy val charLine: P[Seq[Char]]                    = rep1sep(char, " *".r)
-  lazy val char: P[Char]                             = "\\S".r ^^ { _.charAt(0) }
-  lazy val mapLine: P[(Char, Tile | GenericMatcher)] = (char <~! " *-> *".r) ~! (tile | genericM) ^^ { case c ~ t => (c, t) }
-  lazy val mode: P[Boolean]                          = commit("soft|normal".r) ^^ { case m => m == "soft" } editMsg (Msg.mode)
+  } lg "cardinalPointsPosition"
+  lazy val oPos: P[Pos]                              = "o|there".r ^^^ Pos.zero lg "zeroPosition"
+  lazy val matcher: P[Matcher]                       = fullM | notEdgeM | genericM | Err.edgeM lg "matcher"
+  lazy val fullM: P[FullMatcher]                     = (op <~ " +".r) ~ ("full" | "empty") ^^ { case o ~ w => FullMatcher(if (w == "full") o else o.not) } lg "fullMatcher"
+  lazy val notEdgeM: P[NotEdgeMatcher.type]          = "isnot +edge".r ^^^ NotEdgeMatcher lg "notEdgeMatcher"
+  lazy val genericM: P[GenericMatcher]               = (op <~ " +".r) ~ rep1sep(tileM, " *\\| *".r) ^^ { case op ~ tms => GenericMatcher(op, tms.toSeq*) } lg "genericMatcher"
+  lazy val op: P[Op]                                 = "isnot|is".r ^^ { o => if (o == "is") Op.Is else Op.Isnot } msg (Msg.op) lg "operator"
+  lazy val tileM: P[TileMatcher]                     = ((numericId | outsideId) msg (Msg.tmId)) ~! ((dir | anyDir) msg (Msg.tmDir)).? ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) } lg "tileMatcher"
+  lazy val anyDir: P[AnyDir.type]                    = "*" ^^^ AnyDir lg "anyDirection"
+  lazy val tile: P[Tile]                             = (numericId msg Msg.id) ~! (dir.? msg Msg.dir) ^^ { case i ~ d => Tile(i, d.getOrElse(Dir.p0)) } lg "tile"
+  lazy val numericId: P[Int]                         = "[a-f0-9]{1,2}".r ^^ { Integer.parseInt(_, 16) } lg "numericIndex"
+  lazy val outsideId: P[Int]                         = ("outside" | "-1") ^^^ -1 lg "outsideIndex"
+  lazy val dir: P[Dir]                               = "[+-]".r ~ "[0-3]".r ^^ { case s ~ t => Dir(if (s == "+") Sign.+ else Sign.-, Times.fromOrdinal(t.toInt)) } lg "direction"
+  lazy val random: P[Random]                         = "\\d+(?:\\.\\d+)?".r ~ "%?".r ^^ { case n ~ p => if (p == "%") Random(n.toFloat) else Random(n.toFloat * 100) } lg "random"
+  lazy val charGrid: P[Grid[Char]]                   = rep1sep(charLine, wsNl ~ ind(2)) ^^ { Grid(_) } lg "charGrid"
+  lazy val charLine: P[Seq[Char]]                    = rep1sep(char, " *".r) lg "characterLine"
+  lazy val char: P[Char]                             = "\\S".r ^^ { _.charAt(0) } lg "character"
+  lazy val dictLine: P[(Char, Tile | GenericMatcher)] = (char <~! " *-> *".r) ~! (tile | genericM) ^^ { case c ~ t => (c, t) } lg "dictionaryLine"
+  lazy val mode: P[Boolean]                          = "soft|normal".r ^^ { case m => m == "soft" } msg (Msg.mode) lg "mode"
 
   // ---------- Error handling ---------- //
 
   /** Object that contains error parsers */
   object Err:
-    lazy val stm: P[Nothing]     = guard("\\S".r) - ("with|withexternal|withinternal|if|when|random|rotate|apply|on|using|neutral") >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Commands")))
-    lazy val command: P[Nothing] = err("Command not found." + wiki("Commands"))
-    lazy val edgeM: P[Nothing]   = "is +edge".r >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
+    lazy val stm: P[Nothing]     = (success(()) ^^^ logger.error("E: unvalid statement parsed")) >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Commands")))
+    lazy val command: P[Nothing] = (success(()) ^^^ logger.error("E: unvalid command parsed")) >> (_ => err("Command not found." + wiki("Commands")))
+    lazy val edgeM: P[Nothing]   = ("is +edge".r ^^^ logger.error("E: positive edge matcher parsed")) >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
 
-  /** Object that contins error messages */
+  /** Object that contains error messages */
   object Msg:
     def indent(n: Int): String = s"Wrong indentation. Expected $n ident(s) = ${4 * n} spaces." + wiki("Commands")
     lazy val pos: String       = "The given postition is not valid. Expected either coordinates 'x y' where x and y are signed intergers, or cardinal points ('n', 's', 'e', 'w') or 'o' or 'there'" + wiki("Condition#Position")
