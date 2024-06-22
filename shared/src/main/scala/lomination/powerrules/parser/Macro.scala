@@ -16,7 +16,7 @@ case class Macro(name: String, paramNames: Seq[String], content: String):
     val nLength = paramNames.size
     if (vLength != nLength)
       val msg       = s"Invalid number of params for macro `$name`. Given: $vLength, expected: $nLength"
-      val exception = IllegalArgumentException(msg)
+      val exception = InvalidNumberOfMacroParameters(msg)
       logger.error(msg)
       logger.debug(s"Given params: `${paramValues.mkString("`, `")}`")
       Failure(exception)

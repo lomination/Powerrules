@@ -294,8 +294,8 @@ object RuleFileParser extends RegexParsers {
 
   /** Object that contains error parsers */
   object Err:
-    lazy val stm: P[Nothing]     = (success(()) ^^^ logger.error("E: unvalid statement parsed")) >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Commands")))
-    lazy val command: P[Nothing] = (success(()) ^^^ logger.error("E: unvalid command parsed")) >> (_ => err("Command not found." + wiki("Commands")))
+    lazy val stm: P[Nothing]     = (success(()) ^^^ logger.error("E: invalid statement parsed")) >> (_ => err("The given statement is invalid. Make sure the indentation is correct and the name of the statement is valid." + wiki("Commands")))
+    lazy val command: P[Nothing] = (success(()) ^^^ logger.error("E: invalid command parsed")) >> (_ => err("Command not found." + wiki("Commands")))
     lazy val edgeM: P[Nothing]   = ("is +edge".r ^^^ logger.error("E: positive edge matcher parsed")) >> (_ => err("The edge matcher cannot be positive due to language restriction. Please do not use 'is edge'" + wiki("Condition#edge-matcher")))
 
   /** Object that contains error messages */

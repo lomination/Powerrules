@@ -566,13 +566,13 @@ class ParsePos extends FunSuite {
     assert(clue(result.get) == clue(expected))
   }
 
-  test("ParsePos (4): unvalid") {
+  test("ParsePos (4): invalid") {
     val input  = "nse"
     val result = P.parse(P.pos, input)
     assert(!result.successful, "Parsing should have failed")
   }
 
-  test("ParsePos (5): unvalid") {
+  test("ParsePos (5): invalid") {
     val input  = "nenneewen"
     val result = P.parse(P.pos, input)
     assert(!result.successful, "Parsing should have failed")
