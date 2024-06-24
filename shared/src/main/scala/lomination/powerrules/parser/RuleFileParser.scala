@@ -96,7 +96,7 @@ object RuleFileParser extends RegexParsers {
       * @return
       */
     def lg(name: String): P[T] =
-      val margin = List.fill(Math.max(16 - name.size, 0))(" ").mkString
+      val margin = List.fill(Math.max(20 - name.size, 0))(" ").mkString
       lg(
         Some(in => s"T $name$margin [${in.pos.line}:${in.pos.column}]: Trying to parse $name"),
         Some(s => s"S $name$margin [${s.next.pos.line}:${s.next.pos.column}]: $name has been successfully parsed"),
@@ -110,7 +110,7 @@ object RuleFileParser extends RegexParsers {
       * @return
       */
     def lgErr(name: String): P[T] =
-      val margin = List.fill(Math.max(16 - name.size, 0))(" ").mkString
+      val margin = List.fill(Math.max(20 - name.size, 0))(" ").mkString
       lg(None, None, None, Some(e => s"! $name$margin [${e.next.pos.line}:${e.next.pos.column}]: Detected $name and generated an error"))
 
   // ---------- Methods ---------- //
