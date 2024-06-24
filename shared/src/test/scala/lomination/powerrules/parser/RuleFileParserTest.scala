@@ -3,6 +3,90 @@ package lomination.powerrules.parser
 import munit.FunSuite
 import lomination.powerrules.{Comment,Dir,FullMatcher,Grid,NotEdgeMatcher,Op,Pos,Replace,Random,Shadow,Shape,Tile,TileMatcher,TmpTile}
 
+class ParseRuleFile extends FunSuite {
+
+  val P = RuleFileParser
+
+  test("ParseRuleFile (1)") {
+    val input = """|[r1]
+                   |
+                   |replace with 1+0
+                   |
+                   |[boo]
+                   |
+                   |[r2]
+                   |
+                   |replace with 2+0
+                   |
+                   |""".stripMargin
+    val result = P(input)
+    assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
+  }
+
+  test("ParseRuleFile (2): random spaces") {
+    val input = """|             
+                   |[r1]          
+                   |[-]
+                   |replace with 1+0
+                   |           
+                   |[------]          
+                   |          
+                   |[r2]          
+                   |             
+                   |replace with 2+0          
+                   |          
+                   |      """.stripMargin
+    val result = P(input)
+    assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
+  }
+
+  test("ParseRuleFile (3): random spaces") {
+    val input = """|             
+                   |[r1]          
+                   |            
+                   |replace with 1+0
+                   |           
+                   |[------]          
+                   |          
+                   |[r2]          
+                   |             
+                   |replace with 2+0""".stripMargin
+    val result = P(input)
+    assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
+  }
+
+  test("ParseRuleFile (4)") {
+    val input = """|             
+                   |[r1]          
+                   |            
+                   |replace with 1+0
+                   |           
+                   |[------]          
+                   |          
+                   |[r2]          
+                   |             
+                   |[b]""".stripMargin
+    val result = P(input)
+    assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
+  }
+
+  test("ParseRuleFile (4)") {
+    val input = """|             
+                   |[r1]          
+                   |            
+                   |replace with 1+0
+                   |           
+                   |[------]          
+                   |          
+                   |[r2]          
+                   |             
+                   |[b]     """.stripMargin
+    val result = P(input)
+    assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
+  }
+
+}
+
 class ParseReplace extends FunSuite {
 
   val P = RuleFileParser
