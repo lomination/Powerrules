@@ -14,22 +14,23 @@ def toConds(pattern: Seq[Trilean])(matcher: Matcher): Seq[Cond] =
       case (pos, Trilean.X) => conds :+ (pos isnot matcher)
   }
 
-def defaultTileConds(softMode: Boolean)(matcher: Matcher): Seq[(Seq[Dir], Seq[Cond])] =
-  defaultTilePatterns(softMode).map { (dp: (Seq[Dir], Seq[Trilean])) => (dp._1, toConds(dp._2)(matcher)) }
+def defaultTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
+  defaultTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
 
-def externalTileConds(softMode: Boolean)(matcher: Matcher): Seq[(Seq[Dir], Seq[Cond])] =
-  externalTilePatterns(softMode).map { (dp: (Seq[Dir], Seq[Trilean])) => (dp._1, toConds(dp._2)(matcher)) }
+def externalTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
+  externalTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
 
-def internalTileConds(softMode: Boolean)(matcher: Matcher): Seq[(Seq[Dir], Seq[Cond])] =
-  internalTilePatterns(softMode).map { (dp: (Seq[Dir], Seq[Trilean])) => (dp._1, toConds(dp._2)(matcher)) }
+def internalTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
+  internalTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
 
 // @formatter:off
 
-def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
+def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
   import lomination.powerrules.writer.Trilean.{O, ?, X}
   if (softMode)
     Seq(
-      ( // d1
+      (
+        "d1",
         Seq(Dir.p0),
         Seq(
           ?, ?, ?,
@@ -37,7 +38,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, ?, ?
         )
       ),
-      ( // d2
+      (
+        "d2",
         Dir.positive,
         Seq(
           X, X, X,
@@ -45,7 +47,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, ?, ?
         )
       ),
-      ( // d3
+      (
+        "d3",
         Dir.positive,
         Seq(
           X, X, ?,
@@ -53,7 +56,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d4
+      (
+        "d4",
         Dir.positive,
         Seq(
           ?, X, ?,
@@ -61,7 +65,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, X, ?
         )
       ),
-      ( // d5
+      (
+        "d5",
         Dir.positive,
         Seq(
           X, X, X,
@@ -69,7 +74,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d6
+      (
+        "d6",
         Seq(Dir.p0),
         Seq(
           X, X, X,
@@ -77,7 +83,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           X, X, X
         )
       ),
-      ( // d7
+      (
+        "d7",
         Dir.positive,
         Seq(
           O, X, X,
@@ -85,7 +92,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           X, X, X
         )
       ),
-      ( // d8
+      (
+        "d8",
         Seq(Dir.p0, Dir.p1),
         Seq(
           O, X, X,
@@ -96,7 +104,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
     )
   else
     Seq(
-      ( // d1
+      (
+        "d1",
         Seq(Dir.p0),
         Seq(
           ?, O, ?,
@@ -104,7 +113,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d2
+      (
+        "d2",
         Dir.positive,
         Seq(
           ?, X, ?,
@@ -112,7 +122,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d3
+      (
+        "d3",
         Dir.positive,
         Seq(
           ?, X, ?,
@@ -120,7 +131,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d4
+      (
+        "d4",
         Dir.positive,
         Seq(
           ?, X, ?,
@@ -128,7 +140,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, X, ?
         )
       ),
-      ( // d5
+      (
+        "d5",
         Dir.positive,
         Seq(
           ?, X, ?,
@@ -136,7 +149,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, O, ?
         )
       ),
-      ( // d6
+      (
+        "d6",
         Seq(Dir.p0),
         Seq(
           ?, X, ?,
@@ -145,11 +159,13 @@ def defaultTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         )
       )
     )
-def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
+
+def externalTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
   import lomination.powerrules.writer.Trilean.{O, ?, X}
   if (softMode)
     Seq(
-    ( // e1
+    (
+      "e1",
       Dir.positive,
       Seq(
         ?, O, ?,
@@ -157,7 +173,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         ?, X, ?
       )
     ),
-    ( // e2
+    (
+      "e2",
       Dir.positive,
       Seq(
         ?, O, ?,
@@ -165,7 +182,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         ?, X, ?
       )
     ),
-    ( // e4
+    (
+      "e4",
       Dir.positive,
       Seq(
         ?, O, ?,
@@ -176,7 +194,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
   )
   else
     Seq(
-      ( // e1
+      (
+        "e1",
         Dir.positive,
         Seq(
           O, O, ?,
@@ -184,7 +203,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, ?, ?
         )
       ),
-      ( // e2
+      (
+        "e2",
         Dir.positive,
         Seq(
           O, O, O,
@@ -192,7 +212,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           ?, ?, ?
         )
       ),
-      ( // e3
+      (
+        "e3",
         Dir.positive,
         Seq(
           O, O, O,
@@ -200,7 +221,8 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           X, O, O
         )
       ),
-      ( // e4
+      (
+        "e4",
         Seq(Dir.p0),
         Seq(
           O, O, O,
@@ -208,8 +230,9 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
           O, O, O
         )
       ),
-      ( // e5
-        Seq(Dir.p0),
+      (
+        "e5",
+        Seq(Dir.p0, Dir.p1),
         Seq(
           O, O, X,
           O, X, O,
@@ -217,10 +240,12 @@ def externalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         )
       )
     )
-def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
+
+def internalTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
   import lomination.powerrules.writer.Trilean.{O, ?, X}
   Seq(
-    ( // i1
+    (
+      "i1",
       Dir.positive,
       Seq(
         X, O, O,
@@ -228,7 +253,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         O, O, O
       )
     ),
-    ( // i2
+    (
+      "i2",
       Dir.positive,
       Seq(
         X, O, X,
@@ -236,7 +262,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         O, O, O
       )
     ),
-    ( // i3
+    (
+      "i3",
       Dir.positive,
       Seq(
         X, O, X,
@@ -244,7 +271,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         O, O, X
       )
     ),
-    ( // i4
+    (
+      "i4",
       Seq(Dir.p0),
       Seq(
         X, O, X,
@@ -252,7 +280,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         X, O, X
       )
     ),
-    ( // i5
+    (
+      "i5",
       Dir.positive,
       Seq(
         X, O, O,
@@ -260,7 +289,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         O, O, X
       )
     ),
-    ( // i6
+    (
+      "i6",
       Dir.positive,
       Seq(
         ?, X, ?,
@@ -268,7 +298,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         ?, O, X
       )
     ),
-    ( // i7
+    (
+      "i7",
       Dir.all,
       Seq(
         ?, X, ?,
@@ -276,7 +307,8 @@ def internalTilePatterns(softMode: Boolean): Seq[(Seq[Dir], Seq[Trilean])] =
         X, O, ?
       )
     ),
-    ( // i8
+    (
+      "i8",
       Dir.positive,
       Seq(
         ?, X, ?,
