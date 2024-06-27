@@ -613,9 +613,9 @@ class ParseTmpTile extends FunSuite {
   val P = RuleFileParser
 
   test("ParseTmpTile (1)") {
-    val input    = ":ff-3"
+    val input    = ":ff"
     val result   = P.parse(P.tmpTile, input)
-    val expected = TmpTile(0xff, Dir.m3)
+    val expected = TmpTile(0xff)
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }

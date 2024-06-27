@@ -162,7 +162,7 @@ object BasicWriter {
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing shape")
         val tmp =
-          s"Index ${tmpTile.toTile.rotate(sp.rotations.last).write}\n" +
+          s"Index ${tmpTile.toTile(sp.rotations.last).write}\n" +
             "NoDefaultRule\n" +
             (Pos(-1, -1) isnot TileMatcher(-1)).write +
             (Pos(sp.applyPat.xSize, sp.applyPat.ySize) isnot TileMatcher(-1)).write +
@@ -182,16 +182,16 @@ object BasicWriter {
               y <- (-sp.onPat.ySize + 1) until sp.onPat.ySize
               if (!(x >= 0 && y >= 0))
             } yield s"Index ${sp.neutral.write}\n" +
-              (Pos(0, 0) is tmpTile.toTm.rotate(sp.rotations.last)).write +
-              (Pos(-x, -y) is tmpTile.toTm.rotate(sp.rotations.last)).write +
+              (Pos(0, 0) is tmpTile.toTm(sp.rotations.last)).write +
+              (Pos(-x, -y) is tmpTile.toTm(sp.rotations.last)).write +
               "NewRun\n"
           ).mkString
         val newTmp =
           (
             for {
               i <- 0 until sp.rotations.length - 1
-            } yield s"Index ${tmpTile.toTile.rotate(sp.rotations(i)).write}\n" +
-              (Pos(0, 0) is tmpTile.toTm.rotate(sp.rotations.last)).write +
+            } yield s"Index ${tmpTile.toTile(sp.rotations(i)).write}\n" +
+              (Pos(0, 0) is tmpTile.toTm(sp.rotations.last)).write +
               s"Random ${sp.rotations.length - i}\n" +
               "NewRun\n"
           ).mkString
@@ -204,7 +204,7 @@ object BasicWriter {
               y <- 0 until pattern.ySize
               t <- pattern(x, y)
             } yield s"Index ${t.rotate(dir).write}\n" +
-              (Pos(-x, -y) is tmpTile.toTm.rotate(dir)).write
+              (Pos(-x, -y) is tmpTile.toTm(dir)).write
           ).mkString
         tmp + noOverlaps + (if (sp.rotations.sizeIs > 1) newTmp else "") + core
 

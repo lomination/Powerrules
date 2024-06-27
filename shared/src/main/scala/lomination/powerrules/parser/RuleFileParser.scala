@@ -174,10 +174,10 @@ object RuleFileParser extends RegexParsers {
   lazy val wsNl: P[String] = "[\\s]*\n".r
 
   /** A parser of a global Powerrules file */
-  lazy val ruleFile: P[RuleFile] = wsNl.? ~>! (tmpTile <~ wsNl).? ~! rep1sep(rule, wsNl) <~ "[\\s]*$".r ^^ { case t ~ r => RuleFile(t.getOrElse(TmpTile(255, Dir.m3)), r) } lg "ruleFile"
+  lazy val ruleFile: P[RuleFile] = wsNl.? ~>! (tmpTile <~ wsNl).? ~! rep1sep(rule, wsNl) <~ "[\\s]*$".r ^^ { case t ~ r => RuleFile(t.getOrElse(TmpTile(255)), r) } lg "ruleFile"
 
   /** A parser of a temporary tile */
-  lazy val tmpTile: P[TmpTile] = ":" ~>! numericId ~! dir.? ^^ { case i ~ d => TmpTile(i, d.getOrElse(Dir.p0)) } lg "temporaryTile"
+  lazy val tmpTile: P[TmpTile] = ":" ~>! numericId ^^ { TmpTile(_) } lg "temporaryTile"
 
   /** A parser of a rule */
   lazy val rule: P[Rule] = ruleName ~! rep(wsNl ~> command) ^^ { case n ~ c => Rule(n, c) } lg "rule"

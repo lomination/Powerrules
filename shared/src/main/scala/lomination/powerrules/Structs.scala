@@ -314,15 +314,24 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
 /** A temporary tile used in two stage process command writing */
-case class TmpTile(id: Int, dir: Dir = Dir.p0):
+case class TmpTile(id: Int):
   /** Converts this temporary tile to a regular tile */
-  def toTile: Tile = Tile(id, dir)
+  def toTile(dir: Dir = Dir.p0): Tile = Tile(id, dir)
+  
+  /** Converts this temporary tile to a regular tile */
+  @inline def toTile: Tile = toTile(Dir.p0)
 
   /** Convert this temporary tile to a tile matcher */
-  def toTm: TileMatcher = TileMatcher(id, dir)
+  def toTm(dir: Dir = Dir.p0): TileMatcher = TileMatcher(id, dir)
+
+  /** Convert this temporary tile to a tile matcher */
+  @inline def toTm: TileMatcher = TileMatcher(id, Dir.p0)
 
   /** Converts this temporary tile to a generic matcher */
-  def toGm: GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, dir))
+  def toGm(dir: Dir = Dir.p0): GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, dir))
+
+  /** Converts this temporary tile to a generic matcher */
+  @inline def toGm: GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, Dir.p0))
 
 /** A direction */
 case class Dir(sign: Sign, n: Times):
