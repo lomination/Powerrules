@@ -1,6 +1,6 @@
 package lomination.powerrules.writer
 
-import lomination.powerrules.{AnyDir,Comment,Cond,Dir,FullMatcher,GenericMatcher,NotEdgeMatcher,Op,Pos,Replace,Random,Rule,RuleFile,Shadow,Shape,Sign,Tile,TileMatcher,Times,TmpTile}
+import lomination.powerrules.{AnyDir, Comment, Cond, Dir, FullMatcher, GenericMatcher, NotEdgeMatcher, Op, Pos, Replace, Random, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.parser.RuleFileParser.rotateStm
 
@@ -114,7 +114,7 @@ object BasicWriter {
             } yield
               logger.trace(s"writing shadow's default tile $name")
               s"Index ${tile.rotate(dir).write}\n" +
-              conds.map(_.rotatePos(dir).write).mkString
+                conds.map(_.rotatePos(dir).write).mkString
           ).mkString
         val extT =
           logger.trace("writing shadow's external tiles")
@@ -125,7 +125,7 @@ object BasicWriter {
             } yield
               logger.trace(s"writing shadow's external tile $name")
               s"Index ${tile.rotate(dir).write}\n" +
-              conds.map(_.rotatePos(dir).write).mkString
+                conds.map(_.rotatePos(dir).write).mkString
           ).mkString
         val intT =
           logger.trace("writing shadow's internal tiles")
@@ -136,7 +136,7 @@ object BasicWriter {
             } yield
               logger.trace(s"writing shadow's internal tile $name")
               s"Index ${tile.rotate(dir).write}\n" +
-              conds.map(_.rotatePos(dir).write).mkString
+                conds.map(_.rotatePos(dir).write).mkString
           ).mkString
         tmp + defT + extT + intT + "NewRun\n"
 
@@ -158,8 +158,6 @@ object BasicWriter {
       //   ).mkString +
       //   sp.random.write +
       //   "NewRun\n"
-        
-
 
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing shape")

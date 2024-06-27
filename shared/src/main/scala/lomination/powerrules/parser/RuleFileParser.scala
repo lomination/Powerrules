@@ -207,7 +207,7 @@ object RuleFileParser extends RegexParsers {
 
   /** A parser of a shadow command */
   lazy val shadow: P[Shadow] = cmd("shadow" | "sd")(withExtStm | withIntStm | withStm | ifStm | modeStm) >> { (seq: Seq[Statement]) =>
-    // --------------------------------------------/^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\
+    // -------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // 'with' statement must be tried after 'withexternal' and 'withinternal'
     // else they will be both considered as 'with' and 'external' or 'internal'
     // will grenerate a parsing error

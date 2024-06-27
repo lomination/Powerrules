@@ -1,7 +1,7 @@
 package lomination.powerrules.parser
 
 import munit.FunSuite
-import lomination.powerrules.{Comment,Dir,FullMatcher,Grid,NotEdgeMatcher,Op,Pos,Replace,Random,Shadow,Shape,Tile,TileMatcher,TmpTile}
+import lomination.powerrules.{Comment, Dir, FullMatcher, Grid, NotEdgeMatcher, Op, Pos, Replace, Random, Shadow, Shape, Tile, TileMatcher, TmpTile}
 
 class ParseRuleFile extends FunSuite {
 
@@ -183,17 +183,17 @@ class ParseReplace extends FunSuite {
   }
 
   // test("ParseReplace (7): random spaces") {
-  //   val input = """|replace       
-  //                  |   
+  //   val input = """|replace
   //                  |
-  //                  |    with         1f-0 20-0        
   //                  |
-  //                  |    when    0     0    is     9+2    &   
+  //                  |    with         1f-0 20-0
+  //                  |
+  //                  |    when    0     0    is     9+2    &
   //                  |        -1    0  is      3-0
-  //                  |    random        
-  //                  |        0.33   
+  //                  |    random
+  //                  |        0.33
   //                  |    rotate    +0+1   +2
-  //                  |        +3   
+  //                  |        +3
   //                  |""".stripMargin
   //   val result = P.parse(P.command, input)
   //   val expected = Replace(
@@ -663,16 +663,16 @@ class ParsePos extends FunSuite {
   }
 
   test("ParsePos (6): position o") {
-    val input  = "o"
-    val result = P.parse(P.pos, input)
+    val input    = "o"
+    val result   = P.parse(P.pos, input)
     val expected = Pos.zero
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
   }
 
   test("ParsePos (7): position there") {
-    val input  = "there"
-    val result = P.parse(P.pos, input)
+    val input    = "there"
+    val result   = P.parse(P.pos, input)
     val expected = Pos.zero
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))

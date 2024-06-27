@@ -1,7 +1,7 @@
 package lomination.powerrules.writer
 
 import munit.FunSuite
-import lomination.powerrules.{Comment,Dir,FullMatcher,Op,Pos,Replace,Random,Shadow,Tile,TileMatcher,TmpTile}
+import lomination.powerrules.{Comment, Dir, FullMatcher, Op, Pos, Replace, Random, Shadow, Tile, TileMatcher, TmpTile}
 import lomination.powerrules.writer.BasicWriter.{given Writable[?]}
 
 class WriteReplace extends FunSuite {
