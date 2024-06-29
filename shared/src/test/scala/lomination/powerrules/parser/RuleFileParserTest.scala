@@ -182,29 +182,28 @@ class ParseReplace extends FunSuite {
     assert(clue(result.get) == clue(expected))
   }
 
-  // test("ParseReplace (7): random spaces") {
-  //   val input = """|replace
-  //                  |
-  //                  |
-  //                  |    with         1f-0 20-0
-  //                  |
-  //                  |    when    0     0    is     9+2    &
-  //                  |        -1    0  is      3-0
-  //                  |    random
-  //                  |        0.33
-  //                  |    rotate    +0+1   +2
-  //                  |        +3
-  //                  |""".stripMargin
-  //   val result = P.parse(P.command, input)
-  //   val expected = Replace(
-  //     Seq(Tile(0x1f, Dir.m0), Tile(0x20, Dir.m0)),
-  //     (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
-  //     Random(33),
-  //     Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
-  //   )
-  //   assert(result.successful, s"Failed to parse test: $result")
-  //   assert(clue(result.get) == clue(expected))
-  // }
+  test("ParseReplace (7): random spaces") {
+    val input = """|replace
+                   |
+                   |
+                   |    with         1f-0 20-0
+                   |
+                   |    when    0     0    is     9+2    &
+                   |        -1    0  is      3-0
+                   |    random
+                   |        0.33
+                   |    rotate    +0+1   +2         +3
+                   |""".stripMargin
+    val result = P.parse(P.command, input)
+    val expected = Replace(
+      Seq(Tile(0x1f, Dir.m0), Tile(0x20, Dir.m0)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
+      Random(33),
+      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+    )
+    assert(result.successful, s"Failed to parse test: $result")
+    assert(clue(result.get) == clue(expected))
+  }
 
   test("ParseReplace (8): disordered statements") {
     val input = """|replace
