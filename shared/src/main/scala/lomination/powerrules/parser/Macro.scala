@@ -3,11 +3,11 @@ package lomination.powerrules.parser
 import scala.util.{Try, Success, Failure}
 
 case class Macro(name: String, paramNames: Seq[String], content: String):
-  if (paramNames == Seq(""))
-    logger.warn(
-      s"Macro $name is defined with one parameter named with empty string ``.\n" +
-        "Consider not using brackets after its definition if no paramter is expected."
-    )
+  // if (paramNames == Seq(""))
+  //   logger.warn(
+  //     s"Macro $name is defined with one parameter named with empty string ``.\n" +
+  //       "Consider not using parentheses after its definition if no paramter is expected."
+  //   )
   if (paramNames.sizeIs != paramNames.toSet.size)
     logger.warn(s"Some parameters of macro $name have the same name.")
   val logger = org.log4s.getLogger
