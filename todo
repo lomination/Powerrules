@@ -1,0 +1,13 @@
+### Code
+
+- improve web interface and allow file drop and download
+- add type annotations everywhere `: Type`
+- write available scripts (freeze, grass, generic, game-to-tilelayer, ...)
+- make writing shape shorter and clearer (use NoLayerCopy ?) -- make pattern command, using NoCopyLayer (or upgrade shape create 2 cases: random == 100% -> pattern or random < 100 -> shape)
+- include wiki in the sources (using ci to sync gh wiki with ./wiki/ directory in the project ? https://github.com/Andrew-Chen-Wang/github-wiki-action)
+- ? json/yaml format
+- ? add writing config (define for intance how many whitespace and where)
+- ? rework management of different parsers (sould they return Trys ? with flat map in GlobalParser.scala) (need help)
+- ? use options instead of try (need help)
+- ? add loggers for other parsers
+- ? "or" statement
