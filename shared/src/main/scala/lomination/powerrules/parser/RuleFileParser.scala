@@ -191,7 +191,7 @@ object RuleFileParser extends RegexParsers {
   lazy val command: P[Command] = replace | shadow | shape | comment | Err.command lg "command"
 
   /** A parser of a replace command */
-  lazy val replace: P[Replace] = cmd("replace" | "re")(withStm | ifStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
+  lazy val replace: P[Replace] = cmd("replace" | "re")(withStm | ifStm | randomStm) >> { (seq: Seq[Statement]) =>
     for {
       withStm <- seq.collectFirst { case stm: WithStm => stm }.fold[P[WithStm]](Err.missingStm("with", "replace"))(success)
       ifStm     = seq.collectFirst { case stm: IfStm => stm }
@@ -201,7 +201,6 @@ object RuleFileParser extends RegexParsers {
       withStm.tiles,
       ifStm.getOrElse(IfStm(Seq())).conds,
       randomStm.getOrElse(RandomStm(Random.always)).chance,
-      rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
     )
   } lg "replace"
 

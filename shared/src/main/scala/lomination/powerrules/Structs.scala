@@ -42,7 +42,6 @@ case class Replace(
     tiles: Seq[Tile],
     conds: Seq[Cond] = Seq(),
     random: Random = Random.always,
-    rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
 
 /** A shadow command
@@ -99,6 +98,9 @@ case class Comment(str: String) extends Command
   *   the matcher the given position must match
   */
 case class Cond(pos: Pos, matcher: Matcher):
+  /** Rotates this condition's position and matcher */
+  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher.rotate(dir))
+
   /** Rotates this condition's position */
   def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), matcher)
 
@@ -313,7 +315,7 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
   /** Converts this tile to a tile matcher */
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
-/** A temporary tile used in two stage process command writing */
+/** A temporary tile used in the two-stage processes during command writing */
 case class TmpTile(id: Int):
   /** Converts this temporary tile to a regular tile */
   def toTile(dir: Dir = Dir.p0): Tile = Tile(id, dir)
@@ -325,7 +327,7 @@ case class TmpTile(id: Int):
   def toTm(dir: Dir = Dir.p0): TileMatcher = TileMatcher(id, dir)
 
   /** Convert this temporary tile to a tile matcher */
-  @inline def toTm: TileMatcher = TileMatcher(id, Dir.p0)
+  @inline def toTm: TileMatcher = toTm(Dir.p0)
 
   /** Converts this temporary tile to a generic matcher */
   def toGm(dir: Dir = Dir.p0): GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, dir))

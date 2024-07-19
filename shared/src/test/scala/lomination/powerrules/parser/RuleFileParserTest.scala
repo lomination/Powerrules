@@ -97,8 +97,7 @@ class ParseReplace extends FunSuite {
     val expected = Replace(
       Seq(Tile(0x2e, Dir.m2)),
       Seq(),
-      Random.always,
-      Seq(Dir.p0)
+      Random.always
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -110,8 +109,7 @@ class ParseReplace extends FunSuite {
     val expected = Replace(
       Seq(Tile(0x2e, Dir.m2)),
       Seq(),
-      Random.always,
-      Seq(Dir.p0)
+      Random.always
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -125,8 +123,7 @@ class ParseReplace extends FunSuite {
     val expected = Replace(
       Seq(Tile(0x2e, Dir.m2)),
       Seq(),
-      Random.always,
-      Seq(Dir.p0)
+      Random.always
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -139,9 +136,8 @@ class ParseReplace extends FunSuite {
     val result = P.parse(P.command, input)
     val expected = Replace(
       Seq(Tile(0x1f, Dir.m0)),
-      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
-      Random.always,
-      Seq(Dir.p0)
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos.w is TileMatcher(3, Dir.m0)),
+      Random.always
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -156,9 +152,8 @@ class ParseReplace extends FunSuite {
     val result = P.parse(P.command, input)
     val expected = Replace(
       Seq(Tile(0x1f, Dir.m0)),
-      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
-      Random.always,
-      Seq(Dir.p0)
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos.w is TileMatcher(3, Dir.m0)),
+      Random.always
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -166,17 +161,15 @@ class ParseReplace extends FunSuite {
 
   test("ParseReplace (6): all statements") {
     val input = """|replace
-                   |    with 1f-0
+                   |    with 1f+0 1f+1 1f+2 1f+3
                    |    when 0 0 is 9+2 &
                    |        -1 0 is 3-0
-                   |    random 0.33
-                   |    rotate +0+1+2+3""".stripMargin
+                   |    random 0.33""".stripMargin
     val result = P.parse(P.command, input)
     val expected = Replace(
-      Seq(Tile(0x1f, Dir.m0)),
-      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
-      Random(33),
-      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+      Seq(Tile(0x1f, Dir.p0), Tile(0x1f, Dir.p1), Tile(0x1f, Dir.p2), Tile(0x1f, Dir.p3)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos.w is TileMatcher(3, Dir.m0)),
+      Random(33)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -185,21 +178,19 @@ class ParseReplace extends FunSuite {
   test("ParseReplace (7): random spaces") {
     val input = """|replace
                    |
-                   |
-                   |    with         1f-0 20-0
-                   |
-                   |    when    0     0    is     9+2    &
-                   |        -1    0  is      3-0
+                   |          
+                   |    with         1f-0          1f-1 20-0  20-1
+                   |           
+                   |    when   there   is     9+2    &
+                   |        w is      3-0
                    |    random
                    |        0.33
-                   |    rotate    +0+1   +2         +3
                    |""".stripMargin
     val result = P.parse(P.command, input)
     val expected = Replace(
-      Seq(Tile(0x1f, Dir.m0), Tile(0x20, Dir.m0)),
-      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos(-1, 0) is TileMatcher(3, Dir.m0)),
-      Random(33),
-      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+      Seq(Tile(0x1f, Dir.m0), Tile(0x1f, Dir.m1), Tile(0x20, Dir.m0), Tile(0x20, Dir.m1)),
+      (Pos.zero is TileMatcher(9, Dir.p2)) & (Pos.w is TileMatcher(3, Dir.m0)),
+      Random(33)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -208,15 +199,13 @@ class ParseReplace extends FunSuite {
   test("ParseReplace (8): disordered statements") {
     val input = """|replace
                    |    random 0.33
-                   |    rotate +0+1+2+3
-                   |    when 0 0 is 9+2
+                   |    when there is 9+2
                    |    with 1f-0""".stripMargin
     val result = P.parse(P.command, input)
     val expected = Replace(
       Seq(Tile(0x1f, Dir.m0)),
       Seq(Pos.zero is TileMatcher(9, Dir.p2)),
-      Random(33),
-      Seq(Dir.p0, Dir.p1, Dir.p2, Dir.p3)
+      Random(33)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -225,7 +214,6 @@ class ParseReplace extends FunSuite {
   test("ParseReplace (9): missing statement") {
     val input = """|replace
                    |    random 0.33
-                   |    rotate +0+1+2+3
                    |    when 0 0 is 9+2""".stripMargin
     val result = P.parse(P.command, input)
     assert(!result.successful, s"Parsing should have failed")
@@ -246,7 +234,7 @@ class ParseShadow extends FunSuite {
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(),
       Seq(),
-      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      Seq(Pos.zero is FullMatcher(Op.Is)),
       false
     )
     assert(result.successful, s"Failed to parse test: $result")
@@ -265,7 +253,7 @@ class ParseShadow extends FunSuite {
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
       Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4)),
-      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      Seq(Pos.zero is FullMatcher(Op.Is)),
       true
     )
     assert(result.successful, s"Failed to parse test: $result")
@@ -284,7 +272,7 @@ class ParseShadow extends FunSuite {
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
       Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4)),
-      Seq(Pos(0, 0) is FullMatcher(Op.Is)),
+      Seq(Pos.zero is FullMatcher(Op.Is)),
       true
     )
     assert(result.successful, s"Failed to parse test: $result")
@@ -311,7 +299,7 @@ class ParseShadow extends FunSuite {
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
       Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2, Dir.p0), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4, Dir.p0)),
-      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is NotEdgeMatcher),
+      (Pos.zero is FullMatcher(Op.Is)) & (Pos.n is NotEdgeMatcher),
       true
     )
     assert(result.successful, s"Failed to parse test: $result")
@@ -342,7 +330,7 @@ class ParseShadow extends FunSuite {
       Seq(Tile(0x1, Dir.p0), Tile(0x14, Dir.p1), Tile(0x75, Dir.p1), Tile(0x24, Dir.p1), Tile(0x76, Dir.p2), Tile(0x52, Dir.p0)),
       Seq(Tile(0x45, Dir.p0), Tile(0x47, Dir.p0), Tile(0x49, Dir.p0)),
       Seq(Tile(0x35, Dir.p2), Tile(0x85, Dir.p2), Tile(0xb0, Dir.p1), Tile(0xb1, Dir.p3), Tile(0xb2, Dir.p0), Tile(0xb3, Dir.p1), Tile(0x60, Dir.p1), Tile(0xb4, Dir.p0)),
-      (Pos(0, 0) is FullMatcher(Op.Is)) & (Pos(0, -1) is NotEdgeMatcher),
+      (Pos.zero is FullMatcher(Op.Is)) & (Pos.n is NotEdgeMatcher),
       true
     )
     assert(result.successful, s"Failed to parse test: $result")
