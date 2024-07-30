@@ -1,7 +1,8 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 import scala.util.Try
 import munit.FunSuite
+import lomination.powerrules.parsing.{Macro, InvalidNumberOfMacroParameters, MacroParser}
 
 class UseMacro extends FunSuite {
 

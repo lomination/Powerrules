@@ -1,6 +1,7 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 import munit.FunSuite
+import lomination.powerrules.parsing.Macro
 
 class MacroTest extends FunSuite {
 

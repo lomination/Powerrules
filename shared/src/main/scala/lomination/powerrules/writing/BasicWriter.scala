@@ -1,4 +1,4 @@
-package lomination.powerrules.writer
+package lomination.powerrules.writing
 
 import lomination.powerrules.{AnyDir, Comment, Cond, Dir, FullMatcher, GenericMatcher, NotEdgeMatcher, Op, Pos, Replace, Random, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
 import lomination.powerrules.build.BuildInfo
@@ -98,7 +98,7 @@ object BasicWriter {
     extension (sd: Shadow)
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing shadow")
-        import lomination.powerrules.writer.{defaultTilesConds, externalTilesConds, internalTilesConds, toConds}
+        import lomination.powerrules.writing.{defaultTilesConds, externalTilesConds, internalTilesConds, toConds}
         val tmpT =
           // place the temporary tile where the shadow command should be applied
           s"Index ${tmpTile.toTile.write}\n" +

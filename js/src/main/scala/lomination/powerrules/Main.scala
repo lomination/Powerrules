@@ -5,9 +5,9 @@ import org.scalajs.dom
 import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
 import lomination.powerrules.RuleFile
 import lomination.powerrules.build.BuildInfo
-import lomination.powerrules.parser.GlobalParser
-import lomination.powerrules.writer.Writable
-import lomination.powerrules.writer.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.parsing.GlobalParser
+import lomination.powerrules.writing.Writable
+import lomination.powerrules.writing.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main: Unit =

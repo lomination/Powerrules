@@ -1,4 +1,4 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 import lomination.powerrules.{Cond, Dir, GenericMatcher, Grid, Random, Tile}
 

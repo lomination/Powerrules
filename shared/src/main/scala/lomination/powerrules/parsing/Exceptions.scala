@@ -1,4 +1,4 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 case class ParsingError(message: String = "", cause: Throwable = null) extends Exception(message, cause)
 

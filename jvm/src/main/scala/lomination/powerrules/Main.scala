@@ -3,9 +3,9 @@ package lomination.powerrules
 import scala.io.Source
 import scala.util.Using
 import java.io.PrintWriter
-import lomination.powerrules.parser.GlobalParser
-import lomination.powerrules.writer.Writable
-import lomination.powerrules.writer.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.parsing.GlobalParser
+import lomination.powerrules.writing.Writable
+import lomination.powerrules.writing.BasicWriter.{given Writable[RuleFile]}
 
 @main
 def main =

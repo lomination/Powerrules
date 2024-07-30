@@ -1,4 +1,4 @@
-package lomination.powerrules.writer
+package lomination.powerrules.writing
 
 import lomination.powerrules.{Cond, Dir, Matcher, Pos}
 
@@ -26,7 +26,7 @@ def internalTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Di
 // @formatter:off
 
 def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
-  import lomination.powerrules.writer.Trilean.{O, ?, X}
+  import lomination.powerrules.writing.Trilean.{O, ?, X}
   if (softMode)
     Seq(
       (
@@ -161,7 +161,7 @@ def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])
     )
 
 def externalTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
-  import lomination.powerrules.writer.Trilean.{O, ?, X}
+  import lomination.powerrules.writing.Trilean.{O, ?, X}
   if (softMode)
     Seq(
     (
@@ -242,7 +242,7 @@ def externalTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean]
     )
 
 def internalTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])] =
-  import lomination.powerrules.writer.Trilean.{O, ?, X}
+  import lomination.powerrules.writing.Trilean.{O, ?, X}
   Seq(
     (
       "i1",

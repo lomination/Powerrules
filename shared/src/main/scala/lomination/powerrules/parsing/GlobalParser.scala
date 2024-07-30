@@ -1,4 +1,4 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 import scala.util.{Try, Success, Failure}
 import lomination.powerrules.RuleFile

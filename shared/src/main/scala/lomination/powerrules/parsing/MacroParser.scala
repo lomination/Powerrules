@@ -1,4 +1,4 @@
-package lomination.powerrules.parser
+package lomination.powerrules.parsing
 
 import scala.annotation.nowarn
 import scala.util.Try
