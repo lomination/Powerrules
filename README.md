@@ -2,7 +2,7 @@
 
 ## Powerrules
 
-The Powerrules is a language that can generate DDNet rules language and aims to make it simpler to write rules by offering a new, easier and more powerful language.
+The Powerrules is a language that can generate [DDNet](https://github.com/ddnet/ddnet) rules language and aims to make it simpler to write rules by offering a new, easier and more powerful language.
 
 You can use the [online transpiler](https://lomination.github.io/Powerrules/) to convert Powerrules into DDNet rules. See the [wiki](https://github.com/lomination/Powerrules/wiki) to learn more about writing Powerrules.
 
