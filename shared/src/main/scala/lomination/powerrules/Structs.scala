@@ -100,7 +100,7 @@ case class Comment(str: String) extends Command
   */
 case class Cond(pos: Pos, matcher: Matcher):
   /** Rotates this condition's position */
-  def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), matcher)
+  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher.rotate(dir))
 
   /** Returns a sequence of conditions containing this and that */
   def &(that: Cond): Seq[Cond] = Seq(this, that)
@@ -313,7 +313,7 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
   /** Converts this tile to a tile matcher */
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
 
-/** A temporary tile used in two stage process command writing */
+/** A temporary tile used in two-stage process command writing */
 case class TmpTile(id: Int):
   /** Converts this temporary tile to a regular tile */
   def toTile(dir: Dir = Dir.p0): Tile = Tile(id, dir)
