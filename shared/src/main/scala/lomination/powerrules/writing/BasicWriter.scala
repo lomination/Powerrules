@@ -147,27 +147,11 @@ object BasicWriter {
 
   given Writable[Shape] with
     extension (sp: Shape)
-      // def writeBis(using tmpTile: TmpTile): String =
-      //   "NewRun\n" +
-      //   "NoLayerCopy\n" +
-      //   s"Index ${tmpTile.toTile.rotate(sp.rotations.last).w}" +
-      //   "NoDefaultRule\n" +
-      //   (Pos(-1, -1) isnot TileMatcher(-1)).w +
-      //   (Pos(sp.applyPat.xSize, sp.applyPat.ySize) isnot TileMatcher(-1)).w +
-      //   (
-      //     for {
-      //       x <- 0 until sp.onPat.rotate(sp.rotations.last).xSize
-      //       y <- 0 until sp.onPat.rotate(sp.rotations.last).ySize
-      //       t <- sp.onPat.rotate(sp.rotations.last)(x, y)
-      //     } yield (Pos(x, y) is t).w
-      //   ).mkString +
-      //   sp.random.w +
-      //   "NewRun\n"
-
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing shape")
         val tmp =
-          s"Index ${tmpTile.toTile(sp.rotations.last).w}\n" +
+          "NoLayerCopy\n" +
+            s"Index ${tmpTile.toTile.w}\n" +
             "NoDefaultRule\n" +
             (Pos(-1, -1) isnot TileMatcher(-1)).w +
             (Pos(sp.applyPat.xSize, sp.applyPat.ySize) isnot TileMatcher(-1)).w +
@@ -175,43 +159,21 @@ object BasicWriter {
               for {
                 x <- 0 until sp.onPat.xSize
                 y <- 0 until sp.onPat.ySize
-                t <- sp.onPat(x, y)
-              } yield (Pos(x, y) is t).w
+                m <- sp.onPat(x, y)
+              } yield (Pos(x, y) is m).w
             ).mkString +
             sp.random.w +
             "NewRun\n"
-        val noOverlaps =
-          (
-            for {
-              x <- (-sp.onPat.xSize + 1) until sp.onPat.xSize
-              y <- (-sp.onPat.ySize + 1) until sp.onPat.ySize
-              if (!(x >= 0 && y >= 0))
-            } yield s"Index ${sp.neutral.w}\n" +
-              (Pos(0, 0) is tmpTile.toTm(sp.rotations.last)).w +
-              (Pos(-x, -y) is tmpTile.toTm(sp.rotations.last)).w +
-              "NewRun\n"
-          ).mkString
-        val newTmp =
-          (
-            for {
-              i <- 0 until sp.rotations.length - 1
-            } yield s"Index ${tmpTile.toTile(sp.rotations(i)).w}\n" +
-              (Pos(0, 0) is tmpTile.toTm(sp.rotations.last)).w +
-              s"Random ${sp.rotations.length - i}\n" +
-              "NewRun\n"
-          ).mkString
         val core =
           (
             for {
-              dir <- sp.rotations
-              pattern = sp.applyPat.rotate(dir)
-              x <- 0 until pattern.xSize
-              y <- 0 until pattern.ySize
-              t <- pattern(x, y)
-            } yield s"Index ${t.rotate(dir).w}\n" +
-              (Pos(-x, -y) is tmpTile.toTm(dir)).w
+              x <- 0 until sp.applyPat.xSize
+              y <- 0 until sp.applyPat.ySize
+              t <- sp.applyPat(x, y)
+            } yield s"Index ${t.w}\n" +
+              (Pos(-x, -y) is tmpTile.toTm).w
           ).mkString
-        tmp + noOverlaps + (if (sp.rotations.sizeIs > 1) newTmp else "") + core
+        tmp + core
 
   given Writable[Comment] with
     extension (c: Comment)

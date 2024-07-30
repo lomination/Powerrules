@@ -14,4 +14,3 @@ case class ModeStm(softMode: Boolean)                      extends Statement
 case class ApplyStm(chars: Grid[Char])                     extends Statement
 case class OnStm(chars: Grid[Char])                        extends Statement
 case class UsingStm(map: Map[Char, Tile | GenericMatcher]) extends Statement
-case class NeutralStm(tile: Tile)                          extends Statement

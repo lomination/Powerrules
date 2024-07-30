@@ -81,9 +81,7 @@ case class Shadow(
 case class Shape(
     applyPat: Grid[Option[Tile]],
     onPat: Grid[Option[Matcher]],
-    neutral: Tile,
     random: Random = Random.always,
-    rotations: Seq[Dir] = Seq(Dir.p0)
 ) extends Command
 
 case class Comment(str: String) extends Command

@@ -367,15 +367,12 @@ class ParseShape extends FunSuite {
                    |        2 -> 2+0
                    |        3 -> 3+0
                    |        4 -> 4+0
-                   |    neutral 5+0
                    |    random 50%""".stripMargin
     val result = P.parse(P.shape, input)
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
       Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
-      Tile(5),
-      Random(50f),
-      Seq(Dir.p0)
+      Random(50f)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -394,16 +391,12 @@ class ParseShape extends FunSuite {
                    |        2 -> 2+0
                    |        3 -> 3+0
                    |        4 -> 4+0
-                   |    neutral 5+0
-                   |    random 50%
-                   |    rotate +0-0""".stripMargin
+                   |    random 50%""".stripMargin
     val result = P.parse(P.shape, input)
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
       Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
-      Tile(5),
-      Random(50f),
-      Seq(Dir.p0, Dir.m0)
+      Random(50f)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -416,12 +409,10 @@ class ParseShape extends FunSuite {
                    |        2 -> 2+0
                    |        3 -> 3+0
                    |        4 -> 4+0
-                   |    neutral 5+0
                    |    random 50%
                    |    on
                    |        . .
                    |        . .
-                   |    rotate +0-0
                    |    apply
                    |        1 2
                    |        3 4""".stripMargin
@@ -429,9 +420,7 @@ class ParseShape extends FunSuite {
     val expected = Shape(
       Grid(Seq(Seq(Some(Tile(1)), Some(Tile(2))), Seq(Some(Tile(3)), Some(Tile(4))))),
       Grid(Seq(Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))), Seq(Some(FullMatcher(Op.Is)), Some(FullMatcher(Op.Is))))),
-      Tile(5),
-      Random(50f),
-      Seq(Dir.p0, Dir.m0)
+      Random(50f)
     )
     assert(result.successful, s"Failed to parse test: $result")
     assert(clue(result.get) == clue(expected))
@@ -456,9 +445,6 @@ class ParseShape extends FunSuite {
                    |    apply
                    |        1 2
                    |        3 4
-                   |    on
-                   |        . .
-                   |        . .
                    |    using
                    |        1 -> 1+0
                    |        2 -> 2+0

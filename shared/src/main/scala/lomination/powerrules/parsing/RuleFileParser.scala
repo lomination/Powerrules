@@ -196,7 +196,6 @@ object RuleFileParser extends RegexParsers {
       withStm <- seq.collectFirst { case stm: WithStm => stm }.fold[P[WithStm]](Err.missingStm("with", "replace"))(success)
       ifStm     = seq.collectFirst { case stm: IfStm => stm }
       randomStm = seq.collectFirst { case stm: RandomStm => stm }
-      rotateStm = seq.collectFirst { case stm: RotateStm => stm }
     } yield Replace(
       withStm.tiles,
       ifStm.getOrElse(IfStm(Seq())).conds,
@@ -226,14 +225,12 @@ object RuleFileParser extends RegexParsers {
   } lg "shadow"
 
   /** A parser of a shape command */
-  lazy val shape: P[Shape] = cmd("shape" | "sp")(applyStm | onStm | usingStm | neutralStm | randomStm | rotateStm) >> { (seq: Seq[Statement]) =>
+  lazy val shape: P[Shape] = cmd("shape" | "sp")(applyStm | onStm | usingStm | randomStm) >> { (seq: Seq[Statement]) =>
     for {
       applyStm   <- seq.collectFirst { case stm: ApplyStm => stm }.fold[P[ApplyStm]](Err.missingStm("apply", "shape"))(success)
       onStm      <- seq.collectFirst { case stm: OnStm => stm }.fold[P[OnStm]](Err.missingStm("on", "shape"))(success)
       usingStm   <- seq.collectFirst { case stm: UsingStm => stm }.fold[P[UsingStm]](Err.missingStm("using", "shape"))(success)
-      neutralStm <- seq.collectFirst { case stm: NeutralStm => stm }.fold[P[NeutralStm]](Err.missingStm("neutral", "shape"))(success)
       randomStm  <- seq.collectFirst { case stm: RandomStm => stm }.fold[P[RandomStm]](Err.missingStm("random", "shape"))(success)
-      rotateStm = seq.collectFirst { case stm: RotateStm => stm }
     } yield
       val newMap = usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is)) - '?'
       Shape(
@@ -249,9 +246,7 @@ object RuleFileParser extends RegexParsers {
             case Some(m: Matcher) => Some(m)
             case None             => None
         ),
-        neutralStm.tile,
         randomStm.chance,
-        rotateStm.getOrElse(RotateStm(Seq(Dir.p0))).rotations
       )
   } lg "shape"
 
@@ -275,8 +270,8 @@ object RuleFileParser extends RegexParsers {
   /** Parser of random statement */
   lazy val randomStm: P[RandomStm] = stm("random")(random) ^^ { RandomStm(_) } lg "randomStatement"
 
-  /** Parser of rotate statement */
-  lazy val rotateStm: P[RotateStm] = stm("rotate")(dir)(" *".r) ^^ { RotateStm(_) } lg "rotateStatement"
+  // /** Parser of rotate statement */
+  // lazy val rotateStm: P[RotateStm] = stm("rotate")(dir)(" *".r) ^^ { RotateStm(_) } lg "rotateStatement"
 
   /** Parser of mode statement */
   lazy val modeStm: P[ModeStm] = stm("mode")(mode) ^^ { ModeStm(_) } lg "modeStatement"
@@ -289,9 +284,6 @@ object RuleFileParser extends RegexParsers {
 
   /** Parser of using statement */
   lazy val usingStm: P[UsingStm] = stm("using")(dictLine)(wsNl ~ ind(2)) ^^ { (m: Seq[(Char, Tile | GenericMatcher)]) => UsingStm(m.toMap) } lg "usingStatement"
-
-  /** Parser of neutral statement */
-  lazy val neutralStm: P[NeutralStm] = stm("neutral")(tile) ^^ { NeutralStm(_) } lg "neutralStatement"
 
   // ---------- Other objects ---------- //
 
