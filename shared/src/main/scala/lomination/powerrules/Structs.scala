@@ -102,7 +102,7 @@ case class Cond(pos: Pos, matcher: Matcher):
   def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher.rotate(dir))
 
   /** Rotates this condition's position */
-  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher.rotate(dir))
+  def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), matcher)
 
   /** Returns a sequence of conditions containing this and that */
   def &(that: Cond): Seq[Cond] = Seq(this, that)
