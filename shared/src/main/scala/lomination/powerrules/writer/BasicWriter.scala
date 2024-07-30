@@ -2,7 +2,6 @@ package lomination.powerrules.writer
 
 import lomination.powerrules.{AnyDir, Comment, Cond, Dir, FullMatcher, GenericMatcher, NotEdgeMatcher, Op, Pos, Replace, Random, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
 import lomination.powerrules.build.BuildInfo
-import lomination.powerrules.parser.RuleFileParser.rotateStm
 
 object BasicWriter {
 
@@ -65,54 +64,53 @@ object BasicWriter {
         else s"Random ${r.percent.toString().replaceAll("\\.0+", "")}%\n"
 
   given Writable[Replace] with
-    extension (r: Replace)
+    extension (re: Replace)
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing replace")
-        if (r.tiles.sizeIs == 1 && r.rotations.sizeIs == 1)
-          s"Index ${r.tiles(0).rotate(r.rotations(0)).w}\n" +
-            "NoDefaultRule\n" +
-            r.conds.map(_.w).mkString +
-            r.random.w +
+        if (re.tiles.sizeIs == 1)
+          // no need of a temporary tile
+          s"Index ${re.tiles(0).write}\n" +
+            noDefaultRule(re.conds) +
+            re.conds.map(_.write).mkString +
+            re.random.write +
             "NewRun\n"
         else
-          val tLen: Int = r.tiles.length
-          (
-            for
-              dir <- r.rotations.reverse
-            yield
-              s"Index ${tmpTile.toTile(dir).w}\n" +
-              r.conds.map(_.rotate(dir).w).mkString +
-              r.random.w
-          ).mkString +
-          "NewRun\n" +
-          (
-            for
-              dir <- r.rotations
-              i <- 0 until tLen
-              tile: Tile = r.tiles(i)
-              chance: Int = tLen - i
-            yield
-              s"Index ${tile.w}\n" +
-              s"Pos 0 0 INDEX ${tmpTile.toTm(dir).w}\n" +
-              (if (chance > 1) s"Random $chance\n" else "") +
+          // use a temporary tile
+          val len = re.tiles.length
+          val tmp =
+            s"Index ${tmpTile.toTile.write}\n" +
+              noDefaultRule(re.conds) +
+              re.conds.map(_.write).mkString +
+              re.random.write +
               "NewRun\n"
-          ).mkString
+          val core =
+            (for {
+              i <- 0 until len
+              tile = re.tiles(i)
+            } yield s"Index ${tile.write}\n" +
+              s"Pos 0 0 INDEX ${tmpTile.toTm.write}\n" +
+              intRandom(len - i) + // write random as integer (n => 1/n probability)
+              "NewRun\n"
+            ).mkString
+          tmp + core
 
   given Writable[Shadow] with
     extension (sd: Shadow)
       def write(using tmpTile: TmpTile): String =
         logger.trace("writing shadow")
         import lomination.powerrules.writer.{defaultTilesConds, externalTilesConds, internalTilesConds, toConds}
-        val tmp =
-          s"Index ${tmpTile.toTile.w}\n" +
-            "NoDefaultRule\n" +
-            sd.conds.map(_.w).mkString +
+        val tmpT =
+          // place the temporary tile where the shadow command should be applied
+          s"Index ${tmpTile.toTile.write}\n" +
+            noDefaultRule(sd.conds) +
+            sd.conds.map(_.write).mkString +
             "NewRun\n"
         val defT =
+          // place the default tiles (see the Shadow page of the wiki)
           logger.trace("writing shadow's default tiles")
           (
             for {
-              (tile, (name, dirs, conds)) <- (sd.defTiles zip defaultTilesConds(sd.softMode)(GenericMatcher(Op.Is, tmpTile.toTm, TileMatcher(-1))))
+              (tile, (name, dirs, conds)) <- (sd.defTiles zip defaultTilesConds(sd.softMode)(GenericMatcher(Op.Is, tmpTile.toTm, TileMatcher(-1)))) // consider ouside tiles (-1) as full tiles
               dir                         <- dirs
             } yield
               logger.trace(s"writing shadow's default tile $name")
@@ -120,6 +118,7 @@ object BasicWriter {
                 conds.map(_.rotatePos(dir).w).mkString
           ).mkString
         val extT =
+          // place the external tiles (see the Shadow page of the wiki)
           logger.trace("writing shadow's external tiles")
           (
             for {
@@ -127,10 +126,12 @@ object BasicWriter {
               dir                         <- dirs
             } yield
               logger.trace(s"writing shadow's external tile $name")
-              s"Index ${tile.rotate(dir).w}\n" +
-                conds.map(_.rotatePos(dir).w).mkString
+              s"Index ${tile.rotate(dir).write}\n" +
+                "NoDefaultRule\n" +
+                conds.map(_.rotatePos(dir).write).mkString
           ).mkString
         val intT =
+          // place the internal tiles (see the Shadow page of the wiki)
           logger.trace("writing shadow's internal tiles")
           (
             for {
@@ -141,7 +142,8 @@ object BasicWriter {
               s"Index ${tile.rotate(dir).w}\n" +
                 conds.map(_.rotatePos(dir).w).mkString
           ).mkString
-        tmp + defT + extT + intT + "NewRun\n"
+        // run
+        tmpT + defT + extT + intT + "NewRun\n"
 
   given Writable[Shape] with
     extension (sp: Shape)
@@ -236,5 +238,19 @@ object BasicWriter {
         logger.trace("writing rulefile")
         s"# Generated with Powerrules (version ${BuildInfo.version}) by lomination\n" +
           "# https://github.com/lomination/Powerrules" + "\n\n\n\n" +
-          rf.rules.map(_.w).mkString("\n")
+          rf.rules.map(_.write).mkString("\n")
+
+  /** Writes a `NoDefaultRule` keyword if one is needed. It can be determined using the given conditions */
+  private def noDefaultRule(conds: Seq[Cond]): String =
+    val needDefaultRule = conds.forall {
+      _ match
+        case Cond(Pos.zero, GenericMatcher(Op.Is, _)) => false // no need a default rule
+        case Cond(Pos.zero, FullMatcher(Op.Is)) => false       // no need a default rule
+        case _ => true                                         // could need a default rule
+    }
+    if (needDefaultRule) "NoDefaultRule\n" else ""
+
+  private def intRandom(chance: Int): String =
+    if (chance > 1) s"Random $chance\n"
+    else ""
 }

@@ -54,6 +54,4 @@ dist-ssr
 *.sw?
 
 # Perso
-
 launch_nginx.sh
-todo

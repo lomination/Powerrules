@@ -6,7 +6,7 @@ The Powerrules is a language that can generate DDNet rules language and aims to 
 
 You can use the [online transpiler](https://lomination.github.io/Powerrules/) to convert Powerrules into DDNet rules. See the [wiki](https://github.com/lomination/Powerrules/wiki) to learn more about writing Powerrules.
 
-Special thanks to Toom for the huge technical help and advices with Scala, to Ssor for support and ideas, and to archimede67 for fxing bugs that almost make me give up the project
+Special thanks to Toom for the huge technical help and advice with Scala, to Ssor for support and ideas, and to archimede67 for fixing bugs that almost made me give up on the project!
 
 ## Project
 

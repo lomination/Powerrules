@@ -42,9 +42,9 @@ def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])
         "d2",
         Dir.positive,
         Seq(
-          X, X, X,
-          ?, O, ?,
-          ?, ?, ?
+          ?, X, ?,
+          O, O, O,
+          ?, O, ?
         )
       ),
       (
@@ -52,8 +52,8 @@ def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])
         Dir.positive,
         Seq(
           X, X, ?,
-          X, O, O,
-          ?, O, ?
+          X, O, ?,
+          ?, ?, ?
         )
       ),
       (
@@ -71,7 +71,7 @@ def defaultTilePatterns(softMode: Boolean): Seq[(String, Seq[Dir], Seq[Trilean])
         Seq(
           X, X, X,
           X, O, X,
-          ?, O, ?
+          ?, ?, ?
         )
       ),
       (
