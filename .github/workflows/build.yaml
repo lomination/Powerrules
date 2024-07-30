@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  build-and-test:
+  build:
     name: Build and test
     runs-on: ubuntu-latest
     steps:
