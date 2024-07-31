@@ -7,21 +7,21 @@ enum Trilean:
 
 def toConds(pattern: Seq[Trilean])(matcher: Matcher): Seq[Cond] =
   val positions = Seq(Pos.nw, Pos.n, Pos.ne, Pos.w, Pos.zero, Pos.e, Pos.sw, Pos.s, Pos.se)
-  (positions zip pattern).foldLeft(Seq()) { (conds: Seq[Cond], pt: (Pos, Trilean)) =>
-    pt match
-      case (pos, Trilean.O) => conds :+ (pos is matcher)
-      case (pos, Trilean.?) => conds
-      case (pos, Trilean.X) => conds :+ (pos isnot matcher)
+  (positions zip pattern).foldLeft(Seq[Cond]()) { case (conds, (pos, content)) =>
+    content match
+      case Trilean.O => conds :+ (pos is matcher)
+      case Trilean.? => conds
+      case Trilean.X => conds :+ (pos isnot matcher)
   }
 
 def defaultTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
-  defaultTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
+  defaultTilePatterns(softMode) map { case (name, dirs, pat) => (name, dirs, toConds(pat)(matcher)) }
 
 def externalTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
-  externalTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
+  externalTilePatterns(softMode) map { case (name, dirs, pat) => (name, dirs, toConds(pat)(matcher)) }
 
 def internalTilesConds(softMode: Boolean)(matcher: Matcher): Seq[(String, Seq[Dir], Seq[Cond])] =
-  internalTilePatterns(softMode) map { (t: (String, Seq[Dir], Seq[Trilean])) => (t._1, t._2, toConds(t._3)(matcher)) }
+  internalTilePatterns(softMode) map { case (name, dirs, pat) => (name, dirs, toConds(pat)(matcher)) }
 
 // @formatter:off
 
