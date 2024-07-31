@@ -51,20 +51,25 @@ object MacroParser extends RegexParsers {
     */
   @nowarn // return of split cannot be empty
   def applyMacros(macroSeq: Seq[Macro], input: String): String =
-    val macro1 = """^(\w+)\(([^)]*)\)([\S\s]*)$""".r // with params
-    val macro2 = """^(\w+)([\S\s]*)$""".r            // without params
+    val withParams    = """^(\w+)\(([^)]*)\)([\S\s]*)$""".r
+    val withoutParams1 = """^(\w+)([\S\s]*)$""".r
+    val withoutParams2 = """^{(\w+)}([\S\s]*)$""".r // with {}
     input.split('$').toList match
       case head :: tail =>
         head + tail.foldRight("") { case (segment, acc) =>
           segment + acc match
-            case macro1(name, params, remainder) =>
+            case withParams(name, params, remainder) =>
               macroSeq.find(_.name == name) match
                 case Some(m) => m(params.split(',')).get + remainder
-                case None    => logger.warn(s"`$$` token is found but macro `$name` is not defined (yet)"); s"$$$name($params)" + remainder
-            case macro2(name, remainder) =>
+                case None    => logger.warn(s"`$$` token is found but macro `$name` is not defined (yet?)"); s"$$$name($params)" + remainder
+            case withoutParams1(name, remainder) =>
               macroSeq.find(_.name == name) match
                 case Some(m) => m(Seq()).get + remainder
-                case None    => logger.warn(s"`$$` token is found but macro `$name` is not defined (yet)"); s"$$$name" + remainder
+                case None    => logger.warn(s"`$$` token is found but macro `$name` is not defined (yet?)"); s"$$$name" + remainder
+            case withoutParams2(name, remainder) =>
+              macroSeq.find(_.name == name) match
+                case Some(m) => m(Seq()).get + remainder
+                case None    => logger.warn(s"`$$` token is found but macro `$name` is not defined (yet?)"); s"$$$name" + remainder
             case other =>
               logger.warn("`$` token is found but no macro call is detected")
               "$" + other
