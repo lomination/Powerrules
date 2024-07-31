@@ -43,7 +43,7 @@ object MacroParser extends RegexParsers {
   //       logger.error(exception)("Fail to parse macros (fatal error)")
   //       scala.util.Failure(exception)
 
-  /** Search for every macrocall and try to apply the given ones if they match
+  /** Search for every macro call and try to apply the given macros if they match
     *
     * @param macroSeq
     * @param input
@@ -53,7 +53,7 @@ object MacroParser extends RegexParsers {
   def applyMacros(macroSeq: Seq[Macro], input: String): String =
     val withParams    = """^(\w+)\(([^)]*)\)([\S\s]*)$""".r
     val withoutParams1 = """^(\w+)([\S\s]*)$""".r
-    val withoutParams2 = """^{(\w+)}([\S\s]*)$""".r // with {}
+    val withoutParams2 = """^\{(\w+)}([\S\s]*)$""".r // with {}
     input.split('$').toList match
       case head :: tail =>
         head + tail.foldRight("") { case (segment, acc) =>
@@ -85,3 +85,26 @@ object MacroParser extends RegexParsers {
   lazy val macParams: Parser[Seq[String]] = "(" ~> "[ \\w,]+".r <~ ")" ^^ { _.split(',').toSeq.map(_.trim) }
   lazy val macContent: Parser[String]     = "\"" ~> "[^\"]+".r <~ "\""
 }
+
+case class Macro(name: String, paramNames: Seq[String], content: String):
+  // if (paramNames == Seq(""))
+  //   logger.warn(
+  //     s"Macro $name is defined with one parameter named with empty string ``.\n" +
+  //       "Consider not using parentheses after its definition if no paramter is expected."
+  //   )
+  if (paramNames.sizeIs != paramNames.toSet.size)
+    logger.warn(s"Some parameters of macro $name have the same name.")
+  val logger = org.log4s.getLogger
+  def apply(paramValues: Seq[String]): Try[String] =
+    val vLength = paramValues.size
+    val nLength = paramNames.size
+    if (vLength != nLength)
+      val msg       = s"Invalid number of params for macro `$name`. Given: $vLength, expected: $nLength"
+      val exception = InvalidNumberOfMacroParameters(msg)
+      logger.error(msg)
+      logger.debug(s"Given params: `${paramValues.mkString("`, `")}`")
+      scala.util.Failure(exception)
+    else
+      val res = (paramNames zip paramValues)
+        .foldLeft(content) { case (c, (n, v)) => c.replace(s"<$n>", v) }
+      scala.util.Success(res)
