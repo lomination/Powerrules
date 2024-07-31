@@ -6,9 +6,7 @@
 // import scala.util.parsing.combinator.*
 // import scala.util.parsing.input.Position
 
-
 // abstract class Token { val pos: Position }
-
 
 // case class NEWLINE(pos: Position, indents: Int) extends Token
 // case class SINGLECOMMENT(pos: Position, value: String) extends Token
@@ -56,8 +54,6 @@
 // case class PATTERNCHAR(pos: Position) extends Token
 // case class ARROW(pos: Position) extends Token
 
-
-
 // object Lexer extends RegexParsers {
 
 //   override def skipWhitespace: Boolean     = false
@@ -79,7 +75,7 @@
 //         val exception = ParsingError(s"Fail to parse rule file (at l:${next.pos.line}, c:${next.pos.column}).\n\n" + msg)
 //         logger.error(exception)("Lexer generated a failure")
 //         scala.util.Failure(exception)
-    
+
 //   extension [T](p: P[T])
 //     def pos: Position ~ T = ???
 
@@ -135,7 +131,5 @@
 //   lazy val soft: P[SOFT] = ???
 //   lazy val patternchar: P[PATTERNCHAR] = ???
 //   lazy val arrow: P[ARROW] = ???
-
-    
 
 // }

@@ -51,7 +51,7 @@ object MacroParser extends RegexParsers {
     */
   @nowarn // return of split cannot be empty
   def applyMacros(macroSeq: Seq[Macro], input: String): String =
-    val withParams    = """^(\w+)\(([^)]*)\)([\S\s]*)$""".r
+    val withParams     = """^(\w+)\(([^)]*)\)([\S\s]*)$""".r
     val withoutParams1 = """^(\w+)([\S\s]*)$""".r
     val withoutParams2 = """^\{(\w+)}([\S\s]*)$""".r // with {}
     input.split('$').toList match

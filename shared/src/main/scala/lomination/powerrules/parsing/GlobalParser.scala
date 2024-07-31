@@ -1,6 +1,6 @@
 package lomination.powerrules.parsing
 
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 import lomination.powerrules.RuleFile
 
 object GlobalParser:

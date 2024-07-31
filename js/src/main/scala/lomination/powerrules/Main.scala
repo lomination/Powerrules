@@ -1,13 +1,13 @@
 package lomination.powerrules
 
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 import org.scalajs.dom
-import org.scalajs.dom.{HTMLTextAreaElement, HTMLButtonElement, HTMLSpanElement}
+import org.scalajs.dom.{HTMLButtonElement, HTMLSpanElement, HTMLTextAreaElement}
 import lomination.powerrules.RuleFile
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.parsing.GlobalParser
 import lomination.powerrules.writing.Writable
-import lomination.powerrules.writing.BasicWriter.{given Writable[RuleFile]}
+import lomination.powerrules.writing.BasicWriter.given Writable[RuleFile]
 
 @main
 def main: Unit =

@@ -3,7 +3,7 @@ package lomination.powerrules.parsing
 import scala.util.Try
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.*
-import lomination.powerrules.{AnyDir, Command, Comment, Cond, Dir, FullMatcher, GenericMatcher, Grid, Matcher, NotEdgeMatcher, Op, Pos, Replace, Random, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
+import lomination.powerrules.{AnyDir, Command, Comment, Cond, Dir, FullMatcher, GenericMatcher, Grid, Matcher, NotEdgeMatcher, Op, Pos, Random, Replace, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
 import scala.util.parsing.input.Position
 
 object RuleFileParser extends RegexParsers {
@@ -199,7 +199,7 @@ object RuleFileParser extends RegexParsers {
     } yield Replace(
       withStm.tiles,
       ifStm.getOrElse(IfStm(Seq())).conds,
-      randomStm.getOrElse(RandomStm(Random.always)).chance,
+      randomStm.getOrElse(RandomStm(Random.always)).chance
     )
   } lg "replace"
 
@@ -227,10 +227,10 @@ object RuleFileParser extends RegexParsers {
   /** A parser of a shape command */
   lazy val shape: P[Shape] = cmd("shape" | "sp")(applyStm | onStm | usingStm | randomStm) >> { (seq: Seq[Statement]) =>
     for {
-      applyStm   <- seq.collectFirst { case stm: ApplyStm => stm }.fold[P[ApplyStm]](Err.missingStm("apply", "shape"))(success)
-      onStm      <- seq.collectFirst { case stm: OnStm => stm }.fold[P[OnStm]](Err.missingStm("on", "shape"))(success)
-      usingStm   <- seq.collectFirst { case stm: UsingStm => stm }.fold[P[UsingStm]](Err.missingStm("using", "shape"))(success)
-      randomStm  <- seq.collectFirst { case stm: RandomStm => stm }.fold[P[RandomStm]](Err.missingStm("random", "shape"))(success)
+      applyStm  <- seq.collectFirst { case stm: ApplyStm => stm }.fold[P[ApplyStm]](Err.missingStm("apply", "shape"))(success)
+      onStm     <- seq.collectFirst { case stm: OnStm => stm }.fold[P[OnStm]](Err.missingStm("on", "shape"))(success)
+      usingStm  <- seq.collectFirst { case stm: UsingStm => stm }.fold[P[UsingStm]](Err.missingStm("using", "shape"))(success)
+      randomStm <- seq.collectFirst { case stm: RandomStm => stm }.fold[P[RandomStm]](Err.missingStm("random", "shape"))(success)
     } yield
       val newMap = usingStm.map ++ Map('!' -> FullMatcher(Op.Isnot), '.' -> FullMatcher(Op.Is)) - '?'
       Shape(
@@ -246,7 +246,7 @@ object RuleFileParser extends RegexParsers {
             case Some(m: Matcher) => Some(m)
             case None             => None
         ),
-        randomStm.chance,
+        randomStm.chance
       )
   } lg "shape"
 

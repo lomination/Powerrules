@@ -41,7 +41,7 @@ sealed trait Command
 case class Replace(
     tiles: Seq[Tile],
     conds: Seq[Cond] = Seq(),
-    random: Random = Random.always,
+    random: Random = Random.always
 ) extends Command
 
 /** A shadow command
@@ -81,7 +81,7 @@ case class Shadow(
 case class Shape(
     applyPat: Grid[Option[Tile]],
     onPat: Grid[Option[Matcher]],
-    random: Random = Random.always,
+    random: Random = Random.always
 ) extends Command
 
 case class Comment(str: String) extends Command
@@ -317,7 +317,7 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
 case class TmpTile(id: Int):
   /** Converts this temporary tile to a regular tile */
   def toTile(dir: Dir = Dir.p0): Tile = Tile(id, dir)
-  
+
   /** Converts this temporary tile to a regular tile */
   @inline def toTile: Tile = toTile(Dir.p0)
 

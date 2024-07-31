@@ -1,6 +1,6 @@
 package lomination.powerrules.writing
 
-import lomination.powerrules.{AnyDir, Comment, Cond, Dir, FullMatcher, GenericMatcher, NotEdgeMatcher, Op, Pos, Replace, Random, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
+import lomination.powerrules.{AnyDir, Comment, Cond, Dir, FullMatcher, GenericMatcher, NotEdgeMatcher, Op, Pos, Random, Replace, Rule, RuleFile, Shadow, Shape, Sign, Tile, TileMatcher, Times, TmpTile}
 import lomination.powerrules.build.BuildInfo
 
 object BasicWriter {
@@ -90,8 +90,7 @@ object BasicWriter {
             } yield s"Index ${tile.write}\n" +
               s"Pos 0 0 INDEX ${tmpTile.toTm.write}\n" +
               intRandom(len - i) + // write random as integer (n => 1/n probability)
-              "NewRun\n"
-            ).mkString
+              "NewRun\n").mkString
           tmp + core
 
   given Writable[Shadow] with
@@ -207,8 +206,8 @@ object BasicWriter {
     val needDefaultRule = conds.forall {
       _ match
         case Cond(Pos.zero, GenericMatcher(Op.Is, _)) => false // no need a default rule
-        case Cond(Pos.zero, FullMatcher(Op.Is)) => false       // no need a default rule
-        case _ => true                                         // could need a default rule
+        case Cond(Pos.zero, FullMatcher(Op.Is))       => false // no need a default rule
+        case _                                        => true  // could need a default rule
     }
     if (needDefaultRule) "NoDefaultRule\n" else ""
 
