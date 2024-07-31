@@ -69,26 +69,26 @@ object BasicWriter {
         logger.trace("writing replace")
         if (re.tiles.sizeIs == 1)
           // no need of a temporary tile
-          s"Index ${re.tiles(0).write}\n" +
+          s"Index ${re.tiles(0).w}\n" +
             noDefaultRule(re.conds) +
-            re.conds.map(_.write).mkString +
-            re.random.write +
+            re.conds.map(_.w).mkString +
+            re.random.w +
             "NewRun\n"
         else
           // use a temporary tile
           val len = re.tiles.length
           val tmp =
-            s"Index ${tmpTile.toTile.write}\n" +
+            s"Index ${tmpTile.toTile.w}\n" +
               noDefaultRule(re.conds) +
-              re.conds.map(_.write).mkString +
-              re.random.write +
+              re.conds.map(_.w).mkString +
+              re.random.w +
               "NewRun\n"
           val core =
             (for {
               i <- 0 until len
               tile = re.tiles(i)
-            } yield s"Index ${tile.write}\n" +
-              s"Pos 0 0 INDEX ${tmpTile.toTm.write}\n" +
+            } yield s"Index ${tile.w}\n" +
+              s"Pos 0 0 INDEX ${tmpTile.toTm.w}\n" +
               intRandom(len - i) + // write random as integer (n => 1/n probability)
               "NewRun\n").mkString
           tmp + core
@@ -100,9 +100,9 @@ object BasicWriter {
         import lomination.powerrules.writing.{defaultTilesConds, externalTilesConds, internalTilesConds, toConds}
         val tmpT =
           // place the temporary tile where the shadow command should be applied
-          s"Index ${tmpTile.toTile.write}\n" +
+          s"Index ${tmpTile.toTile.w}\n" +
             noDefaultRule(sd.conds) +
-            sd.conds.map(_.write).mkString +
+            sd.conds.map(_.w).mkString +
             "NewRun\n"
         val defT =
           // place the default tiles (see the Shadow page of the wiki)
@@ -125,9 +125,9 @@ object BasicWriter {
               dir                         <- dirs
             } yield
               logger.trace(s"writing shadow's external tile $name")
-              s"Index ${tile.rotate(dir).write}\n" +
+              s"Index ${tile.rotate(dir).w}\n" +
                 "NoDefaultRule\n" +
-                conds.map(_.rotatePos(dir).write).mkString
+                conds.map(_.rotatePos(dir).w).mkString
           ).mkString
         val intT =
           // place the internal tiles (see the Shadow page of the wiki)
@@ -199,7 +199,7 @@ object BasicWriter {
         logger.trace("writing rulefile")
         s"# Generated with Powerrules (version ${BuildInfo.version}) by lomination\n" +
           "# https://github.com/lomination/Powerrules" + "\n\n\n\n" +
-          rf.rules.map(_.write).mkString("\n")
+          rf.rules.map(_.w).mkString("\n")
 
   /** Writes a `NoDefaultRule` keyword if one is needed. It can be determined using the given conditions */
   private def noDefaultRule(conds: Seq[Cond]): String =
