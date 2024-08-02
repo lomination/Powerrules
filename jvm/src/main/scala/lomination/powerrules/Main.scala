@@ -10,9 +10,9 @@ import lomination.powerrules.writing.BasicWriter.given Writable[RuleFile]
 @main
 def main =
   val result = for {
-    input    <- Using(Source.fromFile("example.txt"))(_.mkString)
+    input    <- Using(Source.fromFile("exemple.txt"))(_.mkString)
     ruleFile <- GlobalParser(input)
-    _        <- Using(new PrintWriter("example.rules"))(_.write(ruleFile.write(using ruleFile.tmpTile)))
+    _        <- Using(new PrintWriter("exemple.rules"))(_.write(ruleFile.write(using ruleFile.tmpTile)))
   } yield ()
 
   result.failed.foreach(println)
