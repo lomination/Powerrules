@@ -1,6 +1,6 @@
 package lomination.powerrules
 
-import munit.FunSuite
+import lomination.powerrules.FunSuite
 
 class PosRotate extends FunSuite {
 

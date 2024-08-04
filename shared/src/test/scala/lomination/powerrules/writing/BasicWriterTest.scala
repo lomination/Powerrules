@@ -1,6 +1,6 @@
 package lomination.powerrules.writing
 
-import munit.FunSuite
+import lomination.powerrules.FunSuite
 import lomination.powerrules.{Comment, Dir, FullMatcher, Op, Pos, Random, Replace, Shadow, Tile, TileMatcher, TmpTile}
 import lomination.powerrules.writing.BasicWriter.given Writable[?]
 

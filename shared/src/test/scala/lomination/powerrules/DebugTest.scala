@@ -1,6 +1,6 @@
 package lomination.powerrules
 
-import munit.FunSuite
+import lomination.powerrules.FunSuite
 
 // specific tests, can be ignored
 

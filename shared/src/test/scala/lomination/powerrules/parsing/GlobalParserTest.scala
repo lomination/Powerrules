@@ -1,6 +1,6 @@
 package lomination.powerrules.parsing
 
-import munit.FunSuite
+import lomination.powerrules.FunSuite
 
 class PreProcessing extends FunSuite {
 
