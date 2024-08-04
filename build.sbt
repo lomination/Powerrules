@@ -26,6 +26,11 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
       version
     )
   )
+  .jvmSettings(
+    libraryDependencies ++= Seq(
+      "ch.qos.logback" % "logback-classic" % "1.2.10"
+    )
+  )
   .jsSettings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
