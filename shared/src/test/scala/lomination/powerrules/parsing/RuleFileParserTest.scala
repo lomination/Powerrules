@@ -71,7 +71,7 @@ class ParseRuleFile extends FunSuite {
     assert(result.isSuccess, s"Failed to parse test: ${result.failed.get.getMessage}")
   }
 
-  test("ParseRuleFile (4)") {
+  test("ParseRuleFile (5)") {
     val input = """|             
                    |[r1]          
                    |            
@@ -338,7 +338,7 @@ class ParseShadow extends FunSuite {
     assert(clue(result.get) == clue(expected))
   }
 
-  test("ParseShadow (5): missing statement") {
+  test("ParseShadow (6): missing statement") {
     val input = """|shadow
                    |    if 0 0 is full
                    |    withinternal 35+2 85+2 b0+1 b1+3 b2 b3+1 60+1 b4

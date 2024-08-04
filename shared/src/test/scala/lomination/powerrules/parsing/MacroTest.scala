@@ -27,7 +27,7 @@ class MacroTest extends FunSuite {
     assert(result.isFailure)
   }
 
-  test("MacroTest (1): too many params") {
+  test("MacroTest (4): too many params") {
     val m      = Macro("test", Seq("tile", "cond"), "re with <tile> if <cond>")
     val result = m(Seq("1+0", "0 0 is full", "0 1 is 1+0"))
     assert(result.isFailure)
