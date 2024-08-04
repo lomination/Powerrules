@@ -34,7 +34,7 @@ class PosRotate extends FunSuite {
     assert(clue(test) == clue(expected))
   }
 
-  test("PosRotate (3)") {
+  test("PosRotate (6)") {
     val test     = Pos.ne rotate Dir.m1
     val expected = Pos.sw
     assert(clue(test) == clue(expected))
