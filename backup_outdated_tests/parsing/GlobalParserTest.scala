@@ -8,7 +8,7 @@ class PreProcessing extends FunSuite {
     val input = """|bloop
                    |// bibi
                    |baba""".stripMargin
-    val result = lomination.powerrules.parsing.GlobalParser.preProcess(input)
+    val result = lomination.powerrules.GlobalParser.preProcess(input)
     val expected = """|bloop
                       |
                       |baba""".stripMargin
@@ -19,7 +19,7 @@ class PreProcessing extends FunSuite {
     val input = """|bloop
                    |/* bibi
                    |baba */bubu""".stripMargin
-    val result = lomination.powerrules.parsing.GlobalParser.preProcess(input)
+    val result = lomination.powerrules.GlobalParser.preProcess(input)
     val expected = """|bloop
                       |bubu""".stripMargin
     assert(clue(result) == clue(expected))
@@ -29,7 +29,7 @@ class PreProcessing extends FunSuite {
     val input = """|bloop
                    |/* bibi // bloop
                    |baba */bubu""".stripMargin
-    val result = lomination.powerrules.parsing.GlobalParser.preProcess(input)
+    val result = lomination.powerrules.GlobalParser.preProcess(input)
     val expected = """|bloop
                       |bubu""".stripMargin
     assert(clue(result) == clue(expected))

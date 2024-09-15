@@ -1,0 +1,15 @@
+<ruleFile> ::= (<config>)+ (<macro>)+ (<rule>)+
+
+<rule> ::= <title> (<command>)+
+
+<title> ::= <stringLiteral>
+
+<command> ::= <replace> | <shadow> | <shape> | <comment>
+
+<replace> ::= "replace" | "re" <withStatement> <>
+
+<ifThen> ::= <condition> "->" INDENT <block> DEDENT
+
+<otherwiseThen> ::= "otherwise" "->" INDENT <block> DEDENT
+
+<condition> ::= <identifier> "==" <stringLiteral>

@@ -3,16 +3,16 @@ package lomination.powerrules
 import scala.io.Source
 import scala.util.Using
 import java.io.PrintWriter
-import lomination.powerrules.parsing.GlobalParser
-import lomination.powerrules.writing.Writable
-import lomination.powerrules.writing.BasicWriter.given Writable[RuleFile]
+import lomination.powerrules.Compiler
 
 @main
+// def main(fileName: String) =
 def main =
+  val fileName = "exemple.txt"
   val result = for {
-    input    <- Using(Source.fromFile("exemple.txt"))(_.mkString)
-    ruleFile <- GlobalParser(input)
-    _        <- Using(new PrintWriter("exemple.rules"))(_.write(ruleFile.write(using ruleFile.tmpTile)))
+    input  <- Using(Source.fromFile(fileName))(_.mkString)
+    output <- Compiler(input)
+    _      <- Using(new PrintWriter("exemple.rules"))(_.write(output))
   } yield ()
 
-  result.failed.foreach(println)
+  result.get

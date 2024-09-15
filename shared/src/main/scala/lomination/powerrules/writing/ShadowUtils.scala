@@ -1,6 +1,6 @@
 package lomination.powerrules.writing
 
-import lomination.powerrules.{Cond, Dir, Matcher, Pos}
+import lomination.powerrules.ast.{Cond, Dir, Matcher, Pos}
 
 enum Trilean:
   case O, ?, X

@@ -2,7 +2,7 @@ package lomination.powerrules.parsing
 
 import lomination.powerrules.FunSuite
 import lomination.powerrules.{Comment, Dir, FullMatcher, Grid, NotEdgeMatcher, Op, Pos, Random, Replace, Shadow, Shape, Tile, TileMatcher, TmpTile}
-import lomination.powerrules.parsing.RuleFileParser
+import lomination.powerrules.RuleFileParser
 
 class ParseRuleFile extends FunSuite {
 

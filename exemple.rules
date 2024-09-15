@@ -1,0 +1,11 @@
+# Generated with Powerrules (version 0.5.1-SNAPSHOT) by lomination
+# https://github.com/lomination/Powerrules
+
+
+
+[Rule 1]
+
+Index 1 NONE
+NoDefaultRule
+Pos 1 -1 INDEX 2
+NewRun

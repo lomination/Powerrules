@@ -1,4 +1,4 @@
-package lomination.powerrules
+package lomination.powerrules.ast
 
 // For more information about the following classes, please refer to the wiki
 
@@ -11,7 +11,7 @@ package lomination.powerrules
   * @param rules
   *   a not empty sequence of rules
   */
-case class RuleFile(tmpTile: TmpTile, rules: Seq[Rule])
+case class RuleFile(rules: Seq[Rule])
 
 /** A powerrules rule, equivalent to a DDNet rule
   *
@@ -68,9 +68,11 @@ case class Shadow(
 /** A shape command
   *
   * @param applyPat
-  *   a pattern of options of tile (`Seq[Option[Tile]])` that corresponds to the `apply` statement. In the case of `Some(Tile)`, the command will place the given tile, else (`None`) it won't change anything at the position.
+  *   a pattern of options of tile (`Seq[Option[Tile]])` that corresponds to the `apply` statement. In the case of `Some(Tile)`, the command will
+  *   place the given tile, else (`None`) it won't change anything at the position.
   * @param onPat
-  *   a pattern of options of tile matchers (`Seq[Option[TileMatcher]])` that corresponds to the `on` statement. In the case of `Some(TileMatcher)`, the command will test the given tile matcher, else (`None`) it won't test anything at the position.
+  *   a pattern of options of tile matchers (`Seq[Option[TileMatcher]])` that corresponds to the `on` statement. In the case of `Some(TileMatcher)`,
+  *   the command will test the given tile matcher, else (`None`) it won't test anything at the position.
   * @param neutral
   *   a tile used to clear shapes' overlaps
   * @param random
@@ -80,7 +82,7 @@ case class Shadow(
   */
 case class Shape(
     applyPat: Grid[Option[Tile]],
-    onPat: Grid[Option[Matcher]],
+    onPat: Grid[Option[Pos => Cond]],
     random: Random = Random.always
 ) extends Command
 
@@ -95,12 +97,12 @@ case class Comment(str: String) extends Command
   * @param matcher
   *   the matcher the given position must match
   */
-case class Cond(pos: Pos, matcher: Matcher):
+case class Cond(pos: Pos, op: Op, matcher: Matcher):
   /** Rotates this condition's position and matcher */
-  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), matcher.rotate(dir))
+  def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), op, matcher.rotate(dir))
 
   /** Rotates this condition's position */
-  def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), matcher)
+  def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), op, matcher)
 
   /** Returns a sequence of conditions containing this and that */
   def &(that: Cond): Seq[Cond] = Seq(this, that)
@@ -136,16 +138,16 @@ case class Pos(x: Int, y: Int):
     else Pos(y, -x).anticlockwise(n - 1)
 
   /** Returns a condition containing this position and the given matcher */
-  def is(matcher: Matcher): Cond = Cond(this, matcher)
+  def is(matcher: Matcher): Cond = Cond(this, Op.Is, matcher)
 
   /** Returns a condition containing this position and the given tile matcher converted into a generic matcher */
-  def is(tm: TileMatcher): Cond = Cond(this, GenericMatcher(Op.Is, tm))
+  def is(tm: TileMatcher): Cond = Cond(this, Op.Is, GenericMatcher(tm))
 
   /** Returns a condition containing this position and the opposite of the given matcher */
-  def isnot(matcher: Matcher): Cond = Cond(this, matcher.not)
+  def isnot(matcher: Matcher): Cond = Cond(this, Op.IsNot, matcher)
 
   /** Returns a condition containing this position and the opposite of the given tile matcher converted into a generic matcher */
-  def isnot(tm: TileMatcher): Cond = Cond(this, GenericMatcher(Op.Isnot, tm))
+  def isnot(tm: TileMatcher): Cond = Cond(this, Op.IsNot, GenericMatcher(tm))
 
   /** Returns a sequence of all adjacent positions to this one (seq lenth = 4) */
   def adjacent: Seq[Pos] = Pos.adjacent.map(this + _)
@@ -189,33 +191,30 @@ case object Pos:
 
 /** Matchers can test whether given positions contain a certain tile or not */
 sealed trait Matcher:
-  /** Returns a matcher that will match when the current one won't */
-  def not: Matcher
-
   /** Rotates the matcher by the given direction */
   def rotate(dir: Dir): Matcher
 
 /** Tests whether the given position contains a tile with an index diferent or equal to 0
   * @param op
-  *   defines whether the position should (`Op.Is`) or should not (`Op.IsNot`) contain a tile with an index diferent from 0. In other words: `Op.Is` => full matcher (matches index != 0); `Op.IsNot` => empty matcher (matches index == 0)
+  *   defines whether the position should (`Op.Is`) or should not (`Op.IsNot`) contain a tile with an index diferent from 0. In other words: `Op.Is`
+  *   \=> full matcher (matches index != 0); `Op.IsNot` => empty matcher (matches index == 0)
   */
-case class FullMatcher(op: Op) extends Matcher:
-  def not: FullMatcher = FullMatcher(op.not)
-
+object FullMatcher extends Matcher:
   /** Returns this */
-  def rotate(dir: Dir): FullMatcher = this
+  def rotate(dir: Dir): FullMatcher.type = this
+
+object EmptyMatcher extends Matcher:
+  /** Returns this */
+  def rotate(dir: Dir): EmptyMatcher.type = this
 
 /** Maches when the given position is not on the edge of the tile layer
   *
   * @note
   *   It is negative, so use `<pos> is NotEdgeMatcher`. Using `<pos> isnot NotEdgeMatcher` will throw an UnsupportedOperationException
   */
-case object NotEdgeMatcher extends Matcher:
-  /** Throws an UnsupportedOperationException. This matcher does not have an opposite matcher */
-  def not: NotEdgeMatcher.type = throw UnsupportedOperationException("NotEdgeMatcher cannot be positive")
-
+case object EdgeMatcher extends Matcher:
   /** Returns this */
-  def rotate(dir: Dir): NotEdgeMatcher.type = this
+  def rotate(dir: Dir): EdgeMatcher.type = this
 
 /** Tests whether the given position matches one of the given tile matchers
   * @param op
@@ -224,14 +223,9 @@ case object NotEdgeMatcher extends Matcher:
   * @param tms
   *   tile matchers to match
   */
-case class GenericMatcher(op: Op, tms: TileMatcher*) extends Matcher:
-  def this(tms: TileMatcher*) = this(Op.Is, tms*)
-
-  /** Returns the opposite matcher (reverse the operator) */
-  def not: GenericMatcher = GenericMatcher(op.not, tms*)
-
-  /** Rotates the given tile matches */
-  def rotate(dir: Dir): GenericMatcher = GenericMatcher(op, tms.map(_.rotate(dir))*)
+case class GenericMatcher(tms: TileMatcher*) extends Matcher:
+  /** Rotates the given tile matchers */
+  def rotate(dir: Dir): GenericMatcher = GenericMatcher(tms.map(_.rotate(dir))*)
 
 /** Matches a tile with a certain index and a certain direction
   *
@@ -269,7 +263,9 @@ case class Grid[A](rows: Seq[Seq[A]]):
   private def check: Unit =
     for (i <- 1 until ySize) yield
       if (rows(i).sizeIs > xSize)
-        logger.warn(s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration")
+        logger.warn(
+          s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration"
+        )
       if (rows(i).sizeIs > xSize)
         val msg       = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
         val exception = IndexOutOfBoundsException(msg)
@@ -312,26 +308,6 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
 
   /** Converts this tile to a tile matcher */
   def toTileMatcher: TileMatcher = TileMatcher(id, dir)
-
-/** A temporary tile used in the two-stage processes during command writing */
-case class TmpTile(id: Int):
-  /** Converts this temporary tile to a regular tile */
-  def toTile(dir: Dir = Dir.p0): Tile = Tile(id, dir)
-
-  /** Converts this temporary tile to a regular tile */
-  @inline def toTile: Tile = toTile(Dir.p0)
-
-  /** Convert this temporary tile to a tile matcher */
-  def toTm(dir: Dir = Dir.p0): TileMatcher = TileMatcher(id, dir)
-
-  /** Convert this temporary tile to a tile matcher */
-  @inline def toTm: TileMatcher = toTm(Dir.p0)
-
-  /** Converts this temporary tile to a generic matcher */
-  def toGm(dir: Dir = Dir.p0): GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, dir))
-
-  /** Converts this temporary tile to a generic matcher */
-  @inline def toGm: GenericMatcher = GenericMatcher(Op.Is, TileMatcher(id, Dir.p0))
 
 /** A direction */
 case class Dir(sign: Sign, n: Times):
@@ -421,7 +397,7 @@ enum Times:
 
 /** Operator */
 enum Op:
-  case Is, Isnot
+  case Is, IsNot
 
   /** Returns the opposite of this operator */
-  def not: Op = if (this == Op.Is) Op.Isnot else Op.Is
+  def not: Op = if (this == Op.Is) Op.IsNot else Op.Is

@@ -3,11 +3,8 @@ package lomination.powerrules
 import scala.util.{Failure, Success}
 import org.scalajs.dom
 import org.scalajs.dom.{HTMLButtonElement, HTMLSpanElement, HTMLTextAreaElement}
-import lomination.powerrules.RuleFile
+import lomination.powerrules.Compiler
 import lomination.powerrules.build.BuildInfo
-import lomination.powerrules.parsing.GlobalParser
-import lomination.powerrules.writing.Writable
-import lomination.powerrules.writing.BasicWriter.given Writable[RuleFile]
 
 @main
 def main: Unit =
@@ -23,9 +20,9 @@ def main: Unit =
       convert.addEventListener(
         "click",
         { _ =>
-          GlobalParser(input.value) match
-            case Success(autorule) => output.value = autorule.write(using autorule.tmpTile)
-            case Failure(error)    => output.value = s"ERROR: ${error.getMessage}"
+          Compiler(input.value) match
+            case Success(value) => output.value = value
+            case Failure(error) => output.value = s"ERROR: ${error.getMessage}"
         }
       )
 

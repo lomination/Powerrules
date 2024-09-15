@@ -1,0 +1,8 @@
+
+def emptyTile = {0}
+
+def fullTile = {1}
+
+[Game of life]
+
+replace with 

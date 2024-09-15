@@ -1,0 +1,21 @@
+::config::
+
+writing.temporaryTile = 0xf3
+
+::macros::
+
+def reset(tile)
+    replace
+        with <tile>
+        if there is full
+end
+
+::rules::
+
+[Rule 1]
+
+$reset(2+0)
+
+replace
+    with 1+0
+    if ne is 2
