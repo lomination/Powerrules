@@ -1,17 +1,13 @@
 ### Code
 
 - allow tab as indentation
-- process indentations and formating after applying the macros
 - allow calling a macro as parameter of another
-- allow newline after the `def` line or before the `end` line
-- remove equal `=` from the token list
 - writing: remove unnecessary newline (when empty rule) and newrun (last command of a rule)
-- update readme
 - fix outdated documentation
 - don't allow positive edge matcher
-- log and error -> better messages (colours?)
-- add or statement in replace command (and more?)
-- improve web interface and allow file drop and download
+- improve log and exception messages
+- add `or` statement in replace command (and more?)
+- improve web interface, and allow file drop and download
 - write available scripts (freeze, grass, generic, game-to-tilelayer, **game of life!**...)
 - include wiki in the sources https://github.com/Andrew-Chen-Wang/github-wiki-action
 - write tests

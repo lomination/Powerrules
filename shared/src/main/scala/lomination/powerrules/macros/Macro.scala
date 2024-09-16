@@ -1,6 +1,7 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.style.{ansi0, ansi4}
+import lomination.powerrules.util.{dropOnce, dropRightOnce}
+import lomination.powerrules.util.style.{ansi0, ansi2, ansi4}
 import scala.util.{Failure, Success, Try}
 import lomination.powerrules.lexing.tokens.Token
 import lomination.powerrules.lexing.tokens.*
@@ -25,16 +26,18 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
       replaceParameters(Seq(), content, parameters)
 
   def replaceParameters(computedOnes: Seq[Token], nextOnes: Seq[Token], parameters: Map[String, Seq[Token]]): Try[Seq[Token]] =
-    computedOnes match
+    nextOnes match
       case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
         parameters.get(param) match
           case Some(tokens) =>
+            logger trace s"parameter $param successfully replaced at $ansi4$pos$ansi0 $ansi2(by `${tokens.map(_.raw).mkString}`)$ansi0 "
             replaceParameters(computedOnes ++ tokens, next, parameters)
-          case None         =>
+          case None =>
             val e = MacroError(s"parameter $param not defined at $pos")
             logger.error(e)(s"Parameter $param at $ansi4$pos$ansi0 is not defined")
             Failure(e)
       case token :: next =>
+        logger trace s"Neutral token ${token.getName} found and skipped at $ansi4${token.start}$ansi0"
         replaceParameters(computedOnes :+ token, next, parameters)
       case Nil =>
         Success(computedOnes)
@@ -59,7 +62,7 @@ object Macro:
           if (parameterError.isDefined)
             Failure(parameterError.get)
           else
-            Success(Macro(name, paramNames.map(_.content), content))
+            Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
 
   /** An undefined param is one is found */
   def checkParams(tokens: Seq[Token], paramNames: Seq[Literal]): Option[Exception] =

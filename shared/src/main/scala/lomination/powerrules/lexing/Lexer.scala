@@ -142,7 +142,7 @@ object Lexer extends RegexParsers {
 
   lazy val tokenParser: P[Unpositioned[Token]] =
     // @formatter:off
-    phrase(defTk) ¦ endTk ¦ replaceTk ¦ reTk ¦ shadowTk ¦ sdTk ¦ shapeTk ¦ spTk ¦ withTk ¦ withexternalTk ¦ withinternalTk ¦ ifTk ¦ whenTk ¦ orTk ¦ randomTk ¦ modeTk ¦ applyTk ¦ onTk ¦ usingTk ¦ thereTk ¦ isTk ¦ areTk ¦ notTk ¦ fullTk ¦ emptyTk ¦ edgeTk ¦ normalTk ¦ softTk ¦ outsideTk ¦ literalTk ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ equalTk ¦ doubleQuoteTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ slashTk ¦ spaceTk ¦ newlineTk ¦ unknownTk named "token"
+    phrase(defTk) ¦ endTk ¦ replaceTk ¦ reTk ¦ shadowTk ¦ sdTk ¦ shapeTk ¦ spTk ¦ withTk ¦ withexternalTk ¦ withinternalTk ¦ ifTk ¦ whenTk ¦ orTk ¦ randomTk ¦ modeTk ¦ applyTk ¦ onTk ¦ usingTk ¦ thereTk ¦ isTk ¦ areTk ¦ notTk ¦ fullTk ¦ emptyTk ¦ edgeTk ¦ normalTk ¦ softTk ¦ outsideTk ¦ literalTk ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ doubleQuoteTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ slashTk ¦ spaceTk ¦ newlineTk ¦ unknownTk named "token"
     // @formatter:on
 
   lazy val defTk          = "def".i          |>> Def          named "keyword `def`"
@@ -195,7 +195,6 @@ object Lexer extends RegexParsers {
   lazy val leftChevronTk     = "<"  |>> LeftChevron
   lazy val rightChevronTk    = ">"  |>> RightChevron
   lazy val commaTk           = ","  |>> Comma
-  lazy val equalTk           = "="  |>> Equal
   lazy val doubleQuoteTk     = "\"" |>> DoulbeQuote
   lazy val dollarTk          = "$"  |>> Dollar
   lazy val ampersandTk       = "&"  |>> Ampersand

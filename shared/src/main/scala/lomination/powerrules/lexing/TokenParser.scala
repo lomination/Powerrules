@@ -233,10 +233,6 @@ class TokenParser extends Parsers {
     acceptMatch("comma character `,`", { case token: Comma => token })
       |< "comma character `,`"
 
-  lazy val equalTk: P[Equal] =
-    acceptMatch("equal sign `=`", { case token: Equal => token })
-      |< "equal sign `=`"
-
   lazy val doulbeQuoteTk: P[DoulbeQuote] =
     acceptMatch("doulbe quote character `\"`", { case token: DoulbeQuote => token })
       |< "doulbe quote character `\"`"

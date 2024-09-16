@@ -2,39 +2,43 @@
 
 ## Powerrules
 
-The Powerrules is a language that can generate [DDNet](https://ddnet.org) ([github](https://github.com/ddnet/ddnet)) rules language and aims to make it simpler to write rules by offering a new, easier and more powerful language.
+Powerrules is a language designed to generate rules for [DDNet](https://ddnet.org) ([GitHub](https://github.com/ddnet/ddnet)). Its goal is to simplify writing rules by providing a more user-friendly and powerful syntax.
 
-You can use the [online transpiler](https://lomination.github.io/Powerrules/) to convert Powerrules into DDNet rules. See the [wiki](https://github.com/lomination/Powerrules/wiki) to learn more about writing Powerrules.
+You can use the [online transpiler](https://lomination.github.io/Powerrules/) to convert Powerrules into DDNet rules. For more information on how to write Powerrules, check out the [wiki](https://github.com/lomination/Powerrules/wiki).
 
-Special thanks to Toom for the huge technical help and advice with Scala, to Ssor for support and ideas, and to archimede67 for fixing bugs that almost made me give up on the project!
+Special thanks to Toom for significant technical help and advice with Scala, Ssor for support and ideas, and archimede67 for fixing bugs that almost led me to abandon the project!
 
-## Project
+## Project Structure
 
-This project is cross-compiled with ScalaJVM and ScalaJS. The common core of the project is located in the `shared/` directory. The remainder is either in `js/` or `jvm/` directories.
+This project is cross-compiled for both ScalaJVM and ScalaJS. The shared core is located in the `shared/` directory, while platform-specific code resides in the `js/` or `jvm/` directories.
 
-5 sub processes:
-- config parser
-- lexer
-- macro parser
-- token parser
-- writer
+The compilation process follows several steps. All referenced classes are found in the `shared/src/main/scala/lomination/powerrules` directory:
+1. The configuration is parsed using `config.ConfigParser`.
+2. The macro section is tokenized with `lexing.Lexer`.
+3. Tokens are formatted using `formatting.Format` to ease parsing.
+4. The formatted tokens are parsed by `macros.MacroParser`.
+5. The rules section is tokenized using `lexing.Lexer`.
+6. Parsed macros are applied to the tokens in the rules section using `macros.MacroApplier`.
+7. The resulting tokens are formatted by `formatting.Formatter`.
+8. Tokens are parsed using `powerrulesparsing.PowerrulesParser`.
+9. Finally, the parsed AST is written using the `writing.Writer` type class.
 
-### ScalaJVM project
+### ScalaJVM
 
-The ScalaJVM part of the project allows you to convert a Powerrules file in DDNet rules file. To do, replace `example.txt` (input file's name) and `example.rules` (output file's name) by the desired files in `jvm/src/main/scala/lomination/powerrules/Main.scala`. Then you can run it using:
+The ScalaJVM part of the project allows you to convert a Powerrules file into a DDNet rules file. To use it, modify `example.txt` (input file) and `example.rules` (output file) in `jvm/src/main/scala/lomination/powerrules/Main.scala`. Then, run the following command:
 
+```bash
+sbt "rootJVM/run <filename>"
 ```
-sbt "rootJVM/run <filemane>"
-```
 
-### ScalaJS project
+### ScalaJS
 
-The ScalaJS part can build an automatic Powerrules to DDNet rules web converter. You can try it [here](https://lomination.github.io/Powerrules/) or build it yourseft using:
+The ScalaJS component enables building a web-based Powerrules to DDNet rules converter. You can try it [here](https://lomination.github.io/Powerrules/) or build it yourself with:
 
-```
+```bash
 npm run build
 ```
 
-## Contribution
+## Contributing
 
-Contributions are welcome, whether they concern the code (especially the frontend) or the wiki. If you have any suggestions, please let me know via the github issues or discord.
+Contributions are welcome, whether in code (especially for the frontend) or the wiki. If you have any suggestions, feel free to reach out via GitHub issues or Discord.

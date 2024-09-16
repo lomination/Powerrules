@@ -26,7 +26,7 @@ object MacroApplier extends TokenParser {
         case Dollar(_, start, _) =>
           parse(macroCall, raw) match
             case Success((name, parameters), next) if macros.contains(name) =>
-              macros(name)(parameters, start) match
+              macros(name).apply(parameters, start) match
                 case scala.util.Success(result)    =>
                   logger debug s"Macro $name successfully applied at $ansi4$start$ansi0"
                   process(cooked ++ result, next, macros)
