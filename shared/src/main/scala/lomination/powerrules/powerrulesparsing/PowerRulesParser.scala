@@ -247,13 +247,17 @@ object PowerRulesParser extends TokenParser {
 
   lazy val singleCond: P[Cond] =
     pos ~~ singularOp ~~ matcher
-      ^^ { case pos ~ op ~ matcher => Cond(pos, op, matcher) }
-      |< "single position condition"
+      >> {
+        case pos ~ Op.Is ~ EdgeMatcher => err("A positive matcher is not allowed")
+        case pos ~ op ~ matcher => success(Cond(pos, op, matcher))
+      } |< "single position condition"
 
   lazy val multiCond: P[Seq[Cond]] =
     (pos <~ optSpaced(commaTk)) ~ rep1sep(pos, optSpaced(commaTk)) ~~ pluralOp ~~ matcher
-      ^^ { case first ~ pos ~ op ~ matcher => first +: pos map (Cond(_, op, matcher)) }
-      |< "multi positions condition"
+      >> {
+        case first ~ pos ~ Op.Is ~ EdgeMatcher => err("A positive matcher is not allowed")
+        case first ~ pos ~ op ~ matcher => success(first +: pos map (Cond(_, op, matcher)))
+      } |< "multi positions condition"
 
   lazy val pos: P[Pos] =
     coords | cardPts | there

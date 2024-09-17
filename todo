@@ -4,7 +4,6 @@
 - allow calling a macro as parameter of another
 - writing: remove unnecessary newline (when empty rule) and newrun (last command of a rule)
 - fix outdated documentation
-- don't allow positive edge matcher
 - improve log and exception messages
 - add `or` statement in replace command (and more?)
 - improve web interface, and allow file drop and download
