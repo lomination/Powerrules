@@ -266,12 +266,11 @@ case class Grid[A](rows: Seq[Seq[A]]):
         logger.warn(
           s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration"
         )
-      if (rows(i).sizeIs > xSize)
+      else if (rows(i).sizeIs < xSize)
         val msg       = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
         val exception = IndexOutOfBoundsException(msg)
         logger.error(exception)(msg)
         throw exception
-    ()
 
   /** Gets the element at the given coordinates
     * @return
