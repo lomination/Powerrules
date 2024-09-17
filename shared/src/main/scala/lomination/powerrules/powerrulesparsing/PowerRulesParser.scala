@@ -372,8 +372,12 @@ object PowerRulesParser extends TokenParser {
 
   lazy val charGrid: P[Grid[Char]] =
     rep1sep(charLine, newlineTk)
-      ^^ { Grid(_) }
-      |< "char pattern"
+      >> { lines =>
+        if (lines.forall(_.sizeCompare(lines.head) == 0))
+          success(Grid(lines))
+        else
+          err("All lines of a pattern (or grid) must have the same length")
+      } |< "char pattern"
 
   lazy val charLine: P[Seq[Char]] =
     rep1sep(char, spaceTk.?)
