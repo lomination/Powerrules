@@ -17,7 +17,7 @@ class TokenParser extends Parsers {
 
   type P[T] = Parser[T]
 
-  class TokenReader(val tokens: Seq[Token], lastPos: Position) extends Reader[Token] {
+  class TokenReader(tokens: Seq[Token], lastPos: Position) extends Reader[Token] {
     override def first: Token      = tokens.head
     override def atEnd: Boolean    = tokens.isEmpty
     override def pos: Position     = tokens.headOption.map(_.start).getOrElse(lastPos)
