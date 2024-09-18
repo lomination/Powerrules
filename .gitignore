@@ -55,3 +55,6 @@ dist-ssr
 
 # Perso
 launch_nginx.sh
+ressources
+backup_outdated_tests
+wiki
