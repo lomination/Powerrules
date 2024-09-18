@@ -1,6 +1,5 @@
 ### Code
 
-- allow tab as indentation
 - allow calling a macro as parameter of another
 - writing: remove unnecessary newline (when empty rule) and newrun (last command of a rule)
 - fix outdated documentation

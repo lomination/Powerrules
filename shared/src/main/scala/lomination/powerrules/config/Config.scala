@@ -4,6 +4,7 @@ import lomination.powerrules.ast
 
 case class Config(
     pIndentation: Int = 4,
+    pUseTabs: Boolean = false,
     wTemporaryTile: TmpTile = TmpTile(0xff),
     wSpacing: Level = Level.Normal,
     wVerbose: Level = Level.Least
@@ -11,16 +12,19 @@ case class Config(
 
   /** Returns a new Config instance with the given `pIndentation` setting as value */
   def setPIndentation(pIndentation: Int): Config =
-    Config(pIndentation, wTemporaryTile, wSpacing, wVerbose)
+    Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
+
+  def setPUseTabs(pUseTabs: Boolean): Config =
+    Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
 
   def setWTemporaryTile(wTemporaryTile: TmpTile): Config =
-    Config(pIndentation, wTemporaryTile, wSpacing, wVerbose)
+    Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
 
   def setWSpacing(wSpacing: Level): Config =
-    Config(pIndentation, wTemporaryTile, wSpacing, wVerbose)
+    Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
 
   def setWVerbose(wVerbose: Level): Config =
-    Config(pIndentation, wTemporaryTile, wSpacing, wVerbose)
+    Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
 
 /** A temporary tile used in the two-stage processes during command writing */
 case class TmpTile(id: Int):
