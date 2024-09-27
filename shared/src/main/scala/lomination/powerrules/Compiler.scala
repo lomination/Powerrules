@@ -50,7 +50,8 @@ object Compiler:
     } yield written
 
   def section(code: String): (String, String, String) =
-    val formatted = """((?:[\n ]*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
+    val formatted =
+      """((?:(?://[^\n]*\n| *\n)*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
     code match
       case formatted(empty, rawCfg, rawMac, rawRul) =>
         logger debug "Compiling formatted powerrules"
