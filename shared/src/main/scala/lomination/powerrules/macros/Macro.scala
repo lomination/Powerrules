@@ -17,9 +17,10 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
     val nLength = paramNames.size
     if (vLength != nLength)
       val msg =
-        s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $ansi4$callPos$ansi0 (given: $vLength, expected: $nLength)"
+        s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $callPos (given: $vLength, expected: $nLength)"
       val exception = ParameterError(msg)
       logger.error(exception)(msg)
+      logger.debug(s"Params: $paramValues")
       Failure(exception)
     else
       val parameters = (paramNames zip paramValues).toMap
