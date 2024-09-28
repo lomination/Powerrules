@@ -59,10 +59,10 @@ object Compiler:
         val lnB4Mac = rawCfg.count(_ == '\n') + lnB4Cfg
         val lnB4Rul = rawMac.count(_ == '\n') + lnB4Mac
         (
-          "\n" * lnB4Cfg + rawCfg.dropWhile(_ != '\n'),
-          "\n" * lnB4Mac + rawMac.dropWhile(_ != '\n'),
-          "\n" * lnB4Rul + rawRul.dropWhile(_ != '\n')
+          if rawCfg.isEmpty then "" else "\n" * lnB4Cfg + rawCfg.dropWhile(_ != '\n'),
+          if rawMac.isEmpty then "" else "\n" * lnB4Mac + rawMac.dropWhile(_ != '\n'),
+          if rawRul.isEmpty then "" else "\n" * lnB4Rul + rawRul.dropWhile(_ != '\n')
         )
       case str =>
-        logger debug "Compiling non-formatetd powerrules"
+        logger debug "Compiling non-formated powerrules (fast mode)"
         ("", "", str)
