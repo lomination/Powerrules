@@ -19,7 +19,7 @@ class ExtentionsTest extends FunSuite {
 
   test("ExtentionsTest - split method (3): split empty seq") {
     val test     = Seq().split(0)
-    val expected = Seq(Seq())
+    val expected = Seq()
     assert(clue(test) == clue(expected))
   }
 
