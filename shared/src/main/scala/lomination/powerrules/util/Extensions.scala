@@ -37,12 +37,13 @@ extension [A](seq: Seq[A])
     seq.split(_ == elem)
 
   def split(pred: A => Boolean): Seq[Seq[A]] =
-    val (b1, b2) = seq
-      .foldLeft[(Builder[Seq[A], Seq[Seq[A]]], Builder[A, Seq[A]])]((Seq.newBuilder, Seq.newBuilder)) {
-        case builder -> subBuilder -> a if pred(a) => (builder.addOne(subBuilder.result), Seq.newBuilder)
-        case builder -> subBuilder -> a            => (builder, subBuilder.addOne(a))
-      }
-    b1.addOne(b2.result).result
+    if seq.isEmpty then Seq() else
+      val (b1, b2) = seq
+        .foldLeft[(Builder[Seq[A], Seq[Seq[A]]], Builder[A, Seq[A]])]((Seq.newBuilder, Seq.newBuilder)) {
+          case builder -> subBuilder -> a if pred(a) => (builder.addOne(subBuilder.result), Seq.newBuilder)
+          case builder -> subBuilder -> a            => (builder, subBuilder.addOne(a))
+        }
+      b1.addOne(b2.result).result
 
 extension (string: String)
   inline def i: Regex =
