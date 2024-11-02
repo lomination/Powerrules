@@ -4,6 +4,7 @@ import scala.collection.mutable.Builder
 // import scala.util.{Failure, Success, Try}
 import scala.util.parsing.input.{NoPosition, Position}
 import scala.util.matching.Regex
+import scala.annotation.tailrec
 // import scala.annotation.tailrec
 
 // def recTry[A, B](iterable: IterableOnce[A])(f: A => Try[B]): Try[Seq[B]] =
@@ -69,13 +70,12 @@ extension [A](seq: Seq[A])
     *   a new sequence containing part of this seq, determined by the given predicate. If an empty sequence is given, returns an empty sequence
     */
   def split(pred: A => Boolean): Seq[Seq[A]] =
-    if seq.isEmpty then Seq() else
-      val (b1, b2) = seq
-        .foldLeft[(Builder[Seq[A], Seq[Seq[A]]], Builder[A, Seq[A]])]((Seq.newBuilder, Seq.newBuilder)) {
-          case builder -> subBuilder -> a if pred(a) => (builder.addOne(subBuilder.result), Seq.newBuilder)
-          case builder -> subBuilder -> a            => (builder, subBuilder.addOne(a))
-        }
-      b1.addOne(b2.result).result
+    val (b1, b2) = seq
+      .foldLeft[(Builder[Seq[A], Seq[Seq[A]]], Builder[A, Seq[A]])]((Seq.newBuilder, Seq.newBuilder)) {
+        case builder -> subBuilder -> a if pred(a) => (builder.addOne(subBuilder.result), Seq.newBuilder)
+        case builder -> subBuilder -> a            => (builder, subBuilder.addOne(a))
+      }
+    b1.addOne(b2.result).result
 
 extension (string: String)
   inline def i: Regex =
