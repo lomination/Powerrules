@@ -24,6 +24,7 @@ object ConfigParser {
       Success(config)
     else
       lines.head match
+        // empty line
         case (emptyLine(), l) =>
           logger.trace(s"Empty line found and skipped at line $l")
           process(config, lines.dropOnce)
