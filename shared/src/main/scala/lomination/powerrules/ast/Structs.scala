@@ -1,13 +1,11 @@
 package lomination.powerrules.ast
 
-// For more information about the following classes, please refer to the wiki
+// For more information about the following classes, please refer to the wiki.
 
 // ---------- General ---------- //
 
-/** A powerrules file
+/** A Powerrules file
   *
-  * @param tmpTile
-  *   the tile used as temporary tile
   * @param rules
   *   a not empty sequence of rules
   */
@@ -24,7 +22,7 @@ case class Rule(name: String, cmds: Seq[Command])
 
 // ---------- Commands ---------- //
 
-/** Commands trait */
+/** Command trait */
 sealed trait Command
 
 /** A replace command
@@ -73,12 +71,8 @@ case class Shadow(
   * @param onPat
   *   a pattern of options of tile matchers (`Seq[Option[TileMatcher]])` that corresponds to the `on` statement. In the case of `Some(TileMatcher)`,
   *   the command will test the given tile matcher, else (`None`) it won't test anything at the position.
-  * @param neutral
-  *   a tile used to clear shapes' overlaps
   * @param random
   *   a percent (`Random`) that corresponds to the 'random' statement. By default set to `Random(100)`
-  * @param rotations
-  *   non empty sequence of direction (`Seq[Dir]`) that corresponds to the 'rotate' statement. By default set to `Seq(Dir.p0)`
   */
 case class Shape(
     applyPat: Grid[Option[Tile]],
@@ -90,7 +84,7 @@ case class Comment(str: String) extends Command
 
 // ---------- Conditions ---------- //
 
-/** Represents a test required for a command to be executed
+/** A condition that represents a test required for a command to be executed
   *
   * @param pos
   *   the relative position that must match
@@ -98,10 +92,11 @@ case class Comment(str: String) extends Command
   *   the matcher the given position must match
   */
 case class Cond(pos: Pos, op: Op, matcher: Matcher):
+
   /** Rotates this condition's position and matcher */
   def rotate(dir: Dir): Cond = Cond(pos.rotate(dir), op, matcher.rotate(dir))
 
-  /** Rotates this condition's position */
+  /** Rotates only this condition's position */
   def rotatePos(dir: Dir): Cond = Cond(pos.rotate(dir), op, matcher)
 
   /** Returns a sequence of conditions containing this and that */
@@ -111,28 +106,64 @@ case class Cond(pos: Pos, op: Op, matcher: Matcher):
   def &(that: Seq[Cond]): Seq[Cond] = this +: that
 
 extension (seq: Seq[Cond])
+
   /** Appends the given condition to this */
   def &(that: Cond): Seq[Cond] = seq :+ that
 
   /** Appends the given conditions to this */
   def &(that: Seq[Cond]): Seq[Cond] = seq ++ that
 
-/** A position with coordinates */
+/** A position with coordinates
+  *
+  * @param x
+  *   the abscissa of this position
+  * @param y
+  *   the ordinate of this position
+  */
 case class Pos(x: Int, y: Int):
-  /** Adds the x of this and that, and the y of this and that */
+
+  /** Add this position to the given position
+    *
+    * @param that
+    *   the position to add the coordinates to this
+    *
+    * @return
+    *   a new position with the sum of the coordinates of this and that
+    */
   def +(that: Pos): Pos = Pos(x + that.x, y + that.y)
 
-  /** Rotates this position around `Pos(0 0)` by the given direction */
+  /** Rotates this position around `Pos(0, 0)` by the given direction
+    *
+    * @param dir
+    *   the direction to rotate this position by
+    *
+    * @return
+    *   a new position that correspond to this one rotated by the given direction around the zero position (0, 0)
+    */
   def rotate(dir: Dir): Pos = dir match
     case Dir(Sign.+, n) => this.clockwise(n.ordinal)
     case Dir(Sign.-, n) => Pos(-x, y).anticlockwise(n.ordinal)
 
-  /** Rotates this position clockwise by 90 degrees `n` times */
+  /** Rotates this position clockwise by 90 degrees `n` times around the zero position (0, 0)
+    *
+    * @param n
+    *   the number of rotations to apply
+    *
+    * @return
+    *   a new position rotated clockwise by 90 degrees `n` times around the zero position
+    */
   def clockwise(n: Int): Pos =
     if (n <= 0) this
     else Pos(-y, x).clockwise(n - 1)
 
-  /** Rotates this position anticlockwise by 90 degrees `n` times */
+  /** Rotates this position anticlockwise by 90 degrees `n` times around the zero position (0, 0)
+    *
+    * @param n
+    *   the number of rotations to apply
+    *
+    * @return
+    *   a new position rotated anticlockwise by 90 degrees `n` times around the zero position
+    */
   def anticlockwise(n: Int): Pos =
     if (n <= 0) this
     else Pos(y, -x).anticlockwise(n - 1)
@@ -156,6 +187,7 @@ case class Pos(x: Int, y: Int):
   def around: Seq[Pos] = Pos.around.map(this + _)
 
 case object Pos:
+
   /** Returns `Pos(0, 0)` */
   val zero: Pos = Pos(0, 0)
 
@@ -191,6 +223,7 @@ case object Pos:
 
 /** Matchers can test whether given positions contain a certain tile or not */
 sealed trait Matcher:
+
   /** Rotates the matcher by the given direction */
   def rotate(dir: Dir): Matcher
 
@@ -254,9 +287,11 @@ case class TileMatcher(id: Int, dir: Dir | AnyDir.type = AnyDir):
   *   a sequence of sequence of objects which corresponds to a sequence of rows (not columns)
   */
 case class Grid[A](rows: Seq[Seq[A]]):
+
   val logger     = org.log4s.getLogger
   val ySize: Int = rows.length
   val xSize: Int = rows(0).length
+
   check
 
   /** Checks if the grid is rectangular */
@@ -302,6 +337,7 @@ case class Grid[A](rows: Seq[Seq[A]]):
   *   this tile's direction
   */
 case class Tile(id: Int, dir: Dir = Dir.p0):
+
   /** Rotates this tile's direction */
   def rotate(d: Dir): Tile = Tile(id, d rotate dir)
 
@@ -310,6 +346,7 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
 
 /** A direction */
 case class Dir(sign: Sign, n: Times):
+
   /** Rotates this direction by the given direction. This method is associative and commutatives */
   def rotate(dir: Dir): Dir = Dir(
     if (sign == dir.sign) Sign.+ else Sign.-,
@@ -317,6 +354,7 @@ case class Dir(sign: Sign, n: Times):
   )
 
 case object Dir:
+
   /** Plus zero direction
     * @return
     *   `Dir(Sign.+, Times.Zero)`
@@ -396,7 +434,8 @@ enum Times:
 
 /** Operator */
 enum Op:
+
   case Is, IsNot
 
-  /** Returns the opposite of this operator */
-  def not: Op = if (this == Op.Is) Op.IsNot else Op.Is
+  // /** Returns the opposite of this operator */
+  // def not: Op = if (this == Op.Is) Op.IsNot else Op.Is

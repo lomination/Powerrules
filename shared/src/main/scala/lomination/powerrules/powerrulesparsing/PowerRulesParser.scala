@@ -8,14 +8,15 @@ import lomination.powerrules.lexing.tokens.Token
 import lomination.powerrules.powerrulesparsing.*
 import lomination.powerrules.lexing.tokens as tks
 
+/** Object that parses Powerrules Ast from tokens. */
 object PowerRulesParser extends TokenParser {
 
-  /** Parse all the input as a Powerrules file
+  /** Parse all the input as a Powerrules file ast.
     *
     * @param input
-    *   The parsed input
+    *   the parsed input.
     * @return
-    *   The parsed rule file wrapped in a `Some` on success. On failure or error, returns `None`.
+    *   the parsed rule file wrapped in a `scala.util.Try`. Either `Success(value)` on success or `Failure(exception)` on failure.
     */
   def apply(tokens: Seq[Token]): Try[RuleFile] =
     parse(phrase(ruleFile), TokenReader(tokens)) match
@@ -30,7 +31,17 @@ object PowerRulesParser extends TokenParser {
   // ---------- Parser extensions ---------- //
 
   extension [A](parser: P[A])
-    /** inclusive or */
+
+    /** A parser combinator for inclusive alternative composition. Equivalent to an incluvise or parser operator.
+      *
+      * @param B
+      *   the type of the other parser
+      * @param other
+      *   a parser
+      * @return
+      *   a parser that parses `this` or `other` or `this` and `other`. The resulting parser has type `Parser[~[Option[A], Option[B]]]` but note that
+      *   both option cannot be `None` at the same time. In the latter case, the resulting parser will fail.
+      */
     def ||[B](other: P[B]): P[Option[A] ~ Option[B]] =
       def toOpt[C](parser: P[C]): P[Option[C]] =
         parser ^^ { Some(_) }
@@ -38,24 +49,61 @@ object PowerRulesParser extends TokenParser {
         | (toOpt(parser) ~ success(None))
         | (success(None) ~ toOpt(other))
 
+    /** A parser combinator for combination of 2 parsers separated by a space token which is ignored.
+      *
+      * @param B
+      *   the type of the other parser
+      * @param other
+      *   a parser
+      * @return
+      *   a parser that is equal to `(parser <~ spaceTk) ~ other`
+      */
     def ~~[B](other: P[B]): P[A ~ B] =
       (parser <~ spaceTk) ~ other
 
   // ---------- Parser functions ---------- //
 
+  /** A parser that parses another given parser in an indentation block and returns its result.
+    *
+    * @param parser
+    *   a parser
+    * @return
+    *   a parser that parses the content of the given parser preceded by an indent token and followed by a dedent token.
+    */
   def block[A](parser: P[A]): P[A] =
     indentTk ~> parser <~ dedentTk
 
+  /** A parser that parses another given parser surronded by curly braces and returns its result.
+    *
+    * @param parser
+    *   a parser
+    * @return
+    *   a parser that parses the content of the given parser preceded by a left curly brace token and followed by a right curly brace token.
+    */
   def withAcolades[A](parser: P[A]): P[A] =
     leftAcoladeTk ~> parser <~ rightAcoladeTk
 
+  /** A parser that parses another given parser surronded by optional space tokens. Note that the two space tokens are parsed independantly.
+    *
+    * @param parser
+    *   a parser
+    * @return
+    *   a parser that parses a space optionally, the given parser, and a space optionally.
+    */
   def optSpaced[A](parser: P[A]): P[A] =
     spaceTk.? ~> parser <~ spaceTk.?
 
+  /** A parser that applies another given parser surrounded by parsers of space token.
+    *
+    * @param parser
+    *   a parser
+    * @return
+    *   a parser that parses a space, the given parser, and another space.
+    */
   def spaced[A](parser: P[A]): P[A] =
     spaceTk ~> parser <~ spaceTk
 
-  /** A parser that parses a command
+  /** A generic parser that parses a command.
     *
     * @param name
     *   A parser of the name of the parsed command
@@ -67,10 +115,19 @@ object PowerRulesParser extends TokenParser {
   def cmd(name: P[Token])(statements: P[Statement]): P[Seq[Statement]] =
     name ~ spaceTk.? ~>! block(rep1sep(statements, newlineTk.?))
 
+  /** An error parser for missing statement when a command is parsed
+    *
+    * @param stm
+    *   the name of the missing statement
+    * @param cmd
+    *   the name of the command which is being parsed
+    * @return
+    *   a parser of nothing that, when applied to an input, returns an non back-tracking error.
+    */
   def missingStm(stm: String, cmd: String): P[Nothing] =
     err(s"Missing '$stm' statement in $cmd command." + wiki(cmd.capitalize))
 
-  /** Appends reference to the given pages of the github wiki
+  /** Creates a message that refers to the given pages of the github wiki of Powerrules
     *
     * @param pages
     *   the pages to refer to
@@ -96,20 +153,22 @@ object PowerRulesParser extends TokenParser {
       ^^ { case title ~ cmds => Rule(title, cmds) }
       |< "rule"
 
+  /** A parser for a rule's title */
   lazy val title: P[String] =
     leftBracketTk ~> rep(noRightBracket) <~ rightBracketTk
       ^^ { _.map(_.raw).mkString }
       |< "rule title"
 
+  /** A parser that parses any token except the right bracket token */
   lazy val noRightBracket: P[Token] =
     acceptMatch("any token except right bracket character `]`", { case token: Token if !token.isInstanceOf[tks.RightBracket] => token })
       |< "any token except right bracket character `]`"
 
-  /** A parser of a command */
+  /** A parser that parses a command */
   lazy val command: P[Command] =
     replace | shadow | shape | comment |< "command"
 
-  /** A parser of a replace command */
+  /** A parser that parses a replace command */
   lazy val replace: P[Replace] =
     cmd(replaceTk | reTk)(withStm | ifStm | randomStm)
       >> { (seq: Seq[Statement]) =>
@@ -125,7 +184,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "replace command"
 
-  /** A parser of a shadow command */
+  /** A parser that parses a shadow command */
   lazy val shadow: P[Shadow] =
     cmd(shadowTk | sdTk)(withStm | withExtStm | withIntStm | ifStm | modeStm)
       >> { (seq: Seq[Statement]) =>
@@ -145,7 +204,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "shadow command"
 
-  /** A parser of a shape command */
+  /** A parser that parses a shape command */
   lazy val shape: P[Shape] =
     cmd(shapeTk | spTk)(applyStm | onStm | usingStm | randomStm)
       >> { (seq: Seq[Statement]) =>
@@ -173,12 +232,13 @@ object PowerRulesParser extends TokenParser {
       }
       |< "shape command"
 
-  /** A parser of a comment */
+  /** A parser that parses a comment */
   lazy val comment: P[Comment] =
     hashtagTk ~> rep(noNewline)
       ^^ { toks => Comment(toks.map(_.raw).mkString) }
       |< "comment (command)"
 
+  /** A parser that parses any token except the newline token */
   lazy val noNewline: P[Token] =
     acceptMatch("any token except newline", { case token: Token if !token.isInstanceOf[tks.Newline] => token })
       |< "any token except newline"
@@ -241,28 +301,33 @@ object PowerRulesParser extends TokenParser {
 
   // ---------- Other objects ---------- //
 
+  /** A parser of condition */
   lazy val cond: P[Seq[Cond]] =
     singleCond ^^ { cond => Seq(cond) } | multiCond
       |< "condition"
 
+  /** A parser of single position condition */
   lazy val singleCond: P[Cond] =
     pos ~~ singularOp ~~ matcher
       >> {
         case pos ~ Op.Is ~ EdgeMatcher => err("A positive matcher is not allowed")
-        case pos ~ op ~ matcher => success(Cond(pos, op, matcher))
+        case pos ~ op ~ matcher        => success(Cond(pos, op, matcher))
       } |< "single position condition"
 
+  /** A parser of multiple positions condition */
   lazy val multiCond: P[Seq[Cond]] =
     (pos <~ optSpaced(commaTk)) ~ rep1sep(pos, optSpaced(commaTk)) ~~ pluralOp ~~ matcher
       >> {
         case first ~ pos ~ Op.Is ~ EdgeMatcher => err("A positive matcher is not allowed")
-        case first ~ pos ~ op ~ matcher => success(first +: pos map (Cond(_, op, matcher)))
+        case first ~ pos ~ op ~ matcher        => success(first +: pos map (Cond(_, op, matcher)))
       } |< "multi positions condition"
 
+  /** A parser of position */
   lazy val pos: P[Pos] =
     coords | cardPts | there
       |< "position"
 
+  /** A parser of position using coordinates */
   lazy val coords: P[Pos] =
     minusTk.? ~ decimalNumberTk ~~ minusTk.? ~ decimalNumberTk
       ^^ { case xSign ~ x ~ ySign ~ y =>
@@ -272,6 +337,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "coordinates (position)"
 
+  /** A parser of position using a sequence of cardinal points */
   lazy val cardPts: P[Pos] =
     val isValid = "([nNeE]+|[nNwW]+|[sSeE]+|[sSwW]+)".r
     acceptMatch(
@@ -285,69 +351,84 @@ object PowerRulesParser extends TokenParser {
       }
     ) |< "sequence of cardinal points (position)"
 
+  /** A parser of position using the `there` keyword */
   lazy val there: P[Pos] =
     thereTk
       ^^^ Pos.zero
       |< "there (position)"
 
+  /** A parser of single position condition operator */
   lazy val singularOp: P[Op] =
     isTk ~> (spaceTk ~> notTk).?
       ^^ { _.map(_ => Op.IsNot).getOrElse(Op.Is) }
       |< "singular condition operator"
 
+  /** A parser of multiple positions condition operator */
   lazy val pluralOp: P[Op] =
     areTk ~> (spaceTk ~> notTk).?
       ^^ { _.map(_ => Op.IsNot).getOrElse(Op.Is) }
       |< "plural condition operator"
 
+  /** A generic parser of a matcher */
   lazy val matcher: P[Matcher] =
     fullMatcher | emptyMatcher | edgeMatcher | genericMatcher
       |< "matcher"
 
+  /** A parser of full matcher denoted by the keyword `full` */
   lazy val fullMatcher: P[FullMatcher.type] =
     fullTk ^^^ FullMatcher
       |< "full matcher"
 
+  /** A parser of empty matcher denoted by the keyword `empty` */
   lazy val emptyMatcher: P[EmptyMatcher.type] =
     emptyTk ^^^ EmptyMatcher
       |< "empty matcher"
 
+  /** A parser of edge matcher denoted by the keyword `edge` */
   lazy val edgeMatcher: P[EdgeMatcher.type] =
     edgeTk ^^^ EdgeMatcher
       |< "edge matcher"
 
+  /** A parser of generic matcher */
   lazy val genericMatcher: P[GenericMatcher] =
     rep1sep(tileMatcher, optSpaced(pipeTk))
       ^^ { case tms => GenericMatcher(tms.toSeq*) }
       |< "generic matcher"
 
+  /** A parder of tile matcher */
   lazy val tileMatcher: P[TileMatcher] =
     (tileIndex | outsideIndex) ~ (dir | anyDir).?
       ^^ { case id ~ dir => TileMatcher(id, dir.getOrElse(AnyDir)) }
       |< "tile matcher"
 
+  /** A parser of a tile's index */
   lazy val tileIndex: P[Int] =
     acceptMatch("tile index in hexadecimal", { case tks.HexaNumber(i, _, _, _) if 0 <= i && i < 256 => i })
       | acceptMatch("tile index in decimal", { case tks.DecimalNumber(i, _, _, _) if 0 <= i && i < 256 => i })
       |< "tile index (decimal or hexadecimal)"
 
+  /** A parser of special tile matcher's index  denoted by `-1` or the `outside` keyword */
   lazy val outsideIndex: P[Int] =
     (outsideTk | minusTk ~ one)
       ^^^ -1
       |< "minus one index"
 
+  /** A parser that parses the digit 1 */
   lazy val one: P[Unit] =
     acceptMatch("one", { case tks.DecimalNumber(1, _, _, _) => () })
 
+  /** A parser of the any direction wildcard `*` */
   lazy val anyDir: P[AnyDir.type] =
     starTk ^^^ AnyDir
       |< "any direction"
 
+  /** A parser of tile */
   lazy val tile: P[Tile] =
     tileIndex ~ dir.?
       ^^ { case id ~ dir => Tile(id, dir.getOrElse(Dir.p0)) }
       |< "tile"
 
+  /** A parser of a tile's direction */
   lazy val dir: P[Dir] =
     ((minusTk | plusTk) ~ decimalNumberTk)
       >> {
@@ -357,6 +438,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "direction"
 
+  /** A parser of chance */
   lazy val random: P[Random] =
     float ~ percentTk.?
       ^^ {
@@ -365,6 +447,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "random chance"
 
+  /** A parser of floating point number */
   lazy val float: P[Float] =
     (decimalNumberTk || dotTk ~> decimalNumberTk)
       ^^ { case units ~ decimals =>
@@ -374,6 +457,7 @@ object PowerRulesParser extends TokenParser {
       }
       |< "float"
 
+  /** A parser of 2-dimensional grid of char */
   lazy val charGrid: P[Grid[Char]] =
     rep1sep(charLine, newlineTk)
       >> { lines =>
@@ -383,21 +467,25 @@ object PowerRulesParser extends TokenParser {
           err("All lines of a pattern (or grid) must have the same length")
       } |< "char pattern"
 
+  /** A parser of single dimensional line of chars */
   lazy val charLine: P[Seq[Char]] =
     rep1sep(char, spaceTk.?)
       |< "line of char pattern"
 
+  /** A parser of non white-space character */
   lazy val char: P[Char] =
     val singleChar = """(\S)""".r
     acceptMatch("any char", { case Token(singleChar(c), _, _) => c.charAt(0) })
       |< "any char"
 
+  /** A parser of line of a dictionary */
   lazy val dictLine: P[(Char, Tile | (Pos => Cond))] =
     (char <~ optSpaced(minusTk ~ rightChevronTk))
       ~ (tile | singularOp ~ genericMatcher ^^ { case op ~ m => Cond(_, op, m) })
       ^^ { case char ~ tOrM => char -> tOrM }
       |< "dictionary line"
 
+  /** A parser of a shadow command's mode */
   lazy val mode: P[Boolean] =
     (softTk | normalTk)
       ^^ { _.isInstanceOf[tks.Soft] }

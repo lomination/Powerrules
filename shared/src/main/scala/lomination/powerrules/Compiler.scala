@@ -11,6 +11,8 @@ import scala.util.{Success, Try}
 
 // @formatter:off
 
+/** This object call all the subprocess to convert the given content of a powerrules file as a string into written DDNet rules.
+  */
 object Compiler:
 
   val logger = org.log4s.getLogger
@@ -49,6 +51,15 @@ object Compiler:
       _ = logger info s"${ansi(32, 1)}Compilation succeeded !!!$ansi0"
     } yield written
 
+  /** Cuts the given string into 3 sections using regular expressions: the config section, then the macros section and finally the rules section. If
+    * it fails (the regx does not match), it considers the given input is in unformatted mode, e. i. everything is the rules section and both config
+    * section and macros section are empty.
+    *
+    * @param code
+    *   the content of a powerrules file
+    * @return
+    *   a triplet of string containing in this order, the config section, the macros section and the rules section.
+    */
   def section(code: String): (String, String, String) =
     val formatted =
       """((?:(?://[^\n]*\n| *\n)*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
