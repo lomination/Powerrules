@@ -6,7 +6,7 @@ Powerrules is a language designed to generate rules for [DDNet](https://ddnet.or
 
 You can use the [online transpiler](https://lomination.github.io/Powerrules/) to convert Powerrules into DDNet rules. For more information on how to write Powerrules, check out the [wiki](https://github.com/lomination/Powerrules/wiki).
 
-Special thanks to Toom for significant technical help and advice with Scala, Ssor for support and ideas, and archimede67 for fixing bugs that almost led me to abandon the project!
+Special thanks to [Toom](https://github.com/To-om) for significant technical help and advice with Scala, Ssor for support and ideas, and [archimede67](https://github.com/archimede67) for fixing [bugs](https://github.com/ddnet/ddnet/issues/8134) that almost led me to abandon the project!
 
 ## Project Structure
 
@@ -25,11 +25,13 @@ The compilation process follows several steps. All referenced classes are found 
 
 ### ScalaJVM
 
-The ScalaJVM part of the project allows you to convert a Powerrules file into a DDNet rules file. To use it, modify `example.txt` (input file) and `example.rules` (output file) in `jvm/src/main/scala/lomination/powerrules/Main.scala`. Then, run the following command:
+The ScalaJVM part of the project allows you to convert a Powerrules file into a DDNet rules file. To use it, run the following command replacing `<filename>` by the name of your Powerrules file:
 
 ```bash
 sbt "rootJVM/run <filename>"
 ```
+
+It will create a new `.rules` file in the current directory, containing the compiled rules.
 
 ### ScalaJS
 

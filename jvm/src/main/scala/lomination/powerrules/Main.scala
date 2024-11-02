@@ -7,10 +7,11 @@ import lomination.powerrules.Compiler
 
 @main
 def main(fileName: String) =
+  
+  val extRegex = """^[\S\s]+?\.(?:[pP][oO][wW][eE][rR][rR][uU][lL][eE][sS]|[tT][xX][tT])$"""
 
   val newFileName =
-    val withExtension = """^[\S\s]+?\.(?:[pP][oO][wW][eE][rR][rR][uU][lL][eE][sS]|[tT][xX][tT])$"""
-    if (fileName.matches(withExtension))
+    if (fileName.matches(extRegex))
       fileName.replaceAll("""\.[^.]+$""", ".rules")
     else
       fileName+".rules"
