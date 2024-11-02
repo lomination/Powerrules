@@ -7,6 +7,7 @@ import scala.util.Try
 import scala.util.parsing.input.Reader
 import lomination.powerrules.lexing.TokenParser
 import scala.annotation.tailrec
+import scala.collection.mutable.Builder
 
 object MacroApplier extends TokenParser {
 
@@ -16,11 +17,12 @@ object MacroApplier extends TokenParser {
     else
       val macrosMap =
         macros.map(m => (m.name.content, m)).toMap
-      process(Seq(), TokenReader(tokens), macrosMap)
+      process(List.newBuilder, TokenReader(tokens), macrosMap)
 
-  @tailrec def process(cooked: Seq[Token], raw: Reader[Token], macros: Map[String, Macro]): Try[Seq[Token]] =
+  @tailrec
+  def process(cooked: Builder[Token, List[Token]], raw: Reader[Token], macros: Map[String, Macro]): Try[List[Token]] =
     if (raw.atEnd)
-      scala.util.Success(cooked)
+      scala.util.Success(cooked.result)
     else
       raw.first match
         case Dollar(_, start, _) =>
@@ -29,7 +31,7 @@ object MacroApplier extends TokenParser {
               macros(name).apply(parameters, start) match
                 case scala.util.Success(result)    =>
                   logger debug s"Macro $name successfully applied at $ansi4$start$ansi0"
-                  process(cooked ++ result, next, macros)
+                  process(cooked.addAll(result), next, macros)
                 case scala.util.Failure(exception) =>
                   logger.error(exception)(s"Macro $name failed to be applied at $ansi4$start$ansi0")
                   scala.util.Failure(exception)
@@ -42,7 +44,7 @@ object MacroApplier extends TokenParser {
               logger.error(e)(s"Failed to parse macro call at $ansi4$start$ansi0")
               scala.util.Failure(e)
         case token =>
-          process(cooked :+ token, raw.rest, macros)
+          process(cooked.addOne(token), raw.rest, macros)
 
   // ---------- Parser extensions and functions ---------- //
 
@@ -55,7 +57,7 @@ object MacroApplier extends TokenParser {
   def macroCall: P[(String, Seq[Seq[Token]])] =
     dollarTk ~> optWithAcolades(literalTk ~ withParentheses(notRightParenthese.*).?)
       ^^ { case name ~ params =>
-        (name.content, params.getOrElse(Seq()).split(_.isInstanceOf[Comma]))
+        name.content -> params.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())
       }
       |< "macro call"
 

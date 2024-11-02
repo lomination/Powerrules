@@ -7,6 +7,7 @@ import lomination.powerrules.lexing.tokens.Token
 import lomination.powerrules.lexing.tokens.*
 import lomination.powerrules.macros.ParameterError
 import scala.util.parsing.input.{NoPosition, Position}
+import scala.collection.mutable.Builder
 
 case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
 
@@ -24,28 +25,28 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
       Failure(exception)
     else
       val parameters = (paramNames zip paramValues).toMap
-      replaceParameters(Seq(), content, parameters)
+      replaceParameters(List.newBuilder, content.toList, parameters) // fixme
 
-  def replaceParameters(computedOnes: Seq[Token], nextOnes: Seq[Token], parameters: Map[String, Seq[Token]]): Try[Seq[Token]] =
+  def replaceParameters(computedOnes: Builder[Token, List[Token]], nextOnes: List[Token], parameters: Map[String, Seq[Token]]): Try[List[Token]] =
     nextOnes match
       case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
         parameters.get(param) match
           case Some(tokens) =>
             logger trace s"parameter $param successfully replaced at $ansi4$pos$ansi0 $ansi2(by `${tokens.map(_.raw).mkString}`)$ansi0 "
-            replaceParameters(computedOnes ++ tokens, next, parameters)
+            replaceParameters(computedOnes.addAll(tokens), next, parameters)
           case None =>
             val e = MacroError(s"parameter $param not defined at $pos")
             logger.error(e)(s"Parameter $param at $ansi4$pos$ansi0 is not defined")
             Failure(e)
       case token :: next =>
         logger trace s"Neutral token ${token.getName} found and skipped at $ansi4${token.start}$ansi0"
-        replaceParameters(computedOnes :+ token, next, parameters)
-      case Nil =>
-        Success(computedOnes)
+        replaceParameters(computedOnes.addOne(token), next, parameters)
+      case _ =>
+        Success(computedOnes.result())
 
 object Macro:
 
-  def safeBuild(name: Literal, paramNames: Seq[Literal], content: Seq[Token]): Try[Macro] =
+  def safeBuild(name: Literal, paramNames: Seq[Literal], content: List[Token]): Try[Macro] =
     if (!content.head.isInstanceOf[Indent]) Failure(MacroError(s"Indentation Error at ${content.head.start}. Should start with an indent token"))
     else if (!content.last.isInstanceOf[Dedent]) Failure(MacroError(s"Indentation Error at ${content.last.start}. Should end with a dedent token"))
     else
@@ -66,7 +67,7 @@ object Macro:
             Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
 
   /** An undefined param is one is found */
-  def checkParams(tokens: Seq[Token], paramNames: Seq[Literal]): Option[Exception] =
+  def checkParams(tokens: List[Token], paramNames: Seq[Literal]): Option[Exception] =
     tokens match
       case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
         if (!paramNames.exists(_.content == param))
@@ -75,5 +76,5 @@ object Macro:
           checkParams(next, paramNames)
       case token :: next =>
         checkParams(next, paramNames)
-      case Nil =>
+      case _ =>
         None
