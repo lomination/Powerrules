@@ -30,7 +30,7 @@ object Lexer extends RegexParsers {
     else
       for {
         rawTokens <- scan(code)
-        tokens <- evaluate(rawTokens)
+        tokens    <- evaluate(rawTokens)
       } yield tokens
 
   /** Returns raw tokens. Use segmentation in segment of characters of the same "type", i. e. alphanumeric, symbolic, whitespace or unknown. */
@@ -67,7 +67,8 @@ object Lexer extends RegexParsers {
   def evaluate(tokens: Seq[Token]): Try[Seq[Token]] =
 
     /** Could throw an error when applied on empty seq */
-    @tailrec def process(cookedOnes: Seq[Token], rawOnes: Seq[Token]): Try[Seq[Token]] =
+    @tailrec
+    def process(cookedOnes: Seq[Token], rawOnes: Seq[Token]): Try[Seq[Token]] =
       rawOnes match
         case Slash(_, _, _) :: Slash(_, _, _) :: next =>
           process(cookedOnes, next.dropWhile(!_.isInstanceOf[Newline]))
@@ -81,7 +82,8 @@ object Lexer extends RegexParsers {
           scala.util.Success(cookedOnes)
 
     /** Drops until the comment opened at pos is closed */
-    @tailrec def dropUnilClosed(tokens: Seq[Token], startPos: Position): Try[Seq[Token]] =
+    @tailrec
+    def dropUnilClosed(tokens: Seq[Token], startPos: Position): Try[Seq[Token]] =
       tokens match
         case Star(_, _, _) :: Slash(_, _, _) :: next =>
           scala.util.Success(next)
@@ -203,9 +205,9 @@ object Lexer extends RegexParsers {
   lazy val slashTk           = "/"  |>> Slash
   lazy val colonTk           = ":"  |>> Colon
 
-  lazy val spaceTk           = " "  |>> Space
-  lazy val newlineTk         = "\n" |>> Newline
-  lazy val tabTk             = "\t" |>> Tab
+  lazy val spaceTk   = " "  |>> Space
+  lazy val newlineTk = "\n" |>> Newline
+  lazy val tabTk     = "\t" |>> Tab
 
   lazy val unknownTk = """[\S\s]*""".r |>> Unknown
 

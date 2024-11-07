@@ -1,12 +1,12 @@
 package lomination.powerrules.formatting
 
-import lomination.powerrules.util.style.{ansi0, ansi2, ansi4, ansi31}
+import lomination.powerrules.util.style.{ansi0, ansi2, ansi31, ansi4}
 import lomination.powerrules.util.dropOnce
-import lomination.powerrules.lexing.tokens.{Token, Newline, Dedent, Indent, Space, Tab}
+import lomination.powerrules.lexing.tokens.{Dedent, Indent, Newline, Space, Tab, Token}
 import lomination.powerrules.config.Config
 import scala.annotation.tailrec
-import scala.util.{Try, Success, Failure}
-import scala.util.parsing.input.{Position, NoPosition}
+import scala.util.{Failure, Success, Try}
+import scala.util.parsing.input.{NoPosition, Position}
 
 object Formatter {
 
@@ -17,8 +17,7 @@ object Formatter {
     if (tokens.isEmpty)
       logger trace "Empty token list given"
       Success(Seq())
-    else
-      processIndentation(Seq(), tokens, 0)
+    else processIndentation(Seq(), tokens, 0)
 
   @tailrec
   def processIndentation(cookedOnes: Seq[Token], rawOnes: Seq[Token], indentLevel: Int)(using config: Config): Try[Seq[Token]] =

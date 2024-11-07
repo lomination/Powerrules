@@ -296,16 +296,17 @@ case class Grid[A](rows: Seq[Seq[A]]):
 
   /** Checks if the grid is rectangular */
   private def check: Unit =
-    for (i <- 1 until ySize) yield
-      if (rows(i).sizeIs > xSize)
-        logger.warn(
-          s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration"
-        )
-      else if (rows(i).sizeIs < xSize)
-        val msg       = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
-        val exception = IndexOutOfBoundsException(msg)
-        logger.error(exception)(msg)
-        throw exception
+    for (i <- 1 until ySize)
+      yield
+        if (rows(i).sizeIs > xSize)
+          logger.warn(
+            s"Grid has line $i longer than its first one ($xSize) but should be rectangular. The remaining elements won't be taken into consideration"
+          )
+        else if (rows(i).sizeIs < xSize)
+          val msg       = s"Grid has line $i shorter than its first one ($xSize) but must be rectangular"
+          val exception = IndexOutOfBoundsException(msg)
+          logger.error(exception)(msg)
+          throw exception
 
   /** Gets the element at the given coordinates
     * @return

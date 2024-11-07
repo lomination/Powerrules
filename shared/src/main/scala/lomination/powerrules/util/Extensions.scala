@@ -65,7 +65,7 @@ extension [A](seq: Seq[A])
     *
     * @param pred
     *   a function that returns true when applied to an element of this sequence if the sequence should be splitted at the given element
-    * 
+    *
     * @returns
     *   a new sequence containing part of this seq, determined by the given predicate. If an empty sequence is given, returns an empty sequence
     */

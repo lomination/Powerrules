@@ -19,7 +19,8 @@ object ConfigParser {
     else
       process(Config(), configInput.split("\n").toSeq.zipWithIndex)
 
-  @tailrec def process(config: Config, lines: Seq[(String, Int)]): Try[Config] =
+  @tailrec
+  def process(config: Config, lines: Seq[(String, Int)]): Try[Config] =
     if (lines.isEmpty)
       Success(config)
     else
@@ -85,12 +86,12 @@ object ConfigParser {
 
   object ToBoolean:
     def unapply(string: String): Option[Boolean] =
-      lazy val trueR = "[yY][eE][sS]|[tT][rR][uU][eE]|[uU][iI]".r
+      lazy val trueR  = "[yY][eE][sS]|[tT][rR][uU][eE]|[uU][iI]".r
       lazy val falseR = "[nN][oO]|[fF][aA][lL][sS][eE]".r
       string match
-        case trueR() => Some(true)
+        case trueR()  => Some(true)
         case falseR() => Some(false)
-        case _ => None
+        case _        => None
 
   object ToTmpTile:
     def unapply(string: String): Option[TmpTile] =
@@ -103,7 +104,7 @@ object ConfigParser {
         case hexa(index) =>
           val i = Integer.parseInt(index, 16)
           if 0 <= i && 0 < 256 then Some(TmpTile(i)) else None
-        case _           => None
+        case _ => None
 
   object ToLevel:
     def unapply(string: String): Option[Level] =

@@ -1,8 +1,8 @@
 package lomination.powerrules.macros
 
 import lomination.powerrules.util.split
-import lomination.powerrules.util.style.{ansi4, ansi0}
-import lomination.powerrules.lexing.tokens.{Token, Dollar, RightParenthese, Comma}
+import lomination.powerrules.util.style.{ansi0, ansi4}
+import lomination.powerrules.lexing.tokens.{Comma, Dollar, RightParenthese, Token}
 import scala.util.Try
 import scala.util.parsing.input.Reader
 import lomination.powerrules.lexing.TokenParser
@@ -12,8 +12,7 @@ import scala.collection.mutable.Builder
 object MacroApplier extends TokenParser {
 
   def apply(tokens: Seq[Token], macros: Seq[Macro]): Try[Seq[Token]] =
-    if (macros.isEmpty)
-      scala.util.Success(tokens)
+    if (macros.isEmpty) scala.util.Success(tokens)
     else
       val macrosMap =
         macros.map(m => (m.name.content, m)).toMap
@@ -29,7 +28,7 @@ object MacroApplier extends TokenParser {
           parse(macroCall, raw) match
             case Success((name, parameters), next) if macros.contains(name) =>
               macros(name).apply(parameters, start) match
-                case scala.util.Success(result)    =>
+                case scala.util.Success(result) =>
                   logger debug s"Macro $name successfully applied at $ansi4$start$ansi0"
                   process(cooked.addAll(result), next, macros)
                 case scala.util.Failure(exception) =>

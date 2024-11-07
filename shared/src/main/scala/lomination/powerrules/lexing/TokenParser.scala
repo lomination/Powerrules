@@ -29,7 +29,8 @@ class TokenParser extends Parsers {
       new TokenReader(tokens, tokens.lastOption.map(_.stop).getOrElse(NoPosition))
   }
 
-  @inline def parse[A](parser: P[A], input: Input): ParseResult[A] = parser(input)
+  @inline
+  def parse[A](parser: P[A], input: Input): ParseResult[A] = parser(input)
 
   extension [A](parser: P[A])
     @targetName("logs")

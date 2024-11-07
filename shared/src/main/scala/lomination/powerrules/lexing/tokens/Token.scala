@@ -71,12 +71,12 @@ object With extends StaticTokenFactory[With] {
 
 case class Withexternal(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object Withexternal extends StaticTokenFactory[Withexternal] {
-    def apply(raw: String, start: Position, stop: Position) = new Withexternal(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new Withexternal(raw, start, stop)
 }
 
 case class Withinternal(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object Withinternal extends StaticTokenFactory[Withinternal] {
-    def apply(raw: String, start: Position, stop: Position) = new Withinternal(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new Withinternal(raw, start, stop)
 }
 
 case class If(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
@@ -213,42 +213,42 @@ object Percent extends StaticTokenFactory[Percent] {
 
 case class LeftParenthese(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object LeftParenthese extends StaticTokenFactory[LeftParenthese] {
-    def apply(raw: String, start: Position, stop: Position) = new LeftParenthese(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new LeftParenthese(raw, start, stop)
 }
 
 case class RightParenthese(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object RightParenthese extends StaticTokenFactory[RightParenthese] {
-    def apply(raw: String, start: Position, stop: Position) = new RightParenthese(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new RightParenthese(raw, start, stop)
 }
 
 case class LeftBracket(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object LeftBracket extends StaticTokenFactory[LeftBracket] {
-    def apply(raw: String, start: Position, stop: Position) = new LeftBracket(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new LeftBracket(raw, start, stop)
 }
 
 case class RightBracket(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object RightBracket extends StaticTokenFactory[RightBracket] {
-    def apply(raw: String, start: Position, stop: Position) = new RightBracket(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new RightBracket(raw, start, stop)
 }
 
 case class LeftAcolade(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object LeftAcolade extends StaticTokenFactory[LeftAcolade] {
-    def apply(raw: String, start: Position, stop: Position) = new LeftAcolade(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new LeftAcolade(raw, start, stop)
 }
 
 case class RightAcolade(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object RightAcolade extends StaticTokenFactory[RightAcolade] {
-    def apply(raw: String, start: Position, stop: Position) = new RightAcolade(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new RightAcolade(raw, start, stop)
 }
 
 case class LeftChevron(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object LeftChevron extends StaticTokenFactory[LeftChevron] {
-    def apply(raw: String, start: Position, stop: Position) = new LeftChevron(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new LeftChevron(raw, start, stop)
 }
 
 case class RightChevron(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object RightChevron extends StaticTokenFactory[RightChevron] {
-    def apply(raw: String, start: Position, stop: Position) = new RightChevron(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new RightChevron(raw, start, stop)
 }
 
 case class Comma(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
@@ -258,7 +258,7 @@ object Comma extends StaticTokenFactory[Comma] {
 
 case class DoulbeQuote(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
 object DoulbeQuote extends StaticTokenFactory[DoulbeQuote] {
-    def apply(raw: String, start: Position, stop: Position) = new DoulbeQuote(raw, start, stop)
+  def apply(raw: String, start: Position, stop: Position) = new DoulbeQuote(raw, start, stop)
 }
 
 case class Dollar(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)

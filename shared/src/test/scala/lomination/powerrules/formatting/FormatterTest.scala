@@ -12,11 +12,11 @@ class FormatterTest extends FunSuite {
   val cfg = Config()
 
   case class Pos(l: Int) extends Position:
-    def line = l
-    def column = 0
-    override def toString = "<undefined position>"
+    def line                = l
+    def column              = 0
+    override def toString   = "<undefined position>"
     override def longString = toString
-    def lineContents = ""
+    def lineContents        = ""
 
   extension (seq: Seq[StaticTokenFactory[StaticToken]])
     def pos: Seq[StaticToken] =
@@ -25,7 +25,7 @@ class FormatterTest extends FunSuite {
   extension (tk: StaticTokenFactory[StaticToken])
     def pos(l: Int, stop: Int): StaticToken =
       tk.apply("", Pos(l), Pos(stop))
-    
+
     def pos(l: Int): StaticToken =
       tk.apply("", Pos(l), Pos(l + 1))
 
@@ -49,7 +49,7 @@ class FormatterTest extends FunSuite {
   }
 
   test("FormatterTest - apply method (3): indentation error") {
-    val test     = Formatter(Seq(Re, Newline, Space, Space, Space, With).pos)(using cfg)
+    val test = Formatter(Seq(Re, Newline, Space, Space, Space, With).pos)(using cfg)
     assert(test.isFailure)
   }
 

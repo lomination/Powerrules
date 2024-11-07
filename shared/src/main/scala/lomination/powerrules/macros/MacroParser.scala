@@ -1,9 +1,9 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.{dropOnce}
+import lomination.powerrules.util.dropOnce
 import lomination.powerrules.lexing.TokenParser
 import scala.util.Try
-import lomination.powerrules.lexing.tokens.{Token, End}
+import lomination.powerrules.lexing.tokens.{End, Token}
 import scala.annotation.tailrec
 
 object MacroParser extends TokenParser {
@@ -27,7 +27,8 @@ object MacroParser extends TokenParser {
 
   /** Computes the macro calls inside of the contents of the parsed macros */
   def applyMacros(macros: Seq[Macro]): Try[Seq[Macro]] =
-    @tailrec def process(cooked: Seq[Macro], raw: Seq[Macro]): Try[Seq[Macro]] =
+    @tailrec
+    def process(cooked: Seq[Macro], raw: Seq[Macro]): Try[Seq[Macro]] =
       if (raw.isEmpty) scala.util.Success(cooked)
       else
         val m = raw.head
