@@ -11,7 +11,7 @@ import scala.util.{Success, Try}
 
 // @formatter:off
 
-/** This object call all the subprocess to convert the given content of a powerrules file as a string into written DDNet rules.
+/** This object call all the subprocess to convert the given content of a powerrules file (as a string) into written DDNet rules (also as a string).
   */
 object Compiler:
 
