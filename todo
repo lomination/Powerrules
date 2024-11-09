@@ -1,5 +1,6 @@
 ### Code
 
+- allow full word instead of single characters in shape command's patterns
 - allow calling a macro as parameter of another
 - writing: remove unnecessary newline (when empty rule) and newrun (last command of a rule)
 - fix outdated documentation
