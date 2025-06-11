@@ -1,6 +1,6 @@
 [![Build](https://github.com/lomination/Powerrules/actions/workflows/build.yaml/badge.svg)](https://github.com/lomination/Powerrules/actions/workflows/build.yaml)
 
-## Powerrules
+# Powerrules
 
 Powerrules is a language designed to generate rules for [DDNet](https://ddnet.org) ([GitHub](https://github.com/ddnet/ddnet)). Its goal is to simplify writing rules by providing a more user-friendly and powerful syntax.
 
@@ -8,7 +8,35 @@ You can use the [online transpiler](https://lomination.github.io/Powerrules/) to
 
 Special thanks to [Toom](https://github.com/To-om) for significant technical help and advice with Scala, Ssor for support and ideas, and [archimede67](https://github.com/archimede67) for fixing [bugs](https://github.com/ddnet/ddnet/issues/8134) that almost led me to abandon the project!
 
-## Project Structure
+## Why Powerrules?
+
+Writing rules for the DDNet automapper is often tricky. It can be confusing because of its format which is neither readable nor intuitive. Moreover, writing rules is often about writing the same patterns: first making grass or freeze, then adding 2×2 or 3×3 shapes and finally finishing with some random variations.
+
+That's why Powerrules was born. It enables anyone to make rules thanks to a simpler usage. Its goal is to make rules accessible to anyone instead of the "more developpers" ones.
+
+It follows a linear structure like the original DDNet rules format. The patterns have been implemented into commands to improve both the readability and the ease.
+
+## Contributing
+
+Contributions are welcome! Whether it concerns the backend, the frontend, the wiki or the visual design, contributions are much appreciated. There is many ways to help this project so if you are motivated, feel free to contact @lomination on Discord.
+
+Moreover, if you have any suggestions, feel free to reach out via GitHub issues or Discord.
+
+## Usefull Links
+
+### Documentation
+
+- [DDNet official wiki](https://wiki.ddnet.org/wiki/Automapper)
+- [Forum post (possibly partially outdated)](https://forum.ddnet.org/viewtopic.php?t=2428)
+- [Forum post (possibly partially outdated)](https://www.teeworlds.com/forum/viewtopic.php?pid=92492)
+
+### Similar projects
+
+- [Simple DDNet Automapper App](https://github.com/AssassinTee/SimpleDDNetAutomapper)
+- [Teeworlds Automap Tool](https://github.com/ZonsaC/Teeworlds-Automapper)
+- [Teeworlds Rule Generator](https://github.com/tw-tooling/tw-rule-generator)
+
+## Technical Information
 
 This project is cross-compiled for both ScalaJVM and ScalaJS. The shared core is located in the `shared/` directory, while platform-specific code resides in the `js/` or `jvm/` directories.
 
@@ -35,12 +63,4 @@ It will create a new `.rules` file in the current directory, containing the comp
 
 ### ScalaJS
 
-The ScalaJS component enables building a web-based Powerrules to DDNet rules converter. You can try it [here](https://lomination.github.io/Powerrules/) or build it yourself with:
-
-```bash
-npm run build
-```
-
-## Contributing
-
-Contributions are welcome, whether in code (especially for the frontend) or the wiki. If you have any suggestions, feel free to reach out via GitHub issues or Discord.
+The ScalaJS component enables building a web-based Powerrules to DDNet rules converter. You can try it [here](https://lomination.github.io/Powerrules/) or build
