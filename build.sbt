@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3Version = "3.3.3"
+val scala3Version = "3.3.6"
 
 lazy val root = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
@@ -19,7 +19,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %%% "scala-parser-combinators" % "2.4.0",
       "org.log4s"              %%% "log4s"                    % "1.10.0",
-      "org.scalameta"          %%% "munit"                    % "1.0.0-M11" % Test
+      "org.scalameta"          %%% "munit"                    % "1.0.0-M3" % Test
     ),
     buildInfoPackage := "lomination.powerrules.build",
     buildInfoKeys ++= Seq[BuildInfoKey](
