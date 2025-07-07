@@ -20,7 +20,7 @@ object Compiler:
   def apply(code: String): Try[String] =
     for {
       _ <- Success(())
-      (configIn, macroIn, rulesIn) = section(code)
+      (configIn, macroIn, rulesIn) = getSections(code)
       _ = logger info s"${ansi(34, 1)}Parsing config section started$ansi0"
       config <- ConfigParser(configIn)
       _ = logger info s"${ansi(32, 1)}Parsing config section succeeded$ansi0"
@@ -60,7 +60,7 @@ object Compiler:
     * @return
     *   a triplet of string containing in this order, the config section, the macros section and the rules section.
     */
-  def section(code: String): (String, String, String) =
+  def getSections(code: String): (String, String, String) =
     val formatted =
       """((?:(?://[^\n]*\n| *\n)*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
     code match
