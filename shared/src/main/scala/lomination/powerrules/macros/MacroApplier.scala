@@ -40,7 +40,7 @@ object MacroApplier extends TokenParser {
     rep(notDollar ^^ { Seq(_) } | macroCall(macrosMap)) ^^ { _.flatMap(identity) }
 
   def macroCall(macrosMap: Map[String, Macro]): P[Seq[Token]] =
-    dollarTk ~>! optWithAcolades(literalTk ~ withParentheses(rep(notDollarRp ^^ { Seq(_) } | macroCall(macrosMap))^^ { _.flatMap(identity) }).?)
+    dollarTk ~>! optWithAcolades(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
       >> { case name ~ args =>
         macrosMap.get(name.content) match
           case Some(m) => m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())) match
@@ -50,4 +50,7 @@ object MacroApplier extends TokenParser {
       }
       |< "macro call"
 
+  def macroArgs(macrosMap: Map[String, Macro]): P[Seq[Token]] =
+    rep(notDollarRp ^^ { Seq(_) } | macroCall(macrosMap))^^ { _.flatMap(identity) }
+      |< "macro arguments"
 }
