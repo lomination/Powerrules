@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <!-- Comment the following line to hide  most of the logs -->
+    <!-- Comment the following line to hide most of the logs -->
     <logger name="lomination.powerrules" level="TRACE" />
 
     <logger name="lomination.powerrules.Compiler" level="INFO" />
