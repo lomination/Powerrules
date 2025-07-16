@@ -27,6 +27,7 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
       val parameters = (paramNames zip paramValues).toMap
       replaceParameters(List.newBuilder, content.toList, parameters) // fixme
 
+  // todo: make this function a parser
   def replaceParameters(computedOnes: Builder[Token, List[Token]], nextOnes: List[Token], parameters: Map[String, Seq[Token]]): Try[List[Token]] =
     nextOnes match
       case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
@@ -46,7 +47,7 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
 
 object Macro:
 
-  def safeBuild(name: Literal, paramNames: Seq[Literal], content: List[Token]): Try[Macro] =
+  def safeBuild(name: Literal, paramNames: Seq[Literal], content: Seq[Token]): Try[Macro] =
     if (!content.head.isInstanceOf[Indent]) Failure(MacroError(s"Indentation Error at ${content.head.start}. Should start with an indent token"))
     else if (!content.last.isInstanceOf[Dedent]) Failure(MacroError(s"Indentation Error at ${content.last.start}. Should end with a dedent token"))
     else
@@ -57,24 +58,20 @@ object Macro:
         val duplicates = paramNames.groupBy(_.content).collect { case (x, seq @ Seq(_, _, _*)) => (x, seq.map(_.start)) }
         if (!duplicates.isEmpty)
           val (name, pos) = duplicates.head
-          val msg         = s"The parameter `$name` is defined more than once at ${pos.map(_.toString).mkString(", ")}"
-          Failure(MacroError(msg))
+          Failure(MacroError(s"The parameter `$name` is defined more than once at ${pos.map(_.toString).mkString(", ")}"))
         else
-          val parameterError = checkParams(content, paramNames)
-          if (parameterError.isDefined)
-            Failure(parameterError.get)
-          else
-            Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
+          Success(Macro(name, paramNames.map(_.content), content))
 
-  /** An undefined param is one is found */
-  def checkParams(tokens: List[Token], paramNames: Seq[Literal]): Option[Exception] =
-    tokens match
-      case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
-        if (!paramNames.exists(_.content == param))
-          Some(ParameterError(s"parameter `$param` found at $pos is not defined in the macro def"))
-        else
-          checkParams(next, paramNames)
-      case token :: next =>
-        checkParams(next, paramNames)
-      case _ =>
-        None
+  // Undefined parameters are not checked anymore. They are ignored.
+  // /** An undefined param is one is found */
+  // def checkParams(tokens: List[Token], paramNames: Seq[Literal]): Option[Exception] =
+  //   tokens match
+  //     case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
+  //       if (!paramNames.exists(_.content == param))
+  //         Some(ParameterError(s"parameter `$param` found at $pos is not defined in the macro def"))
+  //       else
+  //         checkParams(next, paramNames)
+  //     case token :: next =>
+  //       checkParams(next, paramNames)
+  //     case _ =>
+  //       None
