@@ -5,6 +5,7 @@ import lomination.powerrules.lexing.tokens.*
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.input.{NoPosition, Position, Reader}
 import scala.annotation.targetName
+import lomination.powerrules.util.style.ansi34
 
 /** This class extends Parsers from scala combinators. It provides a TokenReader, a logger, a type alias P for Parser, a parse function and the |<
   * parser extension which makes logging easier to manage.
@@ -37,13 +38,13 @@ class TokenParser extends Parsers {
     infix def |<(name: String): P[A] =
       new P[A] {
         def apply(in: Input): ParseResult[A] =
-          logger.trace(s"${ansi33}T$ansi0 at $ansi4${in.pos}$ansi0: $name (trying to parse)")
+          logger.trace(s"${ansi34}T$ansi0 at $ansi4${in.pos}$ansi0: $name (trying to parse)")
           parser(in) match
             case success @ Success(_, next) =>
               logger.trace(s"${ansi32}S$ansi0 at $ansi4${next.pos}$ansi0: $name (successfully parsed)")
               success
             case failure @ Failure(_, next) =>
-              logger.trace(s"${ansi31}F$ansi0 at $ansi4${next.pos}$ansi0: $name (failed to be parsed)")
+              logger.trace(s"${ansi33}F$ansi0 at $ansi4${next.pos}$ansi0: $name (failed to be parsed)")
               failure
             case error @ Error(_, next) =>
               logger.trace(s"${ansi31}E$ansi0 at $ansi4${next.pos}$ansi0: $name (failed to be parsed)")

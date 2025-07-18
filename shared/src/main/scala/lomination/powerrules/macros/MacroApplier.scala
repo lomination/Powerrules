@@ -45,8 +45,8 @@ object MacroApplier extends TokenParser {
         macrosMap.get(name.content) match
           case Some(m) => m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())) match
             case scala.util.Success(tokens) => success(tokens)
-            case _ => err("failed to apply")
-          case _ => err("missing macro")
+            case _ => err("Macro invokation has failed")
+          case _ => err(s"Definition of macro ${name.content} has not been found")
       }
       |< "macro call"
 
