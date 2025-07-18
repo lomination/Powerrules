@@ -171,7 +171,7 @@ object Writer {
     extension (c: Comment)
       def write(using Config): String =
         logger.trace("writing comment")
-        c.str.trim + "\n"
+        s"#${c.str.stripTrailing}\n"
 
   given Writable[Cond] with
     extension (c: Cond)
