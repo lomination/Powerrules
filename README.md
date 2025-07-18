@@ -43,12 +43,12 @@ This project is cross-compiled for both ScalaJVM and ScalaJS. The shared core is
 The compilation process follows several steps. All referenced classes are found in the `shared/src/main/scala/lomination/powerrules` directory:
 1. The configuration is parsed using `config.ConfigParser`.
 2. The macro section is tokenized with `lexing.Lexer`.
-3. Tokens are formatted using `formatting.Format` to ease parsing.
+3. Tokens are formatted using `formatting.Formatter` to ease parsing.
 4. The formatted tokens are parsed by `macros.MacroParser`.
 5. The rules section is tokenized using `lexing.Lexer`.
 6. Parsed macros are applied to the tokens in the rules section using `macros.MacroApplier`.
 7. The resulting tokens are formatted by `formatting.Formatter`.
-8. Tokens are parsed using `powerrulesparsing.PowerrulesParser`.
+8. Tokens are parsed using `parsing.MainParser`.
 9. Finally, the parsed AST is written using the `writing.Writer` type class.
 
 ### ScalaJVM

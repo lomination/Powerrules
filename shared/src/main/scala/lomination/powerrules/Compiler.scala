@@ -4,7 +4,7 @@ import lomination.powerrules.config.ConfigParser
 import lomination.powerrules.lexing.Lexer
 import lomination.powerrules.formatting.Formatter
 import lomination.powerrules.macros.{MacroApplier, MacroParser}
-import lomination.powerrules.powerrulesparsing.PowerRulesParser
+import lomination.powerrules.parsing.MainParser
 import lomination.powerrules.writing.Writer
 import lomination.powerrules.util.style.{ansi, ansi0}
 import scala.util.{Success, Try}
@@ -43,7 +43,7 @@ object Compiler:
       fmtRulesTk <- Formatter(appliedRulesTk)(using config)
       _ = logger info s"${ansi(32, 1)}Formatting tokens from rules section succeeded$ansi0"
       _ = logger info s"${ansi(34, 1)}Parsing rules section started$ansi0"
-      ruleFile <- PowerRulesParser(fmtRulesTk)
+      ruleFile <- MainParser(fmtRulesTk)
       _ = logger info s"${ansi(32, 1)}Parsing rules section succeeded$ansi0"
       _ = logger info s"${ansi(34, 1)}Writing rules started$ansi0"
       written = Writer(ruleFile)(using config)
