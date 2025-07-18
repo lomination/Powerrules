@@ -4,7 +4,7 @@ import lomination.powerrules.build.BuildInfo
 
 class CompilerTest extends FunSuite {
 
-  test("CompilerTest - section method (1): fast mode") {
+  test("CompilerTest - getSections method (1): fast mode") {
     val code = """|// wow a comment
                   |
                   |[My Rule]
@@ -12,13 +12,13 @@ class CompilerTest extends FunSuite {
                   |bloop bloop bloop
                   |
                   |""".stripMargin
-    val test = Compiler.section(code)
+    val test = Compiler.getSections(code)
     assert(clue(test._1) == clue(""))
     assert(clue(test._2) == clue(""))
     assert(clue(test._3) == clue(code))
   }
 
-  test("CompilerTest - section method (2): formatted mode") {
+  test("CompilerTest - getSections method (2): formatted mode") {
     val code = """|
                   |
                   |[My Rule]
@@ -26,13 +26,13 @@ class CompilerTest extends FunSuite {
                   |bloop bloop bloop
                   |
                   |""".stripMargin
-    val test = Compiler.section(code)
+    val test = Compiler.getSections(code)
     assert(clue(test._1) == clue(""))
     assert(clue(test._2) == clue(""))
     assert(clue(test._3) == clue(code))
   }
 
-  test("CompilerTest - section method (3): formatted mode with empty lines") {
+  test("CompilerTest - getSections method (3): formatted mode with empty lines") {
     val code =
       """|
          |
@@ -53,13 +53,13 @@ class CompilerTest extends FunSuite {
          |bloop bloop bloop
          |
          |""".stripMargin
-    val test = Compiler.section(code)
+    val test = Compiler.getSections(code)
     assert(clue(test._1) == clue(""))
     assert(clue(test._2) == clue(""))
     assert(clue(test._3) == clue(rulesSection))
   }
 
-  test("CompilerTest - section method (4): formatted mode with macro section") {
+  test("CompilerTest - getSections method (4): formatted mode with macro section") {
     val code =
       """|
          |::macro::
@@ -99,7 +99,7 @@ class CompilerTest extends FunSuite {
          |bloop bloop bloop
          |
          |""".stripMargin
-    val test = Compiler.section(code)
+    val test = Compiler.getSections(code)
     assert(clue(test._1) == clue(""))
     assert(clue(test._2) == clue(macrosSection))
     assert(clue(test._3) == clue(rulesSection))

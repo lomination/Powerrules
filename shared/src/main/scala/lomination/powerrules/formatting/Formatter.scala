@@ -31,7 +31,7 @@ object Formatter {
           val spaces = indentation.size
           if (!config.pUseTabs && spaces % config.pIndentation != 0)
             val e = IndentationError(s"Invalid indentation (non divisible by ${config.pIndentation}) at $start")
-            logger.error(e)(s"$ansi31$ansi4$start$ansi0: Newline token has been found with invalid indentation")
+            logger.error(e)(s"$ansi4$start$ansi0: Newline token has been found with invalid indentation")
             Failure(e)
           else
             val newLevel = if config.pUseTabs then spaces else spaces / config.pIndentation

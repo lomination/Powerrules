@@ -86,12 +86,12 @@ object ConfigParser {
 
   object ToBoolean:
     def unapply(string: String): Option[Boolean] =
-      lazy val trueR  = "[yY][eE][sS]|[tT][rR][uU][eE]|[uU][iI]".r
-      lazy val falseR = "[nN][oO]|[fF][aA][lL][sS][eE]".r
+      lazy val trueRe  = "[yY][eE][sS]|[tT][rR][uU][eE]|[uU][iI]".r
+      lazy val falseRe = "[nN][oO]|[fF][aA][lL][sS][eE]".r
       string match
-        case trueR()  => Some(true)
-        case falseR() => Some(false)
-        case _        => None
+        case trueRe()  => Some(true)
+        case falseRe() => Some(false)
+        case _         => None
 
   object ToTmpTile:
     def unapply(string: String): Option[TmpTile] =

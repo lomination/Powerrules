@@ -4,7 +4,7 @@ import lomination.powerrules.config.ConfigParser
 import lomination.powerrules.lexing.Lexer
 import lomination.powerrules.formatting.Formatter
 import lomination.powerrules.macros.{MacroApplier, MacroParser}
-import lomination.powerrules.powerrulesparsing.PowerRulesParser
+import lomination.powerrules.parsing.MainParser
 import lomination.powerrules.writing.Writer
 import lomination.powerrules.util.style.{ansi, ansi0}
 import scala.util.{Success, Try}
@@ -20,7 +20,7 @@ object Compiler:
   def apply(code: String): Try[String] =
     for {
       _ <- Success(())
-      (configIn, macroIn, rulesIn) = section(code)
+      (configIn, macroIn, rulesIn) = getSections(code)
       _ = logger info s"${ansi(34, 1)}Parsing config section started$ansi0"
       config <- ConfigParser(configIn)
       _ = logger info s"${ansi(32, 1)}Parsing config section succeeded$ansi0"
@@ -43,7 +43,7 @@ object Compiler:
       fmtRulesTk <- Formatter(appliedRulesTk)(using config)
       _ = logger info s"${ansi(32, 1)}Formatting tokens from rules section succeeded$ansi0"
       _ = logger info s"${ansi(34, 1)}Parsing rules section started$ansi0"
-      ruleFile <- PowerRulesParser(fmtRulesTk)
+      ruleFile <- MainParser(fmtRulesTk)
       _ = logger info s"${ansi(32, 1)}Parsing rules section succeeded$ansi0"
       _ = logger info s"${ansi(34, 1)}Writing rules started$ansi0"
       written = Writer(ruleFile)(using config)
@@ -60,7 +60,7 @@ object Compiler:
     * @return
     *   a triplet of string containing in this order, the config section, the macros section and the rules section.
     */
-  def section(code: String): (String, String, String) =
+  def getSections(code: String): (String, String, String) =
     val formatted =
       """((?:(?://[^\n]*\n| *\n)*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
     code match
