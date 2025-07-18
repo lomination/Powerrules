@@ -1,0 +1,20 @@
+name: Check format
+
+on:
+  push:
+
+jobs:
+
+  build:
+    name: Check format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:1.21
+          apps: sbt
+      - name: Check
+        run: sbt scalafmtCheckAll
