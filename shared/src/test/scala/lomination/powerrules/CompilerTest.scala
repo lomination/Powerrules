@@ -1,5 +1,7 @@
 package lomination.powerrules
 
+import lomination.powerrules.build.BuildInfo
+
 class CompilerTest extends FunSuite {
 
   test("CompilerTest - getSections method (1): fast mode") {
@@ -101,6 +103,37 @@ class CompilerTest extends FunSuite {
     assert(clue(test._1) == clue(""))
     assert(clue(test._2) == clue(macrosSection))
     assert(clue(test._3) == clue(rulesSection))
+  }
+
+  test("CompilerTest - apply method (1)") {
+    val code =
+      """|
+         |::macro::
+         |
+         |def macro(comment)
+         |    # this is a comment: <comment>
+         |end
+         |
+         |::rule::
+         |
+         |[My Rule]
+         |
+         |$macro(hello)
+         |
+         |""".stripMargin
+    val test = Compiler(code)
+    val expected =
+      s"""|# Generated with Powerrules (version ${BuildInfo.version}) by lomination
+          |# https://github.com/lomination/Powerrules
+          |
+          |
+          |
+          |[My Rule]
+          |
+          |# this is a comment: hello
+          |""".stripMargin
+    assert(test.isSuccess)
+    assert(clue(test.get) == clue(expected))
   }
 
 }
