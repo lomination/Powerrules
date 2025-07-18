@@ -9,9 +9,54 @@ on:
         type: string
 
 jobs:
-  prepare-release:
+
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:1.21
+          apps: sbt
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js packages
+        run: npm ci
+      - name: Run tests (JVM and JS)
+        run: sbt test
+      - name: Build in js
+        run: npm run build4gh
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist"
+
+  deploy:
+    name: Deploy to github pages
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+  release:
     name: Prepare release
     runs-on: ubuntu-latest
+    needs: deploy
     steps:
       - name: Print release info
         run: |
@@ -25,23 +70,24 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup git user
         run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Set version and commit changes
+      - name: Set version, commit and tag
         run: |
-          sed -i 's/^\( *version *:=\).*/\1 "'${{ inputs.version }}'",/g' build.sbt
+          # build.sbt
+          sed -i 's/^\( *version *:=\).*/\1 "${{ inputs.version }}",/g' build.sbt
+          # package.json
+          sed -i 's/^\( *"version":\).*/\1 "${{ inputs.version }}",/g' package.json
+          # reamde.md
+          sed -i 's/^![Version.*/![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)/g' reamde.md
+          # commit and tag
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
-          sed -i 's/^\( *version *:=\).*/\1 "'${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT'",/g' build.sbt
+      - name: Set version to next snapshot and commit
+        run: |
+          # build.sbt
+          sed -i 's/^\( *version *:=\).*/\1 "${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT",/g' build.sbt
+          # package.json
+          sed -i 's/^\( *"version":\).*/\1 "${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT",/g' package.json
+          # commit
           git commit -am "Set version to ${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT"
       - name: Push changes
         run: git push && git push --tags
-      - name: Trigger workflow to generate release
-        uses: actions/github-script@v6
-        with:
-          # This workflow is not triggered automatically because the tag is pushed with a workflow github_token, so we trigger it manually
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'build.yaml',
-              ref: '${{ inputs.version }}',
-            })
