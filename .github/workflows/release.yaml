@@ -44,6 +44,11 @@ jobs:
           sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
+      - name: Setup scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:1.21
+          apps: sbt
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
