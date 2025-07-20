@@ -16,7 +16,7 @@ object MacroApplier extends TokenParser {
     else
       val macrosMap = macros.map(m => (m.name.content, m)).toMap
       parse(macroCalls(macrosMap), TokenReader(tokens)) match
-        case Success(tokens, _) => scala.util.Success(tokens)
+        case Success(tokens, _)     => scala.util.Success(tokens)
         case NoSuccess.I(msg, next) => scala.util.Failure(Exception(msg + s" at ${next.pos}"))
 
   // ---------- Parser extensions and functions ---------- //
@@ -35,7 +35,6 @@ object MacroApplier extends TokenParser {
     acceptMatch("any token except dollar sign `$`", { case token if !token.isInstanceOf[Dollar] && !token.isInstanceOf[RightParenthese] => token })
       |< "any token except dollar sign `$`"
 
-
   def macroCalls(macrosMap: Map[String, Macro]): P[Seq[Token]] =
     rep(notDollar ^^ { Seq(_) } | macroCall(macrosMap)) ^^ { _.flatMap(identity) }
 
@@ -43,14 +42,15 @@ object MacroApplier extends TokenParser {
     dollarTk ~>! optWithAcolades(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
       >> { case name ~ args =>
         macrosMap.get(name.content) match
-          case Some(m) => m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())) match
-            case scala.util.Success(tokens) => success(tokens)
-            case _ => err("Macro invokation has failed")
+          case Some(m) =>
+            m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())) match
+              case scala.util.Success(tokens) => success(tokens)
+              case _                          => err("Macro invokation has failed")
           case _ => err(s"Definition of macro ${name.content} has not been found")
       }
       |< "macro call"
 
   def macroArgs(macrosMap: Map[String, Macro]): P[Seq[Token]] =
-    rep(notDollarRp ^^ { Seq(_) } | macroCall(macrosMap))^^ { _.flatMap(identity) }
+    rep(notDollarRp ^^ { Seq(_) } | macroCall(macrosMap)) ^^ { _.flatMap(identity) }
       |< "macro arguments"
 }

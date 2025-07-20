@@ -1,12 +1,13 @@
 {
   "name": "powerrules",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.5.1-SNAPSHOT",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build4gh": "vite build --base=/Powerrules/",
+    "build4test": "vite build --base=/test/",
     "preview": "vite preview"
   },
   "devDependencies": {

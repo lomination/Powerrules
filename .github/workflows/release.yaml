@@ -1,4 +1,4 @@
-name: Release
+name: Create release
 
 on:
   workflow_dispatch:
@@ -9,39 +9,79 @@ on:
         type: string
 
 jobs:
-  prepare-release:
-    name: Prepare release
+
+  check-format:
+    uses: ./.github/workflows/check-format.yaml
+
+  build:
+    uses: ./.github/workflows/build.yaml
+
+  deploy:
+    name: Deploy to github pages
     runs-on: ubuntu-latest
+    needs:
+      - check-format
+      - build
+    permissions:
+      pages: write
+      contents: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Print release info
-        run: |
-          echo "::notice::Release v${{ inputs.version }} from branch ${{ github.ref_name }}"
-      - uses: actions-ecosystem/action-bump-semver@v1
-        id: bump-semver
-        with:
-          current_version: ${{ inputs.version }}
-          level: patch
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup git user
-        run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Set version and commit changes
+        shell: bash
         run: |
-          sed -i 's/^\( *version *:=\).*/\1 "'${{ inputs.version }}'",/g' build.sbt
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Set version to the new one (${{ inputs.version }})
+        shell: bash
+        run: |
+          sed -i 's/^\( *version *:=\).*/\1 "${{ inputs.version }}",/g' build.sbt
+          sed -i 's/^\( *"version":\).*/\1 "${{ inputs.version }}",/g' package.json
+          sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
-          sed -i 's/^\( *version *:=\).*/\1 "'${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT'",/g' build.sbt
-          git commit -am "Set version to ${{ steps.bump-semver.outputs.new_version }}-SNAPSHOT"
-      - name: Push changes
-        run: git push && git push --tags
-      - name: Trigger workflow to generate release
-        uses: actions/github-script@v6
+      - name: Setup scala
+        uses: coursier/setup-action@v1
         with:
-          # This workflow is not triggered automatically because the tag is pushed with a workflow github_token, so we trigger it manually
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'build.yaml',
-              ref: '${{ inputs.version }}',
-            })
+          jvm: temurin:1.21
+          apps: sbt
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js packages
+        shell: bash
+        run: npm ci
+      - name: Build for ScalaJS
+        shell: bash
+        run: npm run build4gh
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist"
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Deploy to GitHub pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Get next snapshot version
+        id: new-version
+        shell: bash
+        run: |
+          v="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< "${{ inputs.version }}" )"
+          echo "New snapshot: $v"
+          echo "new-version=$v" >> $GITHUB_OUTPUT
+      - name: Set version to the new snapshot
+        shell: bash
+        run: |
+          sed -i 's/^\( *version *:=\).*/\1 "${{ steps.new-version.outputs.new-version }}-SNAPSHOT",/g' build.sbt
+          sed -i 's/^\( *"version":\).*/\1 "${{ steps.new-version.outputs.new-version }}-SNAPSHOT",/g' package.json
+          git commit -am "Set version to ${{ steps.new-version.outputs.new-version }}-SNAPSHOT"
+      - name: Push changes
+        shell: bash
+        run: git push && git push --tags

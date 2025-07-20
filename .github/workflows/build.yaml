@@ -1,9 +1,8 @@
-name: Build
+name: Build and test
 
 on:
-  workflow_dispatch:
-  workflow_call:
   push:
+  workflow_call:
 
 jobs:
 
@@ -22,32 +21,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - run: npm ci
-      - name: Run tests
+      - name: Install Node.js packages
+        shell: bash
+        run: npm ci
+      - name: Run tests (JVM and JS)
+        shell: bash
         run: sbt test
-      - run: npm run build4gh
-
-      - name: Setup Pages
-        if: github.ref_type == 'tag'
-        uses: actions/configure-pages@v3
-      - name: Upload Artifact
-        if: github.ref_type == 'tag'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
-
-  deploy:
-    name: Deploy to github pages
-    if: github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to gitHub pages
-        id: deployment
-        uses: actions/deploy-pages@v2

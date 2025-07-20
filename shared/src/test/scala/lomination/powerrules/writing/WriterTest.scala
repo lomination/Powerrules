@@ -8,8 +8,8 @@ import lomination.powerrules.FunSuite
 class WriterTest extends FunSuite {
 
   test("WriterTest - write comment") {
-    val ast = Comment(" hello")
-    val test = ast.write(using Config())
+    val ast      = Comment(" hello")
+    val test     = ast.write(using Config())
     val expected = "# hello\n"
     assert(clue(test) == clue(expected))
   }

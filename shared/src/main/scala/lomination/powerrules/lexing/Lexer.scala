@@ -5,6 +5,7 @@ import scala.util.parsing.combinator.*
 import lomination.powerrules.lexing.tokens.*
 import lomination.powerrules.config.Config
 import lomination.powerrules.util.{dropOnce, i}
+import lomination.powerrules.util.style.{ansi0, ansi31, ansi32}
 import scala.util.matching.Regex
 import scala.annotation.tailrec
 import scala.util.parsing.input.{NoPosition, Position}
@@ -56,10 +57,10 @@ object Lexer extends RegexParsers {
         parse(tokenParser, raw) match
           case Success(result, _) =>
             val token = result.apply(start, stop)
-            logger.trace(s"Token \u001b[32m${token.getName}\u001b[0m successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $stop")
+            logger.trace(s"Token $ansi32${token.getName}$ansi0 successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $stop")
             process(tokens :+ token, segments.dropOnce)
           case NoSuccess.I(msg, _) =>
-            logger.error(s"\u001b[31mFailed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $stop ($msg)\u001b[0m")
+            logger.error(s"${ansi31}Failed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $stop ($msg)$ansi0")
             scala.util.Failure(TokenizationError(msg))
     process(Seq(), segments)
 

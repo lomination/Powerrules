@@ -59,8 +59,7 @@ object Macro:
         if (!duplicates.isEmpty)
           val (name, pos) = duplicates.head
           Failure(MacroError(s"The parameter `$name` is defined more than once at ${pos.map(_.toString).mkString(", ")}"))
-        else
-          Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
+        else Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
 
   // Undefined parameters are not checked anymore. They are ignored.
   // /** An undefined param is one is found */

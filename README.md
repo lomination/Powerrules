@@ -1,4 +1,9 @@
+<div align="center">
+
+![Version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue)
 [![Build](https://github.com/lomination/Powerrules/actions/workflows/build.yaml/badge.svg)](https://github.com/lomination/Powerrules/actions/workflows/build.yaml)
+
+</div>
 
 # Powerrules
 
