@@ -72,8 +72,8 @@ jobs:
         id: new-version
         shell: bash
         run: |
-          new-version="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< ${{ inputs.version }} )"
-          echo "new-version=$new-version" >> $GITHUB-OUTPUT
+          v="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< ${{ inputs.version }} )"
+          echo "new-version=$v" >> $GITHUB-OUTPUT
       - name: Set version to ${{ steps.new-version.outputs.new-version }}
         shell: bash
         run: |
