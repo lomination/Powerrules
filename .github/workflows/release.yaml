@@ -44,6 +44,13 @@ jobs:
           sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js packages
+        shell: bash
+        run: npm ci
       - name: Build for ScalaJS
         shell: bash
         run: npm run build4gh
