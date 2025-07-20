@@ -11,7 +11,7 @@ on:
 jobs:
 
   check-format:
-    uses: lomination/Powerrules/.github/workflows/check-format.yaml
+    uses: ./.github/workflows/check-format.yaml
 
   build:
     name: Build and test
