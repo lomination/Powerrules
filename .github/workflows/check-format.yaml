@@ -18,4 +18,5 @@ jobs:
           jvm: temurin:1.21
           apps: sbt
       - name: Check
+        shell: bash
         run: sbt scalafmtCheckAll
