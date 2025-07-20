@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Set version to ${{ inputs.version }}
+      - name: Set version to the new one (${{ inputs.version }})
         shell: bash
         run: |
           sed -i 's/^\( *version *:=\).*/\1 "${{ inputs.version }}",/g' build.sbt
@@ -73,9 +73,10 @@ jobs:
         id: new-version
         shell: bash
         run: |
-          v="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< ${{ inputs.version }} )"
-          echo "new-version=$v" >> $GITHUB-OUTPUT
-      - name: Set version to ${{ steps.new-version.outputs.new-version }}
+          v="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< "${{ inputs.version }}" )"
+          echo "New snapshot: $v"
+          echo "new-version=$v" >> $GITHUB_OUTPUT
+      - name: Set version to the new snapshot
         shell: bash
         run: |
           sed -i 's/^\( *version *:=\).*/\1 "${{ steps.new-version.outputs.new-version }}-SNAPSHOT",/g' build.sbt
