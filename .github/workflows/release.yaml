@@ -81,7 +81,7 @@ jobs:
           # package.json
           sed -i 's/^\( *"version":\).*/\1 "${{ inputs.version }}",/g' package.json
           # reamde.md
-          sed -i 's|^![Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
+          sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
           # commit and tag
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
