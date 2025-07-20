@@ -10,9 +10,13 @@ on:
 
 jobs:
 
+  check-format:
+    uses: lomination/Powerrules/.github/workflows/check-format.yaml
+
   build:
     name: Build and test
     runs-on: ubuntu-latest
+    needs: check-format
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
