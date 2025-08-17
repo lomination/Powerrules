@@ -123,9 +123,6 @@ object Lexer extends RegexParsers {
               Failure(msg, next)
       }
 
-    def ¦[B](other: P[B]): P[A | B] =
-      parser | phrase(other)
-
   // ---------- Parsers ---------- //
 
   lazy val segmentsParser: P[List[Segment]] =
@@ -143,10 +140,15 @@ object Lexer extends RegexParsers {
             noSuccess
     }
 
+  // @formatter:off
+  
   lazy val tokenParser: P[Unpositioned[Token]] =
-    // @formatter:off
-    phrase(literalTk) ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ spaceTk ¦ newlineTk ¦ tabTk ¦ unknownTk named "token"
-    // @formatter:on
+    Seq(literalTk, decimalNumberTk, hexaNumberTk, plusTk, minusTk, pipeTk, starTk, percentTk, leftParentheseTk, rightParentheseTk, leftBracketTk, rightBracketTk, leftAcoladeTk, rightAcoladeTk, leftChevronTk, rightChevronTk, commaTk, dollarTk, ampersandTk, dotTk, hashtagTk, spaceTk, newlineTk, tabTk, unknownTk)
+      .map(phrase)
+      .reduce((p1, p2) => p1 | p2)
+      .named("token")
+  
+  // @formatter:on
 
   lazy val literalTk = "[a-zA-Z_][a-zA-Z0-9_]*".r |> Literal
 
