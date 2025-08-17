@@ -12,7 +12,7 @@ case class TestPos(l: Int) extends Position:
 
 object Functions:
   def build(tokens: (Position, Position) => Token*): Seq[Token] =
-    tokens.zipWithIndex.map { case f -> i => f.apply(TestPos(i), TestPos(i + 1))}
+    tokens.zipWithIndex.map { case f -> i => f.apply(TestPos(i), TestPos(i + 1)) }
 
   // todo: fix implicit conversion which does not seem to work
   // given Conversion[Int, Position] with

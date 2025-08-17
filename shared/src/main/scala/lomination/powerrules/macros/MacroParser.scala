@@ -67,9 +67,12 @@ object MacroParser extends TokenParser {
       } |< "macro definition"
 
   def notEndTk: P[Token] =
-    acceptMatch("any token except `end` keyword", {
-      case token if !token.isInstanceOf[Literal] => token
-      case token: Literal if !(token.content.toLowerCase == "end") => token
-      }) |< "any token except `end` keyword"
+    acceptMatch(
+      "any token except `end` keyword",
+      {
+        case token if !token.isInstanceOf[Literal]                   => token
+        case token: Literal if !(token.content.toLowerCase == "end") => token
+      }
+    ) |< "any token except `end` keyword"
 
 }

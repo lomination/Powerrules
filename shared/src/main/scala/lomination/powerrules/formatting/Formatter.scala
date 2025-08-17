@@ -53,7 +53,7 @@ object Formatter {
         logger trace s"$ansi4$start$ansi0: Neutral token (${token.getName}) has been found"
         processIndentation(cookedOnes :+ token, next, indentLevel)
       // todo: what is this case needed?
-      case head :: next => 
+      case head :: next =>
         throw Exception(s"This case should not be possible.\nHead: $head;\nNext: $next;")
       case Nil =>
         logger trace s"End of source has been reached"

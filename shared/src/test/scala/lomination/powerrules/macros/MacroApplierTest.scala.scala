@@ -9,7 +9,14 @@ import lomination.powerrules.Functions.build
 class MacroApplierTest extends FunSuite {
 
   test("MacroApplierTest - apply method (1)") {
-    val tokens = build(Literal("empty", "empty", _, _), Space(" ", _, _), Dollar("$", _, _), Literal("m1", "m1", _, _), Space(" ", _, _), Literal("empty", "empty", _, _))
+    val tokens = build(
+      Literal("empty", "empty", _, _),
+      Space(" ", _, _),
+      Dollar("$", _, _),
+      Literal("m1", "m1", _, _),
+      Space(" ", _, _),
+      Literal("empty", "empty", _, _)
+    )
     val macros = Seq(
       Macro(
         Literal("m1", "m1", NoPosition, NoPosition),

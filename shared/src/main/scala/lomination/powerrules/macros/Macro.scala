@@ -15,7 +15,7 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
 
   def apply(paramValues: Seq[Seq[Token]], callStartPos: Position = NoPosition, callEndPos: Position = NoPosition): Try[Seq[Token]] =
     val valuesLen = paramValues.size
-    val namesLen = paramNames.size
+    val namesLen  = paramNames.size
     if (valuesLen != namesLen)
       val msg =
         s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $callStartPos (given: $valuesLen, expected: $namesLen)"

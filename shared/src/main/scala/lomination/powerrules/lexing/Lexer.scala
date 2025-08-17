@@ -156,24 +156,24 @@ object Lexer extends RegexParsers {
 
   lazy val hexaNumberTk = "0x[0-9a-fA-F]+".r ^^ { num => Integer.parseInt(num.drop(2), 16) } |> HexaNumber
 
-  lazy val plusTk            = "+"  |>> Plus
-  lazy val minusTk           = "-"  |>> Minus
-  lazy val pipeTk            = "|"  |>> Pipe
-  lazy val starTk            = "*"  |>> Star
-  lazy val percentTk         = "%"  |>> Percent
-  lazy val leftParentheseTk  = "("  |>> LeftParenthese
-  lazy val rightParentheseTk = ")"  |>> RightParenthese
-  lazy val leftBracketTk     = "["  |>> LeftBracket
-  lazy val rightBracketTk    = "]"  |>> RightBracket
-  lazy val leftAcoladeTk     = "{"  |>> LeftAcolade
-  lazy val rightAcoladeTk    = "}"  |>> RightAcolade
-  lazy val leftChevronTk     = "<"  |>> LeftChevron
-  lazy val rightChevronTk    = ">"  |>> RightChevron
-  lazy val commaTk           = ","  |>> Comma
-  lazy val dollarTk          = "$"  |>> Dollar
-  lazy val ampersandTk       = "&"  |>> Ampersand
-  lazy val dotTk             = "."  |>> Dot
-  lazy val hashtagTk         = "#"  |>> Hashtag
+  lazy val plusTk            = "+" |>> Plus
+  lazy val minusTk           = "-" |>> Minus
+  lazy val pipeTk            = "|" |>> Pipe
+  lazy val starTk            = "*" |>> Star
+  lazy val percentTk         = "%" |>> Percent
+  lazy val leftParentheseTk  = "(" |>> LeftParenthese
+  lazy val rightParentheseTk = ")" |>> RightParenthese
+  lazy val leftBracketTk     = "[" |>> LeftBracket
+  lazy val rightBracketTk    = "]" |>> RightBracket
+  lazy val leftAcoladeTk     = "{" |>> LeftAcolade
+  lazy val rightAcoladeTk    = "}" |>> RightAcolade
+  lazy val leftChevronTk     = "<" |>> LeftChevron
+  lazy val rightChevronTk    = ">" |>> RightChevron
+  lazy val commaTk           = "," |>> Comma
+  lazy val dollarTk          = "$" |>> Dollar
+  lazy val ampersandTk       = "&" |>> Ampersand
+  lazy val dotTk             = "." |>> Dot
+  lazy val hashtagTk         = "#" |>> Hashtag
 
   lazy val spaceTk   = " "  |>> Space
   lazy val newlineTk = "\n" |>> Newline
