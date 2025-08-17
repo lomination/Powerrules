@@ -145,7 +145,7 @@ object Lexer extends RegexParsers {
 
   lazy val tokenParser: P[Unpositioned[Token]] =
     // @formatter:off
-    phrase(literalTk) ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ slashTk ¦ spaceTk ¦ newlineTk ¦ tabTk ¦ unknownTk named "token"
+    phrase(literalTk) ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ spaceTk ¦ newlineTk ¦ tabTk ¦ unknownTk named "token"
     // @formatter:on
 
   lazy val literalTk = "[a-zA-Z_][a-zA-Z0-9_]*".r |> Literal
