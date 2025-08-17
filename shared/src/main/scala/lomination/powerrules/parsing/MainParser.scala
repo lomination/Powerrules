@@ -488,7 +488,7 @@ object MainParser extends TokenParser {
   /** A parser of a shadow command's mode */
   lazy val mode: P[Boolean] =
     (softTk | normalTk)
-      ^^ { _.isInstanceOf[tks.Soft] }
+      ^^ { _.content.toLowerCase == "soft" }
       |< "mode"
 
 }

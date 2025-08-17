@@ -129,9 +129,9 @@ object Lexer extends RegexParsers {
   // ---------- Parsers ---------- //
 
   lazy val segmentsParser: P[List[Segment]] =
-    phrase(rep(segmentParser))
+    phrase(rep(singleSegmentParser))
 
-  lazy val segmentParser: P[Segment] =
+  lazy val singleSegmentParser: P[Segment] =
     new P[Segment] {
       val regex = """[a-zA-Z_][a-zA-Z0-9_]*|[0-9][a-zA-Z0-9]*|[\S\s]""".r
       def apply(in: Input): ParseResult[Segment] =
@@ -145,38 +145,8 @@ object Lexer extends RegexParsers {
 
   lazy val tokenParser: P[Unpositioned[Token]] =
     // @formatter:off
-    phrase(defTk) ¦ endTk ¦ replaceTk ¦ reTk ¦ shadowTk ¦ sdTk ¦ shapeTk ¦ spTk ¦ withTk ¦ withexternalTk ¦ withinternalTk ¦ ifTk ¦ whenTk ¦ orTk ¦ randomTk ¦ modeTk ¦ applyTk ¦ onTk ¦ usingTk ¦ thereTk ¦ isTk ¦ areTk ¦ notTk ¦ fullTk ¦ emptyTk ¦ edgeTk ¦ normalTk ¦ softTk ¦ outsideTk ¦ literalTk ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ doubleQuoteTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ slashTk ¦ spaceTk ¦ newlineTk ¦ tabTk ¦ unknownTk named "token"
+    phrase(literalTk) ¦ decimalNumberTk ¦ hexaNumberTk ¦ plusTk ¦ minusTk ¦ pipeTk ¦ starTk ¦ percentTk ¦ leftParentheseTk ¦ rightParentheseTk ¦ leftBracketTk ¦ rightBracketTk ¦ leftAcoladeTk ¦ rightAcoladeTk ¦ leftChevronTk ¦ rightChevronTk ¦ commaTk ¦ dollarTk ¦ ampersandTk ¦ dotTk ¦ hashtagTk ¦ slashTk ¦ spaceTk ¦ newlineTk ¦ tabTk ¦ unknownTk named "token"
     // @formatter:on
-
-  lazy val defTk          = "def".i          |>> Def          named "keyword `def`"
-  lazy val endTk          = "end".i          |>> End          named "keyword `end`"
-  lazy val replaceTk      = "replace".i      |>> Replace      named "keyword `replace`"
-  lazy val reTk           = "re".i           |>> Re           named "keyword `re`"
-  lazy val shadowTk       = "shadow".i       |>> Shadow       named "keyword `shadow`"
-  lazy val sdTk           = "sd".i           |>> Sd           named "keyword `sd`"
-  lazy val shapeTk        = "shape".i        |>> Shape        named "keyword `shape`"
-  lazy val spTk           = "sp".i           |>> Sp           named "keyword `sp`"
-  lazy val withTk         = "with".i         |>> With         named "keyword `with`"
-  lazy val withexternalTk = "withexternal".i |>> Withexternal named "keyword `withexternal`"
-  lazy val withinternalTk = "withinternal".i |>> Withinternal named "keyword `withinternal`"
-  lazy val ifTk           = "if".i           |>> If           named "keyword `if`"
-  lazy val whenTk         = "when".i         |>> When         named "keyword `when`"
-  lazy val orTk           = "or".i           |>> Or           named "keyword `or`"
-  lazy val randomTk       = "random".i       |>> Random       named "keyword `random`"
-  lazy val modeTk         = "mode".i         |>> Mode         named "keyword `mode`"
-  lazy val applyTk        = "apply".i        |>> Apply        named "keyword `apply`"
-  lazy val onTk           = "on".i           |>> On           named "keyword `on`"
-  lazy val usingTk        = "using".i        |>> Using        named "keyword `using`"
-  lazy val thereTk        = "there".i        |>> There        named "keyword `there`"
-  lazy val isTk           = "is".i           |>> Is           named "keyword `is`"
-  lazy val areTk          = "are".i          |>> Are          named "keyword `are`"
-  lazy val notTk          = "not".i          |>> Not          named "keyword `not`"
-  lazy val fullTk         = "full".i         |>> Full         named "keyword `full`"
-  lazy val emptyTk        = "empty".i        |>> Empty        named "keyword `empty`"
-  lazy val edgeTk         = "edge".i         |>> Edge         named "keyword `edge`"
-  lazy val normalTk       = "normal".i       |>> Normal       named "keyword `normal`"
-  lazy val softTk         = "soft".i         |>> Soft         named "keyword `soft`"
-  lazy val outsideTk      = "outside".i      |>> Outside      named "keyword `outside`"
 
   lazy val literalTk = "[a-zA-Z_][a-zA-Z0-9_]*".r |> Literal
 
@@ -198,13 +168,10 @@ object Lexer extends RegexParsers {
   lazy val leftChevronTk     = "<"  |>> LeftChevron
   lazy val rightChevronTk    = ">"  |>> RightChevron
   lazy val commaTk           = ","  |>> Comma
-  lazy val doubleQuoteTk     = "\"" |>> DoulbeQuote
   lazy val dollarTk          = "$"  |>> Dollar
   lazy val ampersandTk       = "&"  |>> Ampersand
   lazy val dotTk             = "."  |>> Dot
   lazy val hashtagTk         = "#"  |>> Hashtag
-  lazy val slashTk           = "/"  |>> Slash
-  lazy val colonTk           = ":"  |>> Colon
 
   lazy val spaceTk   = " "  |>> Space
   lazy val newlineTk = "\n" |>> Newline

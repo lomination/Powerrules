@@ -39,11 +39,11 @@ object MacroApplier extends TokenParser {
     rep(notDollar ^^ { Seq(_) } | macroCall(macrosMap)) ^^ { _.flatMap(identity) }
 
   def macroCall(macrosMap: Map[String, Macro]): P[Seq[Token]] =
-    dollarTk ~>! optWithAcolades(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
-      >> { case name ~ args =>
+    dollarTk ~! optWithAcolades(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
+      >> { case Dollar(_, callStartPos, callEndPos) ~ (name ~ args) =>
         macrosMap.get(name.content) match
           case Some(m) =>
-            m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq())) match
+            m.apply(args.map(_.split(_.isInstanceOf[Comma])).getOrElse(Seq()), callStartPos, callEndPos) match
               case scala.util.Success(tokens) => success(tokens)
               case _                          => err("Macro invokation has failed")
           case _ => err(s"Definition of macro ${name.content} has not been found")

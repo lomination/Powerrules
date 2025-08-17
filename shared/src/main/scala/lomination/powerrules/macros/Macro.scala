@@ -13,19 +13,19 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
 
   val logger = org.log4s.getLogger
 
-  def apply(paramValues: Seq[Seq[Token]], callPos: Position = NoPosition): Try[Seq[Token]] =
-    val vLength = paramValues.size
-    val nLength = paramNames.size
-    if (vLength != nLength)
+  def apply(paramValues: Seq[Seq[Token]], callStartPos: Position = NoPosition, callEndPos: Position = NoPosition): Try[Seq[Token]] =
+    val valuesLen = paramValues.size
+    val namesLen = paramNames.size
+    if (valuesLen != namesLen)
       val msg =
-        s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $callPos (given: $vLength, expected: $nLength)"
+        s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $callStartPos (given: $valuesLen, expected: $namesLen)"
       val exception = ParameterError(msg)
       logger.error(exception)(msg)
       logger.debug(s"Params: $paramValues")
       Failure(exception)
     else
       val parameters = (paramNames zip paramValues).toMap
-      replaceParameters(List.newBuilder, content.toList, parameters) // fixme
+      replaceParameters(List.newBuilder, content.map(token => token.repos(callStartPos, callEndPos)).toList, parameters) // fixme
 
   // todo: make this function a parser
   def replaceParameters(computedOnes: Builder[Token, List[Token]], nextOnes: List[Token], parameters: Map[String, Seq[Token]]): Try[List[Token]] =

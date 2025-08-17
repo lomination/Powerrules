@@ -17,10 +17,10 @@ object Formatter {
     if (tokens.isEmpty)
       logger trace "Empty token list given"
       Success(Seq())
-    else processIndentation(Seq(), tokens, 0)
+    else processIndentation(Seq(), tokens.toList, 0)
 
   @tailrec
-  def processIndentation(cookedOnes: Seq[Token], rawOnes: Seq[Token], indentLevel: Int)(using config: Config): Try[Seq[Token]] =
+  def processIndentation(cookedOnes: Seq[Token], rawOnes: List[Token], indentLevel: Int)(using config: Config): Try[Seq[Token]] =
     rawOnes match
       case (newline @ Newline(raw, start, stop)) :: rest =>
         val (indentation, next) = if config.pUseTabs then rest.span(_.isInstanceOf[Tab]) else rest.span(_.isInstanceOf[Space])
@@ -48,10 +48,13 @@ object Formatter {
               processIndentation(c, next, newLevel)
       case (space @ Space(_, start, _)) :: (_: (Space | Newline)) :: _ =>
         logger trace s"$ansi4$start$ansi0: Space token has been found and skipped"
-        processIndentation(cookedOnes, rawOnes.dropOnce, indentLevel)
+        processIndentation(cookedOnes, rawOnes.drop(1), indentLevel)
       case (token @ Token(_, start, _)) :: next =>
         logger trace s"$ansi4$start$ansi0: Neutral token (${token.getName}) has been found"
         processIndentation(cookedOnes :+ token, next, indentLevel)
+      // todo: what is this case needed?
+      case head :: next => 
+        throw Exception(s"This case should not be possible.\nHead: $head;\nNext: $next;")
       case Nil =>
         logger trace s"End of source has been reached"
         val lastPos = cookedOnes.lastOption.map(_.stop).getOrElse(NoPosition)

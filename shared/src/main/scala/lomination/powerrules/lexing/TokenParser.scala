@@ -51,120 +51,120 @@ class TokenParser extends Parsers {
               error
       } named name
 
-  lazy val defTk: P[Def] =
-    acceptMatch("`def` token", { case token: Def => token })
+  lazy val defTk: P[Literal] =
+    acceptMatch("`def` token", { case token @ Literal("def", _, _, _) => token })
       |< "`def` token"
 
-  lazy val endTk: P[End] =
-    acceptMatch("`end` token", { case token: End => token })
+  lazy val endTk: P[Literal] =
+    acceptMatch("`end` token", { case token @ Literal("end", _, _, _) => token })
       |< "`end` token"
 
-  lazy val replaceTk: P[Replace] =
-    acceptMatch("`replace` token", { case token: Replace => token })
+  lazy val replaceTk: P[Literal] =
+    acceptMatch("`replace` token", { case token @ Literal("replace", _, _, _) => token })
       |< "`replace` token"
 
-  lazy val reTk: P[Re] =
-    acceptMatch("`re` token", { case token: Re => token })
+  lazy val reTk: P[Literal] =
+    acceptMatch("`re` token", { case token @ Literal("re", _, _, _) => token })
       |< "`re` token"
 
-  lazy val shadowTk: P[Shadow] =
-    acceptMatch("`shadow` token", { case token: Shadow => token })
+  lazy val shadowTk: P[Literal] =
+    acceptMatch("`shadow` token", { case token @ Literal("shadow", _, _, _) => token })
       |< "`shadow` token"
 
-  lazy val sdTk: P[Sd] =
-    acceptMatch("`sd` token", { case token: Sd => token })
+  lazy val sdTk: P[Literal] =
+    acceptMatch("`sd` token", { case token @ Literal("sd", _, _, _) => token })
       |< "`sd` token"
 
-  lazy val shapeTk: P[Shape] =
-    acceptMatch("`shape` token", { case token: Shape => token })
+  lazy val shapeTk: P[Literal] =
+    acceptMatch("`shape` token", { case token @ Literal("shape", _, _, _) => token })
       |< "`shape` token"
 
-  lazy val spTk: P[Sp] =
-    acceptMatch("`sp` token", { case token: Sp => token })
+  lazy val spTk: P[Literal] =
+    acceptMatch("`sp` token", { case token @ Literal("sp", _, _, _) => token })
       |< "`sp` token"
 
-  lazy val withTk: P[With] =
-    acceptMatch("`with` token", { case token: With => token })
+  lazy val withTk: P[Literal] =
+    acceptMatch("`with` token", { case token @ Literal("with", _, _, _) => token })
       |< "`with` token"
 
-  lazy val withexternalTk: P[Withexternal] =
-    acceptMatch("`withexternal` token", { case token: Withexternal => token })
+  lazy val withexternalTk: P[Literal] =
+    acceptMatch("`withexternal` token", { case token @ Literal("withexternal", _, _, _) => token })
       |< "`withexternal` token"
 
-  lazy val withinternalTk: P[Withinternal] =
-    acceptMatch("`withinternal` token", { case token: Withinternal => token })
+  lazy val withinternalTk: P[Literal] =
+    acceptMatch("`withinternal` token", { case token @ Literal("withinternal", _, _, _) => token })
       |< "`withinternal` token"
 
-  lazy val ifTk: P[If] =
-    acceptMatch("`if` token", { case token: If => token })
+  lazy val ifTk: P[Literal] =
+    acceptMatch("`if` token", { case token @ Literal("if", _, _, _) => token })
       |< "`if` token"
 
-  lazy val whenTk: P[When] =
-    acceptMatch("`when` token", { case token: When => token })
+  lazy val whenTk: P[Literal] =
+    acceptMatch("`when` token", { case token @ Literal("when", _, _, _) => token })
       |< "`when` token"
 
-  lazy val orTk: P[Or] =
-    acceptMatch("`or` token", { case token: Or => token })
+  lazy val orTk: P[Literal] =
+    acceptMatch("`or` token", { case token @ Literal("or", _, _, _) => token })
       |< "`or` token"
 
-  lazy val randomTk: P[Random] =
-    acceptMatch("`random` token", { case token: Random => token })
+  lazy val randomTk: P[Literal] =
+    acceptMatch("`random` token", { case token @ Literal("random", _, _, _) => token })
       |< "`random` token"
 
-  lazy val modeTk: P[Mode] =
-    acceptMatch("`mode` token", { case token: Mode => token })
+  lazy val modeTk: P[Literal] =
+    acceptMatch("`mode` token", { case token @ Literal("mode", _, _, _) => token })
       |< "`mode` token"
 
-  lazy val applyTk: P[Apply] =
-    acceptMatch("`apply` token", { case token: Apply => token })
+  lazy val applyTk: P[Literal] =
+    acceptMatch("`apply` token", { case token @ Literal("apply", _, _, _) => token })
       |< "`apply` token"
 
-  lazy val onTk: P[On] =
-    acceptMatch("`on` token", { case token: On => token })
+  lazy val onTk: P[Literal] =
+    acceptMatch("`on` token", { case token @ Literal("on", _, _, _) => token })
       |< "`on` token"
 
-  lazy val usingTk: P[Using] =
-    acceptMatch("`using` token", { case token: Using => token })
+  lazy val usingTk: P[Literal] =
+    acceptMatch("`using` token", { case token @ Literal("using", _, _, _) => token })
       |< "`using` token"
 
-  lazy val thereTk: P[There] =
-    acceptMatch("`there` token", { case token: There => token })
+  lazy val thereTk: P[Literal] =
+    acceptMatch("`there` token", { case token @ Literal("there", _, _, _) => token })
       |< "`there` token"
 
-  lazy val isTk: P[Is] =
-    acceptMatch("`is` token", { case token: Is => token })
+  lazy val isTk: P[Literal] =
+    acceptMatch("`is` token", { case token @ Literal("is", _, _, _) => token })
       |< "`is` token"
 
-  lazy val areTk: P[Are] =
-    acceptMatch("`are` token", { case token: Are => token })
+  lazy val areTk: P[Literal] =
+    acceptMatch("`are` token", { case token @ Literal("are", _, _, _) => token })
       |< "`are` token"
 
-  lazy val notTk: P[Not] =
-    acceptMatch("`not` token", { case token: Not => token })
+  lazy val notTk: P[Literal] =
+    acceptMatch("`not` token", { case token @ Literal("not", _, _, _) => token })
       |< "`not` token"
 
-  lazy val fullTk: P[Full] =
-    acceptMatch("`full` token", { case token: Full => token })
+  lazy val fullTk: P[Literal] =
+    acceptMatch("`full` token", { case token @ Literal("full", _, _, _) => token })
       |< "`full` token"
 
-  lazy val emptyTk: P[Empty] =
-    acceptMatch("`empty` token", { case token: Empty => token })
+  lazy val emptyTk: P[Literal] =
+    acceptMatch("`empty` token", { case token @ Literal("empty", _, _, _) => token })
       |< "`empty` token"
 
-  lazy val edgeTk: P[Edge] =
-    acceptMatch("`edge` token", { case token: Edge => token })
+  lazy val edgeTk: P[Literal] =
+    acceptMatch("`edge` token", { case token @ Literal("edge", _, _, _) => token })
       |< "`edge` token"
 
-  lazy val normalTk: P[Normal] =
-    acceptMatch("`normal` token", { case token: Normal => token })
+  lazy val normalTk: P[Literal] =
+    acceptMatch("`normal` token", { case token @ Literal("normal", _, _, _) => token })
       |< "`normal` token"
 
-  lazy val softTk: P[Soft] =
-    acceptMatch("`soft` token", { case token: Soft => token })
+  lazy val softTk: P[Literal] =
+    acceptMatch("`soft` token", { case token @ Literal("soft", _, _, _) => token })
       |< "`soft` token"
 
-  lazy val outsideTk: P[Outside] =
-    acceptMatch("`outside` token", { case token: Outside => token })
+  lazy val outsideTk: P[Literal] =
+    acceptMatch("`outside` token", { case token @ Literal("outside", _, _, _) => token })
       |< "`outside` token"
 
   lazy val decimalNumberTk: P[DecimalNumber] =
@@ -235,10 +235,6 @@ class TokenParser extends Parsers {
     acceptMatch("comma character `,`", { case token: Comma => token })
       |< "comma character `,`"
 
-  lazy val doulbeQuoteTk: P[DoulbeQuote] =
-    acceptMatch("doulbe quote character `\"`", { case token: DoulbeQuote => token })
-      |< "doulbe quote character `\"`"
-
   lazy val dollarTk: P[Dollar] =
     acceptMatch("dollar sign `$`", { case token: Dollar => token })
       |< "dollar sign `$`"
@@ -254,14 +250,6 @@ class TokenParser extends Parsers {
   lazy val hashtagTk: P[Hashtag] =
     acceptMatch("hashtag character `#`", { case token: Hashtag => token })
       |< "hashtag character `#`"
-
-  lazy val slashTk: P[Slash] =
-    acceptMatch("slash character `/`", { case token: Slash => token })
-      |< "slash character `/`"
-
-  lazy val colonTk: P[Colon] =
-    acceptMatch("colon character `:`", { case token: Colon => token })
-      |< "colon character `:`"
 
   lazy val spaceTk: P[Space] =
     acceptMatch("space character ` `", { case token: Space => token })
