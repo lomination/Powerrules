@@ -1,10 +1,11 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.dropOnce
 import lomination.powerrules.lexing.TokenParser
-import scala.util.Try
-import lomination.powerrules.lexing.tokens.{End, Token}
+import lomination.powerrules.lexing.tokens.{Literal, Token}
+import lomination.powerrules.util.dropOnce
+
 import scala.annotation.tailrec
+import scala.util.Try
 
 object MacroParser extends TokenParser {
 
@@ -66,7 +67,12 @@ object MacroParser extends TokenParser {
       } |< "macro definition"
 
   def notEndTk: P[Token] =
-    acceptMatch("any token except `end` keyword", { case token if !token.isInstanceOf[End] => token })
-      |< "any token except `end` keyword"
+    acceptMatch(
+      "any token except `end` keyword",
+      {
+        case token if !token.isInstanceOf[Literal]               => token
+        case token: Literal if !(token.raw.toLowerCase == "end") => token
+      }
+    ) |< "any token except `end` keyword"
 
 }

@@ -1,7 +1,6 @@
 package lomination.powerrules.util
 
 import scala.collection.mutable.Builder
-// import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 // import scala.annotation.tailrec
 

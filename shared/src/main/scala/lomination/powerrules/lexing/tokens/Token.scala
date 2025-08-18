@@ -5,323 +5,206 @@ import scala.util.parsing.input.Position
 sealed trait Token:
   val raw: String
   val start: Position
-  val stop: Position
+  val end: Position
+
+  /** Returns a this token with updates start and end positions.
+    *
+    * @param start
+    *   the new desired value for the start position of this token.
+    * @param end
+    *   the new desired value for the start position of this token.
+    * @return
+    *   a new token with `start` as start position and `end` as end position.
+    */
+  def repos(start: Position, end: Position): Token
   def getName: String =
     this.getClass.getSimpleName
 
 object Token:
-  def unapply(token: Token): Option[(String, Position, Position)] =
-    Some(token.raw, token.start, token.stop)
+  def unapply(token: Token): Some[(String, Position, Position)] =
+    Some(token.raw, token.start, token.end)
 
-abstract class NonStaticToken[+A](a: A, raw: String, start: Position, stop: Position) extends Token
+abstract class NonStaticToken[+A](a: A, raw: String, start: Position, end: Position) extends Token
 
 abstract class NonStaticTokenFactory[-A, +B <: NonStaticToken[A]] extends ((A, String, Position, Position) => B)
 
-abstract class StaticToken(raw: String, start: Position, stop: Position) extends Token
+abstract class StaticToken(raw: String, start: Position, end: Position) extends Token
 
 abstract class StaticTokenFactory[+A <: StaticToken] extends ((String, Position, Position) => A)
 
 // ---------- Alphanumeric token parsers ---------- //
 
-case class Def(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Def extends StaticTokenFactory[Def] {
-  def apply(raw: String, start: Position, stop: Position) = new Def(raw, start, stop)
-}
+case class Literal(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Literal(raw, start, end)
 
-case class End(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object End extends StaticTokenFactory[End] {
-  def apply(raw: String, start: Position, stop: Position) = new End(raw, start, stop)
-}
+object Literal extends StaticTokenFactory[Literal]:
+  def apply(raw: String, start: Position, end: Position) = new Literal(raw, start, end)
 
-case class Replace(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Replace extends StaticTokenFactory[Replace] {
-  def apply(raw: String, start: Position, stop: Position) = new Replace(raw, start, stop)
-}
+case class DecimalNumber(content: Int, raw: String, start: Position, end: Position) extends NonStaticToken[Int](content, raw, start, end):
+  def repos(start: Position, end: Position): Token = new DecimalNumber(content, raw, start, end)
 
-case class Re(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Re extends StaticTokenFactory[Re] {
-  def apply(raw: String, start: Position, stop: Position) = new Re(raw, start, stop)
-}
+object DecimalNumber extends NonStaticTokenFactory[Int, DecimalNumber]:
+  def apply(content: Int, raw: String, start: Position, end: Position) = new DecimalNumber(content, raw, start, end)
 
-case class Shadow(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Shadow extends StaticTokenFactory[Shadow] {
-  def apply(raw: String, start: Position, stop: Position) = new Shadow(raw, start, stop)
-}
+case class HexaNumber(content: Int, raw: String, start: Position, end: Position) extends NonStaticToken[Int](content, raw, start, end):
+  def repos(start: Position, end: Position): Token = new HexaNumber(content, raw, start, end)
 
-case class Sd(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Sd extends StaticTokenFactory[Sd] {
-  def apply(raw: String, start: Position, stop: Position) = new Sd(raw, start, stop)
-}
-
-case class Shape(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Shape extends StaticTokenFactory[Shape] {
-  def apply(raw: String, start: Position, stop: Position) = new Shape(raw, start, stop)
-}
-
-case class Sp(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Sp extends StaticTokenFactory[Sp] {
-  def apply(raw: String, start: Position, stop: Position) = new Sp(raw, start, stop)
-}
-
-case class With(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object With extends StaticTokenFactory[With] {
-  def apply(raw: String, start: Position, stop: Position) = new With(raw, start, stop)
-}
-
-case class Withexternal(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Withexternal extends StaticTokenFactory[Withexternal] {
-  def apply(raw: String, start: Position, stop: Position) = new Withexternal(raw, start, stop)
-}
-
-case class Withinternal(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Withinternal extends StaticTokenFactory[Withinternal] {
-  def apply(raw: String, start: Position, stop: Position) = new Withinternal(raw, start, stop)
-}
-
-case class If(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object If extends StaticTokenFactory[If] {
-  def apply(raw: String, start: Position, stop: Position) = new If(raw, start, stop)
-}
-
-case class When(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object When extends StaticTokenFactory[When] {
-  def apply(raw: String, start: Position, stop: Position) = new When(raw, start, stop)
-}
-
-case class Or(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Or extends StaticTokenFactory[Or] {
-  def apply(raw: String, start: Position, stop: Position) = new Or(raw, start, stop)
-}
-
-case class Random(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Random extends StaticTokenFactory[Random] {
-  def apply(raw: String, start: Position, stop: Position) = new Random(raw, start, stop)
-}
-
-case class Mode(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Mode extends StaticTokenFactory[Mode] {
-  def apply(raw: String, start: Position, stop: Position) = new Mode(raw, start, stop)
-}
-
-case class Apply(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Apply extends StaticTokenFactory[Apply] {
-  def apply(raw: String, start: Position, stop: Position) = new Apply(raw, start, stop)
-}
-
-case class On(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object On extends StaticTokenFactory[On] {
-  def apply(raw: String, start: Position, stop: Position) = new On(raw, start, stop)
-}
-
-case class Using(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Using extends StaticTokenFactory[Using] {
-  def apply(raw: String, start: Position, stop: Position) = new Using(raw, start, stop)
-}
-
-case class There(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object There extends StaticTokenFactory[There] {
-  def apply(raw: String, start: Position, stop: Position) = new There(raw, start, stop)
-}
-
-case class Is(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Is extends StaticTokenFactory[Is] {
-  def apply(raw: String, start: Position, stop: Position) = new Is(raw, start, stop)
-}
-
-case class Are(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Are extends StaticTokenFactory[Are] {
-  def apply(raw: String, start: Position, stop: Position) = new Are(raw, start, stop)
-}
-
-case class Not(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Not extends StaticTokenFactory[Not] {
-  def apply(raw: String, start: Position, stop: Position) = new Not(raw, start, stop)
-}
-
-case class Full(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Full extends StaticTokenFactory[Full] {
-  def apply(raw: String, start: Position, stop: Position) = new Full(raw, start, stop)
-}
-
-case class Empty(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Empty extends StaticTokenFactory[Empty] {
-  def apply(raw: String, start: Position, stop: Position) = new Empty(raw, start, stop)
-}
-
-case class Edge(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Edge extends StaticTokenFactory[Edge] {
-  def apply(raw: String, start: Position, stop: Position) = new Edge(raw, start, stop)
-}
-
-case class Normal(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Normal extends StaticTokenFactory[Normal] {
-  def apply(raw: String, start: Position, stop: Position) = new Normal(raw, start, stop)
-}
-
-case class Soft(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Soft extends StaticTokenFactory[Soft] {
-  def apply(raw: String, start: Position, stop: Position) = new Soft(raw, start, stop)
-}
-
-case class Outside(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Outside extends StaticTokenFactory[Outside] {
-  def apply(raw: String, start: Position, stop: Position) = new Outside(raw, start, stop)
-}
-
-case class Literal(content: String, raw: String, start: Position, stop: Position) extends NonStaticToken[String](content, raw, start, stop)
-object Literal extends NonStaticTokenFactory[String, Literal] {
-  def apply(content: String, raw: String, start: Position, stop: Position) = new Literal(content, raw, start, stop)
-}
-
-case class DecimalNumber(content: Int, raw: String, start: Position, stop: Position) extends NonStaticToken[Int](content, raw, start, stop)
-object DecimalNumber extends NonStaticTokenFactory[Int, DecimalNumber] {
-  def apply(content: Int, raw: String, start: Position, stop: Position) = new DecimalNumber(content, raw, start, stop)
-}
-
-case class HexaNumber(content: Int, raw: String, start: Position, stop: Position) extends NonStaticToken[Int](content, raw, start, stop)
-object HexaNumber extends NonStaticTokenFactory[Int, HexaNumber] {
-  def apply(content: Int, raw: String, start: Position, stop: Position) = new HexaNumber(content, raw, start, stop)
-}
+object HexaNumber extends NonStaticTokenFactory[Int, HexaNumber]:
+  def apply(content: Int, raw: String, start: Position, end: Position) = new HexaNumber(content, raw, start, end)
 
 // ---------- Special characters token parsers ---------- //
 
-case class Plus(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Plus extends StaticTokenFactory[Plus] {
-  def apply(raw: String, start: Position, stop: Position) = new Plus(raw, start, stop)
-}
+case class Plus(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Plus(raw, start, end)
 
-case class Minus(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Minus extends StaticTokenFactory[Minus] {
-  def apply(raw: String, start: Position, stop: Position) = new Minus(raw, start, stop)
-}
+object Plus extends StaticTokenFactory[Plus]:
+  def apply(raw: String, start: Position, end: Position) = new Plus(raw, start, end)
 
-case class Pipe(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Pipe extends StaticTokenFactory[Pipe] {
-  def apply(raw: String, start: Position, stop: Position) = new Pipe(raw, start, stop)
-}
+case class Minus(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Minus(raw, start, end)
 
-case class Star(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Star extends StaticTokenFactory[Star] {
-  def apply(raw: String, start: Position, stop: Position) = new Star(raw, start, stop)
-}
+object Minus extends StaticTokenFactory[Minus]:
+  def apply(raw: String, start: Position, end: Position) = new Minus(raw, start, end)
 
-case class Percent(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Percent extends StaticTokenFactory[Percent] {
-  def apply(raw: String, start: Position, stop: Position) = new Percent(raw, start, stop)
-}
+case class Pipe(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Pipe(raw, start, end)
 
-case class LeftParenthese(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object LeftParenthese extends StaticTokenFactory[LeftParenthese] {
-  def apply(raw: String, start: Position, stop: Position) = new LeftParenthese(raw, start, stop)
-}
+object Pipe extends StaticTokenFactory[Pipe]:
+  def apply(raw: String, start: Position, end: Position) = new Pipe(raw, start, end)
 
-case class RightParenthese(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object RightParenthese extends StaticTokenFactory[RightParenthese] {
-  def apply(raw: String, start: Position, stop: Position) = new RightParenthese(raw, start, stop)
-}
+case class Star(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Star(raw, start, end)
 
-case class LeftBracket(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object LeftBracket extends StaticTokenFactory[LeftBracket] {
-  def apply(raw: String, start: Position, stop: Position) = new LeftBracket(raw, start, stop)
-}
+object Star extends StaticTokenFactory[Star]:
+  def apply(raw: String, start: Position, end: Position) = new Star(raw, start, end)
 
-case class RightBracket(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object RightBracket extends StaticTokenFactory[RightBracket] {
-  def apply(raw: String, start: Position, stop: Position) = new RightBracket(raw, start, stop)
-}
+case class Percent(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Percent(raw, start, end)
 
-case class LeftAcolade(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object LeftAcolade extends StaticTokenFactory[LeftAcolade] {
-  def apply(raw: String, start: Position, stop: Position) = new LeftAcolade(raw, start, stop)
-}
+object Percent extends StaticTokenFactory[Percent]:
+  def apply(raw: String, start: Position, end: Position) = new Percent(raw, start, end)
 
-case class RightAcolade(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object RightAcolade extends StaticTokenFactory[RightAcolade] {
-  def apply(raw: String, start: Position, stop: Position) = new RightAcolade(raw, start, stop)
-}
+case class LeftParenthese(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new LeftParenthese(raw, start, end)
 
-case class LeftChevron(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object LeftChevron extends StaticTokenFactory[LeftChevron] {
-  def apply(raw: String, start: Position, stop: Position) = new LeftChevron(raw, start, stop)
-}
+object LeftParenthese extends StaticTokenFactory[LeftParenthese]:
+  def apply(raw: String, start: Position, end: Position) = new LeftParenthese(raw, start, end)
 
-case class RightChevron(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object RightChevron extends StaticTokenFactory[RightChevron] {
-  def apply(raw: String, start: Position, stop: Position) = new RightChevron(raw, start, stop)
-}
+case class RightParenthese(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new RightParenthese(raw, start, end)
 
-case class Comma(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Comma extends StaticTokenFactory[Comma] {
-  def apply(raw: String, start: Position, stop: Position) = new Comma(raw, start, stop)
-}
+object RightParenthese extends StaticTokenFactory[RightParenthese]:
+  def apply(raw: String, start: Position, end: Position) = new RightParenthese(raw, start, end)
 
-case class DoulbeQuote(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object DoulbeQuote extends StaticTokenFactory[DoulbeQuote] {
-  def apply(raw: String, start: Position, stop: Position) = new DoulbeQuote(raw, start, stop)
-}
+case class LeftBracket(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new LeftBracket(raw, start, end)
 
-case class Dollar(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Dollar extends StaticTokenFactory[Dollar] {
-  def apply(raw: String, start: Position, stop: Position) = new Dollar(raw, start, stop)
-}
+object LeftBracket extends StaticTokenFactory[LeftBracket]:
+  def apply(raw: String, start: Position, end: Position) = new LeftBracket(raw, start, end)
 
-case class Ampersand(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Ampersand extends StaticTokenFactory[Ampersand] {
-  def apply(raw: String, start: Position, stop: Position) = new Ampersand(raw, start, stop)
-}
+case class RightBracket(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new RightBracket(raw, start, end)
 
-case class Dot(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Dot extends StaticTokenFactory[Dot] {
-  def apply(raw: String, start: Position, stop: Position) = new Dot(raw, start, stop)
-}
+object RightBracket extends StaticTokenFactory[RightBracket]:
+  def apply(raw: String, start: Position, end: Position) = new RightBracket(raw, start, end)
 
-case class Hashtag(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Hashtag extends StaticTokenFactory[Hashtag] {
-  def apply(raw: String, start: Position, stop: Position) = new Hashtag(raw, start, stop)
-}
+case class LeftBrace(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new LeftBrace(raw, start, end)
 
-case class Slash(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Slash extends StaticTokenFactory[Slash] {
-  def apply(raw: String, start: Position, stop: Position) = new Slash(raw, start, stop)
-}
+object LeftBrace extends StaticTokenFactory[LeftBrace]:
+  def apply(raw: String, start: Position, end: Position) = new LeftBrace(raw, start, end)
 
-case class Colon(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Colon extends StaticTokenFactory[Colon] {
-  def apply(raw: String, start: Position, stop: Position) = new Colon(raw, start, stop)
-}
+case class RightBrace(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new RightBrace(raw, start, end)
+
+object RightBrace extends StaticTokenFactory[RightBrace]:
+  def apply(raw: String, start: Position, end: Position) = new RightBrace(raw, start, end)
+
+case class LeftChevron(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new LeftChevron(raw, start, end)
+
+object LeftChevron extends StaticTokenFactory[LeftChevron]:
+  def apply(raw: String, start: Position, end: Position) = new LeftChevron(raw, start, end)
+
+case class RightChevron(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new RightChevron(raw, start, end)
+
+object RightChevron extends StaticTokenFactory[RightChevron]:
+  def apply(raw: String, start: Position, end: Position) = new RightChevron(raw, start, end)
+
+case class Comma(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Comma(raw, start, end)
+
+object Comma extends StaticTokenFactory[Comma]:
+  def apply(raw: String, start: Position, end: Position) = new Comma(raw, start, end)
+
+case class Dollar(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Dollar(raw, start, end)
+
+object Dollar extends StaticTokenFactory[Dollar]:
+  def apply(raw: String, start: Position, end: Position) = new Dollar(raw, start, end)
+
+case class Ampersand(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Ampersand(raw, start, end)
+
+object Ampersand extends StaticTokenFactory[Ampersand]:
+  def apply(raw: String, start: Position, end: Position) = new Ampersand(raw, start, end)
+
+case class Dot(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Dot(raw, start, end)
+
+object Dot extends StaticTokenFactory[Dot]:
+  def apply(raw: String, start: Position, end: Position) = new Dot(raw, start, end)
+
+case class Hashtag(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Hashtag(raw, start, end)
+
+object Hashtag extends StaticTokenFactory[Hashtag]:
+  def apply(raw: String, start: Position, end: Position) = new Hashtag(raw, start, end)
+
+case class Slash(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Slash(raw, start, end)
 
 // ---------- Whitespace token parsers ---------- //
 
-case class Space(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Space extends StaticTokenFactory[Space] {
-  def apply(raw: String, start: Position, stop: Position) = new Space(raw, start, stop)
-}
+case class Space(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Space(raw, start, end)
 
-case class Newline(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Newline extends StaticTokenFactory[Newline] {
-  def apply(raw: String, start: Position, stop: Position) = new Newline(raw, start, stop)
-}
+object Space extends StaticTokenFactory[Space]:
+  def apply(raw: String, start: Position, end: Position) = new Space(raw, start, end)
 
-case class Tab(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Tab extends StaticTokenFactory[Tab] {
-  def apply(raw: String, start: Position, stop: Position) = new Tab(raw, start, stop)
-}
+case class Newline(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Newline(raw, start, end)
+
+object Newline extends StaticTokenFactory[Newline]:
+  def apply(raw: String, start: Position, end: Position) = new Newline(raw, start, end)
+
+case class Tab(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Tab(raw, start, end)
+
+object Tab extends StaticTokenFactory[Tab]:
+  def apply(raw: String, start: Position, end: Position) = new Tab(raw, start, end)
 
 // ---------- Unknown ---------- //
 
-case class Unknown(raw: String, start: Position, stop: Position) extends StaticToken(raw, start, stop)
-object Unknown extends StaticTokenFactory[Unknown] {
-  def apply(raw: String, start: Position, stop: Position) = new Unknown(raw, start, stop)
-}
+case class Unknown(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Unknown(raw, start, end)
+
+object Unknown extends StaticTokenFactory[Unknown]:
+  def apply(raw: String, start: Position, end: Position) = new Unknown(raw, start, end)
 
 // ---------- Non parsable tokens ---------- //
 
-case class Indent(start: Position, stop: Position) extends StaticToken("", start, stop) { val raw = "" }
-object Indent extends StaticTokenFactory[Indent] {
-  def apply(raw: String, start: Position, stop: Position) = new Indent(start, stop)
-}
+case class Indent(start: Position, end: Position) extends StaticToken("", start, end):
+  val raw                                          = ""
+  def repos(start: Position, end: Position): Token = new Indent(start, end)
 
-case class Dedent(start: Position, stop: Position) extends StaticToken("", start, stop) { val raw = "" }
-object Dedent extends StaticTokenFactory[Dedent] {
-  def apply(raw: String, start: Position, stop: Position) = new Dedent(start, stop)
-}
+object Indent extends StaticTokenFactory[Indent]:
+  def apply(raw: String, start: Position, end: Position) = new Indent(start, end)
+
+case class Dedent(start: Position, end: Position) extends StaticToken("", start, end):
+  val raw                                          = ""
+  def repos(start: Position, end: Position): Token = new Dedent(start, end)
+
+object Dedent extends StaticTokenFactory[Dedent]:
+  def apply(raw: String, start: Position, end: Position) = new Dedent(start, end)

@@ -1,8 +1,9 @@
 package lomination.powerrules.config
 
-import scala.util.{Failure, Success, Try}
 import lomination.powerrules.util.{dropOnce, i}
+
 import scala.annotation.tailrec
+import scala.util.{Failure, Success, Try}
 
 object ConfigParser {
 

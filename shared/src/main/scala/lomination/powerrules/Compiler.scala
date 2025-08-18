@@ -1,12 +1,13 @@
 package lomination.powerrules
 
 import lomination.powerrules.config.ConfigParser
-import lomination.powerrules.lexing.Lexer
 import lomination.powerrules.formatting.Formatter
+import lomination.powerrules.lexing.Lexer
 import lomination.powerrules.macros.{MacroApplier, MacroParser}
 import lomination.powerrules.parsing.MainParser
-import lomination.powerrules.writing.Writer
 import lomination.powerrules.util.style.{ansi, ansi0}
+import lomination.powerrules.writing.Writer
+
 import scala.util.{Success, Try}
 
 // @formatter:off

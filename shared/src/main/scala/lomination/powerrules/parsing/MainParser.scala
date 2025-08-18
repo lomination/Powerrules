@@ -1,12 +1,12 @@
 package lomination.powerrules.parsing
 
-import scala.util.Try
-import lomination.powerrules.lexing.TokenParser
-import lomination.powerrules.util.style.{ansi0, ansi31, ansi4}
-import lomination.powerrules.ast.*
+import lomination.powerrules.ast._
 import lomination.powerrules.lexing.tokens.Token
-import lomination.powerrules.parsing.*
-import lomination.powerrules.lexing.tokens as tks
+import lomination.powerrules.lexing.{TokenParser, tokens => tks}
+import lomination.powerrules.parsing._
+import lomination.powerrules.util.style.{ansi0, ansi31, ansi4}
+
+import scala.util.Try
 
 /** Object that parses Powerrules Ast from tokens. */
 object MainParser extends TokenParser {
@@ -80,8 +80,8 @@ object MainParser extends TokenParser {
     * @return
     *   a parser that parses the content of the given parser preceded by a left curly brace token and followed by a right curly brace token.
     */
-  def withAcolades[A](parser: P[A]): P[A] =
-    leftAcoladeTk ~> parser <~ rightAcoladeTk
+  def withBraces[A](parser: P[A]): P[A] =
+    leftBraceTk ~> parser <~ rightBraceTk
 
   /** A parser that parses another given parser surronded by optional space tokens. Note that the two space tokens are parsed independantly.
     *
@@ -342,7 +342,7 @@ object MainParser extends TokenParser {
     val isValid = "([nNeE]+|[nNwW]+|[sSeE]+|[sSwW]+)".r
     acceptMatch(
       "sequence of cardinal points (position)",
-      { case tks.Literal(isValid(str), _, _, _) =>
+      { case tks.Literal(isValid(str), _, _) =>
         val s = str.toLowerCase
         Pos(
           s.count(_ == 'e') - s.count(_ == 'w'),
@@ -488,7 +488,7 @@ object MainParser extends TokenParser {
   /** A parser of a shadow command's mode */
   lazy val mode: P[Boolean] =
     (softTk | normalTk)
-      ^^ { _.isInstanceOf[tks.Soft] }
+      ^^ { _.raw.toLowerCase == "soft" }
       |< "mode"
 
 }

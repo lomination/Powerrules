@@ -1,9 +1,9 @@
 package lomination.powerrules.writing
 
+import lomination.powerrules.FunSuite
 import lomination.powerrules.ast.Comment
 import lomination.powerrules.config.Config
 import lomination.powerrules.writing.Writer.given_Writable_Comment.write
-import lomination.powerrules.FunSuite
 
 class WriterTest extends FunSuite {
 

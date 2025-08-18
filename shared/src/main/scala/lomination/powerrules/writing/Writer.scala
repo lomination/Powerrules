@@ -1,6 +1,6 @@
 package lomination.powerrules.writing
 
-import lomination.powerrules.ast.*
+import lomination.powerrules.ast._
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.config.Config
 
