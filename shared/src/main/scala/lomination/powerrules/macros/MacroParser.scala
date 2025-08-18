@@ -70,8 +70,8 @@ object MacroParser extends TokenParser {
     acceptMatch(
       "any token except `end` keyword",
       {
-        case token if !token.isInstanceOf[Literal]                   => token
-        case token: Literal if !(token.content.toLowerCase == "end") => token
+        case token if !token.isInstanceOf[Literal]               => token
+        case token: Literal if !(token.raw.toLowerCase == "end") => token
       }
     ) |< "any token except `end` keyword"
 

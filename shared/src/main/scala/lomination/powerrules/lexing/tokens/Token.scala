@@ -34,11 +34,11 @@ abstract class StaticTokenFactory[+A <: StaticToken] extends ((String, Position,
 
 // ---------- Alphanumeric token parsers ---------- //
 
-case class Literal(content: String, raw: String, start: Position, end: Position) extends NonStaticToken[String](content, raw, start, end):
-  def repos(start: Position, end: Position): Token = new Literal(content, raw, start, end)
+case class Literal(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new Literal(raw, start, end)
 
-object Literal extends NonStaticTokenFactory[String, Literal]:
-  def apply(content: String, raw: String, start: Position, end: Position) = new Literal(content, raw, start, end)
+object Literal extends StaticTokenFactory[Literal]:
+  def apply(raw: String, start: Position, end: Position) = new Literal(raw, start, end)
 
 case class DecimalNumber(content: Int, raw: String, start: Position, end: Position) extends NonStaticToken[Int](content, raw, start, end):
   def repos(start: Position, end: Position): Token = new DecimalNumber(content, raw, start, end)

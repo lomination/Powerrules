@@ -342,7 +342,7 @@ object MainParser extends TokenParser {
     val isValid = "([nNeE]+|[nNwW]+|[sSeE]+|[sSwW]+)".r
     acceptMatch(
       "sequence of cardinal points (position)",
-      { case tks.Literal(isValid(str), _, _, _) =>
+      { case tks.Literal(isValid(str), _, _) =>
         val s = str.toLowerCase
         Pos(
           s.count(_ == 'e') - s.count(_ == 'w'),
@@ -488,7 +488,7 @@ object MainParser extends TokenParser {
   /** A parser of a shadow command's mode */
   lazy val mode: P[Boolean] =
     (softTk | normalTk)
-      ^^ { _.content.toLowerCase == "soft" }
+      ^^ { _.raw.toLowerCase == "soft" }
       |< "mode"
 
 }

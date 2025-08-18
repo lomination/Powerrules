@@ -150,7 +150,7 @@ object Lexer extends RegexParsers {
   
   // @formatter:on
 
-  lazy val literalTk = "[a-zA-Z_][a-zA-Z0-9_]*".r |> Literal
+  lazy val literalTk = "[a-zA-Z_][a-zA-Z0-9_]*".r |>> Literal
 
   lazy val decimalNumberTk = "0|[1-9][0-9]*".r ^^ { Integer.parseInt(_) } |> DecimalNumber
 

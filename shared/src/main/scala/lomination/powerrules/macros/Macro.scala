@@ -17,7 +17,7 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
     val namesLen  = paramNames.size
     if (valuesLen != namesLen)
       val msg =
-        s"Invalid given number of parameters for macro `${name.content}` (defined at `${name.start}`) at $callStartPos (given: $valuesLen, expected: $namesLen)"
+        s"Invalid given number of parameters for macro `${name.raw}` (defined at `${name.start}`) at $callStartPos (given: $valuesLen, expected: $namesLen)"
       val exception = ParameterError(msg)
       logger.error(exception)(msg)
       logger.debug(s"Params: $paramValues")
@@ -29,7 +29,7 @@ case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
   // todo: make this function a parser
   def replaceParameters(computedOnes: Builder[Token, List[Token]], nextOnes: List[Token], parameters: Map[String, Seq[Token]]): Try[List[Token]] =
     nextOnes match
-      case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
+      case LeftChevron(_, _, _) :: Literal(param, pos, _) :: RightChevron(_, _, _) :: next =>
         parameters.get(param) match
           case Some(tokens) =>
             logger trace s"parameter $param successfully replaced at $ansi4$pos$ansi0 $ansi2(by `${tokens.map(_.raw).mkString}`)$ansi0 "
@@ -54,11 +54,11 @@ object Macro:
       val dedents = content.count(_.isInstanceOf[Dedent])
       if (indents != dedents) Failure(MacroError(s"Indentation Error at ${content.last.end}"))
       else
-        val duplicates = paramNames.groupBy(_.content).collect { case (x, seq @ Seq(_, _, _*)) => (x, seq.map(_.start)) }
+        val duplicates = paramNames.groupBy(_.raw).collect { case (x, seq @ Seq(_, _, _*)) => (x, seq.map(_.start)) }
         if (!duplicates.isEmpty)
           val (name, pos) = duplicates.head
           Failure(MacroError(s"The parameter `$name` is defined more than once at ${pos.map(_.toString).mkString(", ")}"))
-        else Success(Macro(name, paramNames.map(_.content), content.dropOnce.dropRightOnce))
+        else Success(Macro(name, paramNames.map(_.raw), content.dropOnce.dropRightOnce))
 
   // Undefined parameters are not checked anymore. They are ignored.
   // /** An undefined param is one is found */
