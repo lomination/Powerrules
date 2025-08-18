@@ -1,7 +1,6 @@
 package lomination.powerrules.ast
 
 import lomination.powerrules.FunSuite
-import lomination.powerrules.ast.{Dir, Pos}
 
 class PosTest extends FunSuite {
 

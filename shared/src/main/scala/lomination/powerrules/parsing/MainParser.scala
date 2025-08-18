@@ -2,7 +2,7 @@ package lomination.powerrules.parsing
 
 import scala.util.Try
 import lomination.powerrules.lexing.TokenParser
-import lomination.powerrules.util.style.{ansi0, ansi31, ansi32, ansi33, ansi4}
+import lomination.powerrules.util.style.{ansi0, ansi31, ansi4}
 import lomination.powerrules.ast.*
 import lomination.powerrules.lexing.tokens.Token
 import lomination.powerrules.parsing.*

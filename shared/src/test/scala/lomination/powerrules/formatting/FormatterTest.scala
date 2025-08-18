@@ -1,10 +1,8 @@
 package lomination.powerrules.formatting
 
-import lomination.powerrules.util.*
 import lomination.powerrules.lexing.tokens.*
 import scala.util.parsing.input.{NoPosition, Position}
 import lomination.powerrules.FunSuite
-import lomination.powerrules.formatting.Formatter
 import lomination.powerrules.config.Config
 
 class FormatterTest extends FunSuite {

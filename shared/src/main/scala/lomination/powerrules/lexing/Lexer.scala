@@ -8,7 +8,7 @@ import lomination.powerrules.util.{dropOnce, i}
 import lomination.powerrules.util.style.{ansi0, ansi31, ansi32}
 import scala.util.matching.Regex
 import scala.annotation.tailrec
-import scala.util.parsing.input.{NoPosition, Position}
+import scala.util.parsing.input.Position
 
 object Lexer extends RegexParsers {
 
