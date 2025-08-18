@@ -17,6 +17,9 @@ jobs:
         with:
           jvm: temurin:1.21
           apps: sbt
-      - name: Check
+      - name: Check format (scalafmt)
         shell: bash
         run: sbt scalafmtCheckAll
+      - name: Check format (scalafix)
+        shell: bash
+        run: sbt "scalafix --check"
