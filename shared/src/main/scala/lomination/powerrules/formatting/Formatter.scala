@@ -49,12 +49,9 @@ object Formatter {
       case (space @ Space(_, start, _)) :: (_: (Space | Newline)) :: _ =>
         logger trace s"$ansi4$start$ansi0: Space token has been found and skipped"
         processIndentation(cookedOnes, rawOnes.drop(1), indentLevel)
-      case (token @ Token(_, start, _)) :: next =>
-        logger trace s"$ansi4$start$ansi0: Neutral token (${token.getName}) has been found"
+      case token :: next =>
+        logger trace s"$ansi4${token.start}$ansi0: Neutral token (${token.getName}) has been found"
         processIndentation(cookedOnes :+ token, next, indentLevel)
-      // todo: what is this case needed?
-      case head :: next =>
-        throw Exception(s"This case should not be possible.\nHead: $head;\nNext: $next;")
       case Nil =>
         logger trace s"End of source has been reached"
         val lastPos = cookedOnes.lastOption.map(_.end).getOrElse(NoPosition)

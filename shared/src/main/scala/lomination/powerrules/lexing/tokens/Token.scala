@@ -21,7 +21,7 @@ sealed trait Token:
     this.getClass.getSimpleName
 
 object Token:
-  def unapply(token: Token): Option[(String, Position, Position)] =
+  def unapply(token: Token): Some[(String, Position, Position)] =
     Some(token.raw, token.start, token.end)
 
 abstract class NonStaticToken[+A](a: A, raw: String, start: Position, end: Position) extends Token
