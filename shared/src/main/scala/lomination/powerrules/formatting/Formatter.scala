@@ -22,7 +22,7 @@ object Formatter {
   @tailrec
   def processIndentation(cookedOnes: Seq[Token], rawOnes: List[Token], indentLevel: Int)(using config: Config): Try[Seq[Token]] =
     rawOnes match
-      case (newline @ Newline(raw, start, stop)) :: rest =>
+      case (newline @ Newline(raw, start, end)) :: rest =>
         val (indentation, next) = if config.pUseTabs then rest.span(_.isInstanceOf[Tab]) else rest.span(_.isInstanceOf[Space])
         if (next.isEmpty || next.head.isInstanceOf[Newline | Indent | Dedent])
           logger trace s"$ansi4$start$ansi0: Newline token has been found and skipped"
@@ -40,11 +40,11 @@ object Formatter {
               processIndentation(cookedOnes :+ newline, next, newLevel)
             else if (newLevel > indentLevel)
               logger trace s"$ansi4$start$ansi0: Newline token has been found (indenation level has been increased)"
-              val c = cookedOnes ++ List.fill(newLevel - indentLevel)(Indent(start, stop))
+              val c = cookedOnes ++ List.fill(newLevel - indentLevel)(Indent(start, end))
               processIndentation(c, next, newLevel)
             else
               logger trace s"$ansi4$start$ansi0: Newline token has been found (indenation level has been decreased)"
-              val c = cookedOnes ++ List.fill(indentLevel - newLevel)(Dedent(start, stop))
+              val c = cookedOnes ++ List.fill(indentLevel - newLevel)(Dedent(start, end))
               processIndentation(c, next, newLevel)
       case (space @ Space(_, start, _)) :: (_: (Space | Newline)) :: _ =>
         logger trace s"$ansi4$start$ansi0: Space token has been found and skipped"
@@ -57,7 +57,7 @@ object Formatter {
         throw Exception(s"This case should not be possible.\nHead: $head;\nNext: $next;")
       case Nil =>
         logger trace s"End of source has been reached"
-        val lastPos = cookedOnes.lastOption.map(_.stop).getOrElse(NoPosition)
+        val lastPos = cookedOnes.lastOption.map(_.end).getOrElse(NoPosition)
         Success(
           cookedOnes ++ List.fill(indentLevel)(Dedent(lastPos, lastPos))
         )

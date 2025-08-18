@@ -27,7 +27,7 @@ class TokenParser extends Parsers {
 
   object TokenReader {
     def apply(tokens: Seq[Token]): TokenReader =
-      new TokenReader(tokens, tokens.lastOption.map(_.stop).getOrElse(NoPosition))
+      new TokenReader(tokens, tokens.lastOption.map(_.end).getOrElse(NoPosition))
   }
 
   @inline

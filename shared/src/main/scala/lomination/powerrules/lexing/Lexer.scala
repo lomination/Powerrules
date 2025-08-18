@@ -22,7 +22,7 @@ object Lexer extends RegexParsers {
 
   type Unpositioned[A] = (Position, Position) => A
 
-  case class Segment(raw: String, start: Position, stop: Position)
+  case class Segment(raw: String, start: Position, end: Position)
 
   def apply(code: String)(using Config): Try[Seq[Token]] =
     if (code.isEmpty)
@@ -53,14 +53,14 @@ object Lexer extends RegexParsers {
     def process(tokens: Seq[Token], segments: Seq[Segment]): Try[Seq[Token]] =
       if (segments.isEmpty) scala.util.Success(tokens)
       else
-        val Segment(raw, start, stop) = segments.head
+        val Segment(raw, start, end) = segments.head
         parse(tokenParser, raw) match
           case Success(result, _) =>
-            val token = result.apply(start, stop)
-            logger.trace(s"Token $ansi32${token.getName}$ansi0 successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $stop")
+            val token = result.apply(start, end)
+            logger.trace(s"Token $ansi32${token.getName}$ansi0 successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $end")
             process(tokens :+ token, segments.dropOnce)
           case NoSuccess.I(msg, _) =>
-            logger.error(s"${ansi31}Failed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $stop ($msg)$ansi0")
+            logger.error(s"${ansi31}Failed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $end ($msg)$ansi0")
             scala.util.Failure(TokenizationError(msg))
     process(Seq(), segments)
 

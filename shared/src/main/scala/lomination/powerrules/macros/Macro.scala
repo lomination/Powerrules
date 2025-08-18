@@ -52,7 +52,7 @@ object Macro:
     else
       val indents = content.count(_.isInstanceOf[Indent])
       val dedents = content.count(_.isInstanceOf[Dedent])
-      if (indents != dedents) Failure(MacroError(s"Indentation Error at ${content.last.stop}"))
+      if (indents != dedents) Failure(MacroError(s"Indentation Error at ${content.last.end}"))
       else
         val duplicates = paramNames.groupBy(_.content).collect { case (x, seq @ Seq(_, _, _*)) => (x, seq.map(_.start)) }
         if (!duplicates.isEmpty)
