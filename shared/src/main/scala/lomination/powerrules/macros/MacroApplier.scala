@@ -1,13 +1,10 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.split
-import lomination.powerrules.util.style.{ansi0, ansi4}
-import lomination.powerrules.lexing.tokens.{Comma, Dollar, RightParenthese, Token}
-import scala.util.Try
-import scala.util.parsing.input.Reader
 import lomination.powerrules.lexing.TokenParser
-import scala.annotation.tailrec
-import scala.collection.mutable.Builder
+import lomination.powerrules.lexing.tokens.{Comma, Dollar, RightParenthese, Token}
+import lomination.powerrules.util.split
+
+import scala.util.Try
 
 object MacroApplier extends TokenParser {
 

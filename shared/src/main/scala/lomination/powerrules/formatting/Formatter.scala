@@ -1,12 +1,12 @@
 package lomination.powerrules.formatting
 
-import lomination.powerrules.util.style.{ansi0, ansi2, ansi31, ansi4}
-import lomination.powerrules.util.dropOnce
-import lomination.powerrules.lexing.tokens.{Dedent, Indent, Newline, Space, Tab, Token}
 import lomination.powerrules.config.Config
+import lomination.powerrules.lexing.tokens.{Dedent, Indent, Newline, Space, Tab, Token}
+import lomination.powerrules.util.style.{ansi0, ansi4}
+
 import scala.annotation.tailrec
+import scala.util.parsing.input.NoPosition
 import scala.util.{Failure, Success, Try}
-import scala.util.parsing.input.{NoPosition, Position}
 
 object Formatter {
 

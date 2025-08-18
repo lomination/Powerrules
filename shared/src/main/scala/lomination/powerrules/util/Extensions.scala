@@ -1,10 +1,7 @@
 package lomination.powerrules.util
 
 import scala.collection.mutable.Builder
-// import scala.util.{Failure, Success, Try}
-import scala.util.parsing.input.{NoPosition, Position}
 import scala.util.matching.Regex
-import scala.annotation.tailrec
 // import scala.annotation.tailrec
 
 // def recTry[A, B](iterable: IterableOnce[A])(f: A => Try[B]): Try[Seq[B]] =

@@ -1,11 +1,11 @@
 package lomination.powerrules.lexing
 
-import lomination.powerrules.util.style.{ansi0, ansi31, ansi32, ansi33, ansi4}
-import lomination.powerrules.lexing.tokens.*
+import lomination.powerrules.lexing.tokens._
+import lomination.powerrules.util.style.{ansi0, ansi31, ansi32, ansi33, ansi34, ansi4}
+
+import scala.annotation.targetName
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.input.{NoPosition, Position, Reader}
-import scala.annotation.targetName
-import lomination.powerrules.util.style.ansi34
 
 /** This class extends Parsers from scala combinators. It provides a TokenReader, a logger, a type alias P for Parser, a parse function and the |<
   * parser extension which makes logging easier to manage.

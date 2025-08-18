@@ -1,7 +1,7 @@
 package lomination.powerrules.util
 
-import lomination.powerrules.util.*
 import lomination.powerrules.FunSuite
+import lomination.powerrules.util._
 
 class ExtentionsTest extends FunSuite {
 

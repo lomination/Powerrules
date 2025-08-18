@@ -1,6 +1,6 @@
 package lomination.powerrules.writing
 
-import lomination.powerrules.ast.*
+import lomination.powerrules.ast._
 import lomination.powerrules.build.BuildInfo
 import lomination.powerrules.config.Config
 
@@ -89,7 +89,7 @@ object Writer {
     extension (sd: Shadow)
       def write(using config: Config): String =
         logger.trace("writing shadow")
-        import lomination.powerrules.writing.{defaultTilesConds, externalTilesConds, internalTilesConds, toConds}
+        import lomination.powerrules.writing.{defaultTilesConds, externalTilesConds, internalTilesConds}
         val tmpTile = config.wTemporaryTile
         val tmpT =
           // place the temporary tile where the shadow command should be applied

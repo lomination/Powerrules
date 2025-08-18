@@ -15,7 +15,8 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
       "-deprecation",
       "-feature",
       "-unchecked",
-      "-Xsemanticdb"
+      "-Xsemanticdb",
+      "-Wunused:imports"
     ),
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %%% "scala-parser-combinators" % "2.4.0",

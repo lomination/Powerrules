@@ -1,13 +1,12 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.{dropOnce, dropRightOnce}
+import lomination.powerrules.lexing.tokens.{Token, _}
 import lomination.powerrules.util.style.{ansi0, ansi2, ansi4}
-import scala.util.{Failure, Success, Try}
-import lomination.powerrules.lexing.tokens.Token
-import lomination.powerrules.lexing.tokens.*
-import lomination.powerrules.macros.ParameterError
-import scala.util.parsing.input.{NoPosition, Position}
+import lomination.powerrules.util.{dropOnce, dropRightOnce}
+
 import scala.collection.mutable.Builder
+import scala.util.parsing.input.{NoPosition, Position}
+import scala.util.{Failure, Success, Try}
 
 case class Macro(name: Literal, paramNames: Seq[String], content: Seq[Token]):
 

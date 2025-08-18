@@ -1,7 +1,6 @@
 package lomination.powerrules.lexing.tokens
 
 import scala.util.parsing.input.Position
-import lomination.powerrules.lexing.tokens.Literal
 
 sealed trait Token:
   val raw: String

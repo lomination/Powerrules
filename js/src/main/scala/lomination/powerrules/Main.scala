@@ -1,10 +1,10 @@
 package lomination.powerrules
 
-import scala.util.{Failure, Success}
+import lomination.powerrules.build.BuildInfo
 import org.scalajs.dom
 import org.scalajs.dom.{HTMLButtonElement, HTMLSpanElement, HTMLTextAreaElement}
-import lomination.powerrules.Compiler
-import lomination.powerrules.build.BuildInfo
+
+import scala.util.{Failure, Success}
 
 @main
 def main: Unit =

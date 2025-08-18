@@ -1,14 +1,14 @@
 package lomination.powerrules.lexing
 
-import scala.util.Try
-import scala.util.parsing.combinator.*
-import lomination.powerrules.lexing.tokens.*
 import lomination.powerrules.config.Config
-import lomination.powerrules.util.{dropOnce, i}
+import lomination.powerrules.lexing.tokens._
+import lomination.powerrules.util.dropOnce
 import lomination.powerrules.util.style.{ansi0, ansi31, ansi32}
-import scala.util.matching.Regex
+
 import scala.annotation.tailrec
-import scala.util.parsing.input.{NoPosition, Position}
+import scala.util.Try
+import scala.util.parsing.combinator._
+import scala.util.parsing.input.Position
 
 object Lexer extends RegexParsers {
 

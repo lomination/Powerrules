@@ -6,8 +6,7 @@ import lomination.powerrules.Functions.given
 import lomination.powerrules.lexing.tokens._
 
 import scala.language.implicitConversions
-import scala.util.parsing.input.NoPosition
-import scala.util.parsing.input.Position
+import scala.util.parsing.input.{NoPosition, Position}
 
 class MacroApplierTest extends FunSuite {
 

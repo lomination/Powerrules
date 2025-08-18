@@ -1,11 +1,11 @@
 package lomination.powerrules.macros
 
-import lomination.powerrules.util.dropOnce
 import lomination.powerrules.lexing.TokenParser
-import scala.util.Try
-import lomination.powerrules.lexing.tokens.Token
+import lomination.powerrules.lexing.tokens.{Literal, Token}
+import lomination.powerrules.util.dropOnce
+
 import scala.annotation.tailrec
-import lomination.powerrules.lexing.tokens.Literal
+import scala.util.Try
 
 object MacroParser extends TokenParser {
 

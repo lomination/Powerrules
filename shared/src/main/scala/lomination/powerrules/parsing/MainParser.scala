@@ -1,12 +1,12 @@
 package lomination.powerrules.parsing
 
-import scala.util.Try
-import lomination.powerrules.lexing.TokenParser
-import lomination.powerrules.util.style.{ansi0, ansi31, ansi32, ansi33, ansi4}
-import lomination.powerrules.ast.*
+import lomination.powerrules.ast._
 import lomination.powerrules.lexing.tokens.Token
-import lomination.powerrules.parsing.*
-import lomination.powerrules.lexing.tokens as tks
+import lomination.powerrules.lexing.{TokenParser, tokens => tks}
+import lomination.powerrules.parsing._
+import lomination.powerrules.util.style.{ansi0, ansi31, ansi4}
+
+import scala.util.Try
 
 /** Object that parses Powerrules Ast from tokens. */
 object MainParser extends TokenParser {
