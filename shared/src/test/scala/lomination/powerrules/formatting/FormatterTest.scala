@@ -1,13 +1,13 @@
 package lomination.powerrules.formatting
 
-import lomination.powerrules.util.*
-import lomination.powerrules.lexing.tokens.*
-import scala.util.parsing.input.{NoPosition, Position}
 import lomination.powerrules.FunSuite
-import lomination.powerrules.formatting.Formatter
-import lomination.powerrules.config.Config
-import lomination.powerrules.TestPos
 import lomination.powerrules.Functions.build
+import lomination.powerrules.Functions.given
+import lomination.powerrules.config.Config
+import lomination.powerrules.lexing.tokens._
+
+import scala.language.implicitConversions
+import scala.util.parsing.input.Position
 
 class FormatterTest extends FunSuite {
 
@@ -17,7 +17,7 @@ class FormatterTest extends FunSuite {
     val tokens =
       build(Newline("\n", _, _), Newline("\n", _, _), Newline("\n", _, _), Space(" ", _, _), Newline("\n", _, _), Literal("re", "re", _, _))
     val test     = Formatter(tokens)(using cfg)
-    val expected = Seq(Newline("\n", TestPos(4), TestPos(5)), Literal("re", "re", TestPos(5), TestPos(6)))
+    val expected = Seq(Newline("\n", 4, 5), Literal("re", "re", 5, 6))
     assert(test.isSuccess)
     assert(clue(test.get) == clue(expected))
   }
@@ -25,7 +25,7 @@ class FormatterTest extends FunSuite {
   test("FormatterTest - apply method (2)") {
     val tokens   = build(Literal("re", "re", _, _), Newline("\n", _, _), Space(" ", _, _), Space(" ", _, _))
     val test     = Formatter(tokens)(using cfg)
-    val expected = Seq(Literal("re", "re", TestPos(0), TestPos(1)))
+    val expected = Seq(Literal("re", "re", 0, 1))
     assert(test.isSuccess)
     assert(clue(test.get) == clue(expected))
   }
@@ -49,10 +49,10 @@ class FormatterTest extends FunSuite {
     )
     val test = Formatter(tokens)(using cfg)
     val expected = Seq(
-      Literal("re", "re", TestPos(0), TestPos(1)),
-      Indent("", TestPos(1), TestPos(2)),
-      Literal("with", "with", TestPos(6), TestPos(7)),
-      Dedent("", TestPos(7), TestPos(7))
+      Literal("re", "re", 0, 1),
+      Indent("", 1, 2),
+      Literal("with", "with", 6, 7),
+      Dedent("", 7, 7)
     )
     assert(test.isSuccess)
     assert(clue(test.get) == clue(expected))

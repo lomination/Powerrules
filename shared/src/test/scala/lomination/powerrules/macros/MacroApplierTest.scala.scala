@@ -1,10 +1,13 @@
 package lomination.powerrules.macros
 
 import lomination.powerrules.FunSuite
-import lomination.powerrules.lexing.tokens.*
-import scala.util.parsing.input.{NoPosition, Position}
-import lomination.powerrules.TestPos
 import lomination.powerrules.Functions.build
+import lomination.powerrules.Functions.given
+import lomination.powerrules.lexing.tokens._
+
+import scala.language.implicitConversions
+import scala.util.parsing.input.NoPosition
+import scala.util.parsing.input.Position
 
 class MacroApplierTest extends FunSuite {
 
@@ -26,14 +29,14 @@ class MacroApplierTest extends FunSuite {
     )
     val test = MacroApplier(tokens, macros)
     val expected = Seq(
-      Literal("empty", "empty", TestPos(0), TestPos(1)),
-      Space(" ", TestPos(1), TestPos(2)),
-      Literal("macro", "macro", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(2), TestPos(3)),
-      DecimalNumber(1, "1", TestPos(2), TestPos(3)),
-      Unknown("!", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(4), TestPos(5)),
-      Literal("empty", "empty", TestPos(5), TestPos(6))
+      Literal("empty", "empty", 0, 1),
+      Space(" ", 1, 2),
+      Literal("macro", "macro", 2, 3),
+      Space(" ", 2, 3),
+      DecimalNumber(1, "1", 2, 3),
+      Unknown("!", 2, 3),
+      Space(" ", 4, 5),
+      Literal("empty", "empty", 5, 6)
     )
     assert(test.isSuccess)
     assert(clue(test.get) == clue(expected))
@@ -59,14 +62,14 @@ class MacroApplierTest extends FunSuite {
     )
     val test = MacroApplier(tokens, macros)
     val expected = Seq(
-      Literal("empty", "empty", TestPos(0), TestPos(1)),
-      Space(" ", TestPos(1), TestPos(2)),
-      Literal("macro", "macro", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(2), TestPos(3)),
-      DecimalNumber(1, "1", TestPos(2), TestPos(3)),
-      Unknown("!", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(6), TestPos(7)),
-      Literal("empty", "empty", TestPos(7), TestPos(8))
+      Literal("empty", "empty", 0, 1),
+      Space(" ", 1, 2),
+      Literal("macro", "macro", 2, 3),
+      Space(" ", 2, 3),
+      DecimalNumber(1, "1", 2, 3),
+      Unknown("!", 2, 3),
+      Space(" ", 6, 7),
+      Literal("empty", "empty", 7, 8)
     )
     assert(test.isSuccess)
     assert(clue(test.get) == clue(expected))
@@ -118,24 +121,24 @@ class MacroApplierTest extends FunSuite {
     )
     val test = MacroApplier(tokens, macros)
     val expected = Seq(
-      Literal("empty", "empty", TestPos(0), TestPos(1)),
-      Space(" ", TestPos(1), TestPos(2)),
-      Literal("macro", "macro", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(2), TestPos(3)),
-      DecimalNumber(1, "1", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(2), TestPos(3)),
-      Literal("contains", "contains", TestPos(2), TestPos(3)),
-      Unknown(":", TestPos(2), TestPos(3)),
-      Space(" ", TestPos(2), TestPos(3)),
-      Literal("this", "this", TestPos(5), TestPos(6)),
-      Space(" ", TestPos(5), TestPos(6)),
-      Literal("is", "is", TestPos(5), TestPos(6)),
-      Space(" ", TestPos(5), TestPos(6)),
-      Literal("macro", "macro", TestPos(5), TestPos(6)),
-      Space(" ", TestPos(5), TestPos(6)),
-      DecimalNumber(2, "2", TestPos(5), TestPos(6)),
-      Space(" ", TestPos(8), TestPos(9)),
-      Literal("empty", "empty", TestPos(9), TestPos(10))
+      Literal("empty", "empty", 0, 1),
+      Space(" ", 1, 2),
+      Literal("macro", "macro", 2, 3),
+      Space(" ", 2, 3),
+      DecimalNumber(1, "1", 2, 3),
+      Space(" ", 2, 3),
+      Literal("contains", "contains", 2, 3),
+      Unknown(":", 2, 3),
+      Space(" ", 2, 3),
+      Literal("this", "this", 5, 6),
+      Space(" ", 5, 6),
+      Literal("is", "is", 5, 6),
+      Space(" ", 5, 6),
+      Literal("macro", "macro", 5, 6),
+      Space(" ", 5, 6),
+      DecimalNumber(2, "2", 5, 6),
+      Space(" ", 8, 9),
+      Literal("empty", "empty", 9, 10)
     )
     assert(test.isSuccess)
     // assert(test.get.map(_.raw).reduce((s1, s2) => s1 + s2) == expected.map(_.raw).reduce((s1, s2) => s1 + s2))
