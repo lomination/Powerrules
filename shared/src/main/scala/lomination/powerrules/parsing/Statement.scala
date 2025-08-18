@@ -1,6 +1,6 @@
 package lomination.powerrules.parsing
 
-import lomination.powerrules.ast.{Cond, Dir, GenericMatcher, Grid, Pos, Random, Tile}
+import lomination.powerrules.ast.{Cond, Grid, Pos, Random, Tile}
 
 sealed trait Statement
 

@@ -5,7 +5,6 @@ import lomination.powerrules.util.style.{ansi0, ansi2, ansi4}
 import scala.util.{Failure, Success, Try}
 import lomination.powerrules.lexing.tokens.Token
 import lomination.powerrules.lexing.tokens.*
-import lomination.powerrules.macros.ParameterError
 import scala.util.parsing.input.{NoPosition, Position}
 import scala.collection.mutable.Builder
 

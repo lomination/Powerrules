@@ -3,7 +3,6 @@ package lomination.powerrules
 import scala.util.{Failure, Success}
 import org.scalajs.dom
 import org.scalajs.dom.{HTMLButtonElement, HTMLSpanElement, HTMLTextAreaElement}
-import lomination.powerrules.Compiler
 import lomination.powerrules.build.BuildInfo
 
 @main
