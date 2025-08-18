@@ -26,6 +26,9 @@ case class Config(
   def setWVerbose(wVerbose: Level): Config =
     Config(pIndentation, pUseTabs, wTemporaryTile, wSpacing, wVerbose)
 
+object Config:
+  val default = Config()
+
 /** A temporary tile used in the two-stage processes during command writing */
 case class TmpTile(id: Int):
 

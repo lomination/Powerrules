@@ -13,9 +13,9 @@ object ConfigParser {
 
   def apply(configInput: String): Try[Config] =
     if (configInput.isEmpty)
-      Success(Config())
+      Success(Config.default)
     else
-      process(Config(), configInput.split("\n").toSeq.zipWithIndex)
+      process(Config.default, configInput.split("\n").toSeq.zipWithIndex)
 
   @tailrec
   def process(config: Config, lines: Seq[(String, Int)]): Try[Config] =

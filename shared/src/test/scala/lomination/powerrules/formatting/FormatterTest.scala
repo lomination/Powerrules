@@ -7,7 +7,7 @@ import lomination.powerrules.config.Config
 
 class FormatterTest extends FunSuite {
 
-  val cfg = Config()
+  val cfg = Config.default
 
   case class Pos(l: Int) extends Position:
     def line                = l
