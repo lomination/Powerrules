@@ -64,7 +64,7 @@ object Macro:
   // /** An undefined param is one is found */
   // def checkParams(tokens: List[Token], paramNames: Seq[Literal]): Option[Exception] =
   //   tokens match
-  //     case LeftChevron(_, _, _) :: Literal(param, _, pos, _) :: RightChevron(_, _, _) :: next =>
+  //     case LeftChevron(_, _, _) :: Literal(param, pos, _) :: RightChevron(_, _, _) :: next =>
   //       if (!paramNames.exists(_.content == param))
   //         Some(ParameterError(s"parameter `$param` found at $pos is not defined in the macro def"))
   //       else
