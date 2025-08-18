@@ -46,9 +46,9 @@ class MacroApplierTest extends FunSuite {
       Literal("empty", "empty", _, _),
       Space(" ", _, _),
       Dollar("$", _, _),
-      LeftAcolade("{", _, _),
+      LeftBrace("{", _, _),
       Literal("m1", "m1", _, _),
-      RightAcolade("}", _, _),
+      RightBrace("}", _, _),
       Space(" ", _, _),
       Literal("empty", "empty", _, _)
     )

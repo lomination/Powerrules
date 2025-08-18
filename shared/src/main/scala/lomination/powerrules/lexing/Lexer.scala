@@ -143,7 +143,7 @@ object Lexer extends RegexParsers {
   // @formatter:off
   
   lazy val tokenParser: P[Unpositioned[Token]] =
-    Seq(literalTk, decimalNumberTk, hexaNumberTk, plusTk, minusTk, pipeTk, starTk, percentTk, leftParentheseTk, rightParentheseTk, leftBracketTk, rightBracketTk, leftAcoladeTk, rightAcoladeTk, leftChevronTk, rightChevronTk, commaTk, dollarTk, ampersandTk, dotTk, hashtagTk, spaceTk, newlineTk, tabTk, unknownTk)
+    Seq(literalTk, decimalNumberTk, hexaNumberTk, plusTk, minusTk, pipeTk, starTk, percentTk, leftParentheseTk, rightParentheseTk, leftBracketTk, rightBracketTk, leftBraceTk, rightBraceTk, leftChevronTk, rightChevronTk, commaTk, dollarTk, ampersandTk, dotTk, hashtagTk, spaceTk, newlineTk, tabTk, unknownTk)
       .map(phrase)
       .reduce((p1, p2) => p1 | p2)
       .named("token")
@@ -165,8 +165,8 @@ object Lexer extends RegexParsers {
   lazy val rightParentheseTk = ")" |>> RightParenthese
   lazy val leftBracketTk     = "[" |>> LeftBracket
   lazy val rightBracketTk    = "]" |>> RightBracket
-  lazy val leftAcoladeTk     = "{" |>> LeftAcolade
-  lazy val rightAcoladeTk    = "}" |>> RightAcolade
+  lazy val leftBraceTk       = "{" |>> LeftBrace
+  lazy val rightBraceTk      = "}" |>> RightBrace
   lazy val leftChevronTk     = "<" |>> LeftChevron
   lazy val rightChevronTk    = ">" |>> RightChevron
   lazy val commaTk           = "," |>> Comma

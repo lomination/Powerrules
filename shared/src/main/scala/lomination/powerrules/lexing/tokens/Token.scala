@@ -108,17 +108,17 @@ case class RightBracket(raw: String, start: Position, end: Position) extends Sta
 object RightBracket extends StaticTokenFactory[RightBracket]:
   def apply(raw: String, start: Position, end: Position) = new RightBracket(raw, start, end)
 
-case class LeftAcolade(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
-  def repos(start: Position, end: Position): Token = new LeftAcolade(raw, start, end)
+case class LeftBrace(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new LeftBrace(raw, start, end)
 
-object LeftAcolade extends StaticTokenFactory[LeftAcolade]:
-  def apply(raw: String, start: Position, end: Position) = new LeftAcolade(raw, start, end)
+object LeftBrace extends StaticTokenFactory[LeftBrace]:
+  def apply(raw: String, start: Position, end: Position) = new LeftBrace(raw, start, end)
 
-case class RightAcolade(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
-  def repos(start: Position, end: Position): Token = new RightAcolade(raw, start, end)
+case class RightBrace(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
+  def repos(start: Position, end: Position): Token = new RightBrace(raw, start, end)
 
-object RightAcolade extends StaticTokenFactory[RightAcolade]:
-  def apply(raw: String, start: Position, end: Position) = new RightAcolade(raw, start, end)
+object RightBrace extends StaticTokenFactory[RightBrace]:
+  def apply(raw: String, start: Position, end: Position) = new RightBrace(raw, start, end)
 
 case class LeftChevron(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
   def repos(start: Position, end: Position): Token = new LeftChevron(raw, start, end)

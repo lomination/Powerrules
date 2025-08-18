@@ -80,8 +80,8 @@ object MainParser extends TokenParser {
     * @return
     *   a parser that parses the content of the given parser preceded by a left curly brace token and followed by a right curly brace token.
     */
-  def withAcolades[A](parser: P[A]): P[A] =
-    leftAcoladeTk ~> parser <~ rightAcoladeTk
+  def withBraces[A](parser: P[A]): P[A] =
+    leftBraceTk ~> parser <~ rightBraceTk
 
   /** A parser that parses another given parser surronded by optional space tokens. Note that the two space tokens are parsed independantly.
     *

@@ -215,13 +215,13 @@ class TokenParser extends Parsers {
     acceptMatch("right bracket character `]`", { case token: RightBracket => token })
       |< "right bracket character `]`"
 
-  lazy val leftAcoladeTk: P[LeftAcolade] =
-    acceptMatch("left acolade character `{`", { case token: LeftAcolade => token })
-      |< "left acolade character `{`"
+  lazy val leftBraceTk: P[LeftBrace] =
+    acceptMatch("left brace character `{`", { case token: LeftBrace => token })
+      |< "left brace character `{`"
 
-  lazy val rightAcoladeTk: P[RightAcolade] =
-    acceptMatch("right acolade character `}`", { case token: RightAcolade => token })
-      |< "right acolade character `}`"
+  lazy val rightBraceTk: P[RightBrace] =
+    acceptMatch("right brace character `}`", { case token: RightBrace => token })
+      |< "right brace character `}`"
 
   lazy val leftChevronTk: P[LeftChevron] =
     acceptMatch("left chevron character `<`", { case token: LeftChevron => token })

@@ -18,8 +18,8 @@ object MacroApplier extends TokenParser {
 
   // ---------- Parser extensions and functions ---------- //
 
-  def optWithAcolades[A](parser: P[A]): P[A] =
-    leftAcoladeTk ~> parser <~ rightAcoladeTk | parser
+  def optWithBraces[A](parser: P[A]): P[A] =
+    leftBraceTk ~> parser <~ rightBraceTk | parser
 
   def withParentheses[A](parser: P[A]): P[A] =
     leftParentheseTk ~> parser <~ rightParentheseTk
@@ -36,7 +36,7 @@ object MacroApplier extends TokenParser {
     rep(notDollar ^^ { Seq(_) } | macroCall(macrosMap)) ^^ { _.flatMap(identity) }
 
   def macroCall(macrosMap: Map[String, Macro]): P[Seq[Token]] =
-    dollarTk ~! optWithAcolades(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
+    dollarTk ~! optWithBraces(literalTk ~ withParentheses(macroArgs(macrosMap)).?)
       >> { case Dollar(_, callStartPos, callEndPos) ~ (name ~ args) =>
         macrosMap.get(name.content) match
           case Some(m) =>
