@@ -1,7 +1,9 @@
 <div align="center">
 
 ![Version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue)
-[![Build](https://github.com/lomination/Powerrules/actions/workflows/build.yaml/badge.svg)](https://github.com/lomination/Powerrules/actions/workflows/build.yaml)
+[![Build](https://img.shields.io/github/actions/workflow/status/lomination/Powerrules/.github/workflows/build.yaml?branch=main)](https://github.com/lomination/Powerrules/actions/workflows/build.yaml)
+![Line coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Flomination%2F6d46d5386c81a9b73454731cbb5cc358%2Fraw%2Fc45ff3d9aa4a16e4907cd7757136905f92134803%2Fpowerrules-line-coverage-badge.json)
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Flomination%2F07f82f2d3ab43091376eb29126e2839c%2Fraw%2F2c91db9eab6fe45b5c7bec113c4ac2d7d8a29e95%2Fpowerrules-branch-coverage-badge.json)
 
 </div>
 
