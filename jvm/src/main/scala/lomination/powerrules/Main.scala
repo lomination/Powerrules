@@ -7,11 +7,9 @@ import scala.util.Using
 @main
 def main(fileName: String) =
 
-  val extRegex = """^[\S\s]+?\.(?:[pP][oO][wW][eE][rR][rR][uU][lL][eE][sS]|[tT][xX][tT])$"""
-
   val newFileName =
-    if (fileName.matches(extRegex))
-      fileName.replaceAll("""\.[^.]+$""", ".rules")
+    if (fileName.toLowerCase.endsWith(".powerrules"))
+      fileName.slice(0, fileName.length - 11) + ".rules"
     else
       fileName + ".rules"
 
