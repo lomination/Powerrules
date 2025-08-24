@@ -10,11 +10,11 @@ on:
 
 jobs:
 
-  check-format:
-    uses: ./.github/workflows/check-format.yaml
-
   build:
     uses: ./.github/workflows/build.yaml
+
+  check-format:
+    uses: ./.github/workflows/check-format.yaml
 
   deploy:
     name: Deploy to github pages
