@@ -2,10 +2,9 @@ package lomination.powerrules.lexing
 
 import lomination.powerrules.config.Config
 import lomination.powerrules.lexing.tokens._
-import lomination.powerrules.util.dropOnce
 import lomination.powerrules.util.style.{ansi0, ansi31, ansi32}
+import lomination.powerrules.util.tryMap
 
-import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.parsing.combinator._
 import scala.util.parsing.input.Position
@@ -30,16 +29,10 @@ object Lexer extends RegexParsers {
       scala.util.Success(Seq())
     else
       for {
-        rawTokens <- scan(code)
-        tokens    <- evaluate(rawTokens)
-      } yield tokens
-
-  /** Returns raw tokens. Use segmentation in segment of characters of the same "type", i. e. alphanumeric, symbolic, whitespace or unknown. */
-  def scan(code: String): Try[Seq[Token]] =
-    for {
-      segments <- segment(code)
-      tokens   <- tokenize(segments)
-    } yield tokens
+        segments  <- segment(code)
+        tokens    <- tokenize(segments)
+        evaluated <- CommentHandler(tokens)
+      } yield evaluated
 
   def segment(code: String): Try[Seq[Segment]] =
     parse(segmentsParser, code) match
@@ -50,50 +43,16 @@ object Lexer extends RegexParsers {
         scala.util.Failure(exception)
 
   def tokenize(segments: Seq[Segment]): Try[Seq[Token]] =
-    def process(tokens: Seq[Token], segments: Seq[Segment]): Try[Seq[Token]] =
-      if (segments.isEmpty) scala.util.Success(tokens)
-      else
-        val Segment(raw, start, end) = segments.head
-        parse(tokenParser, raw) match
-          case Success(result, _) =>
-            val token = result.apply(start, end)
-            logger.trace(s"Token $ansi32${token.getName}$ansi0 successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $end")
-            process(tokens :+ token, segments.dropOnce)
-          case NoSuccess.I(msg, _) =>
-            logger.error(s"${ansi31}Failed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $end ($msg)$ansi0")
-            scala.util.Failure(TokenizationError(msg))
-    process(Seq(), segments)
-
-  /** Converts raw tokens into tokens with computed indentation and removed comments */
-  def evaluate(tokens: Seq[Token]): Try[Seq[Token]] =
-
-    /** Could throw an error when applied on empty seq */
-    @tailrec
-    def process(cookedOnes: Seq[Token], rawOnes: Seq[Token]): Try[Seq[Token]] =
-      rawOnes match
-        case Slash(_, _, _) :: Slash(_, _, _) :: next =>
-          process(cookedOnes, next.dropWhile(!_.isInstanceOf[Newline]))
-        case Slash(_, start, _) :: Star(_, _, _) :: next =>
-          dropUnilClosed(next, start) match
-            case scala.util.Success(tokens) => process(cookedOnes, tokens)
-            case failure                    => failure
-        case token :: next =>
-          process(cookedOnes :+ token, next)
-        case Nil =>
-          scala.util.Success(cookedOnes)
-
-    /** Drops until the comment opened at pos is closed */
-    @tailrec
-    def dropUnilClosed(tokens: Seq[Token], startPos: Position): Try[Seq[Token]] =
-      tokens match
-        case Star(_, _, _) :: Slash(_, _, _) :: next =>
-          scala.util.Success(next)
-        case token :: next =>
-          dropUnilClosed(next, startPos)
-        case Nil =>
-          scala.util.Failure(CommentError(s"Comment opened at $startPos not closed"))
-
-    process(Seq(), tokens)
+    segments tryMap { case Segment(raw, start, end) =>
+      parse(tokenParser, raw) match
+        case Success(result, _) =>
+          val token = result.apply(start, end)
+          logger.trace(s"Token $ansi32${token.getName}$ansi0 successfully parsed from `${if raw == "\n" then "\\n" else raw}` from $start to $end")
+          scala.util.Success(token)
+        case NoSuccess.I(msg, _) =>
+          logger.error(s"${ansi31}Failed to parse token from `${if raw == "\n" then "\\n" else raw}` from $start to $end ($msg)$ansi0")
+          scala.util.Failure(TokenizationError(msg))
+    }
 
   // ---------- Extensions ---------- //
 

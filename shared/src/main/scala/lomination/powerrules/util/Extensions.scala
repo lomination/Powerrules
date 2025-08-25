@@ -1,34 +1,9 @@
 package lomination.powerrules.util
 
+import scala.annotation.tailrec
 import scala.collection.mutable.Builder
 import scala.util.matching.Regex
-// import scala.annotation.tailrec
-
-// def recTry[A, B](iterable: IterableOnce[A])(f: A => Try[B]): Try[Seq[B]] =
-//   @tailrec def process(to: Seq[B], from: Iterator[A]) =
-//     if from.isEmpty then
-//       Success(to)
-//     else
-//       f(from.next()) match
-//         case Success(b) => process(to :+ b, from)
-//         case Failure(exception) => Failure(exception)
-//   process(Seq(), iterable.iterator)
-
-// extension [A](seq: Seq[Try[A]])
-//   /** Transforms this sequence of tries of A into a try of sequence of A */
-//   def toTry: Try[Seq[A]] =
-//     seq
-//       .foldLeft[Try[Builder[A, Seq[A]]]](Success(Seq.newBuilder)) {
-//         case Success(l) -> Success(a)   => Success(l.addOne(a))
-//         case (failure: Failure[_]) -> _ => failure
-//         case _ -> Failure[A](exception) => Failure[Builder[A, Seq[A]]](exception)
-//       }
-//       .map(_.result)
-
-// @tailrec
-// def processOnList[A, B](f: (B, List[A]) => (B, List[A]), acc: B, list: List[A]): B =
-//   val (newAcc, next) = f(acc, list)
-//   processOnList(f, newAcc, next)
+import scala.util.{Failure, Success, Try}
 
 extension [A](seq: Seq[A])
 
@@ -73,6 +48,24 @@ extension [A](seq: Seq[A])
         case builder -> subBuilder -> a            => (builder, subBuilder.addOne(a))
       }
     b1.addOne(b2.result).result
+
+  /** Applies a function that may fail (`A => Try[B]`) to a given sequence and returns the result as a `Try[Seq[B]]`.
+    *
+    * @param B
+    *   the type of the elements of the resulting sequence.
+    * @param f
+    *   a function from `A` to `Try[B]`.
+    * @return
+    *   a try of sequence of B `Try[Seq[B]]`.
+    */
+  def tryMap[B](f: A => Try[B]): Try[Seq[B]] =
+    @tailrec def process(acc: Seq[B], source: Iterator[A]): Try[Seq[B]] =
+      if source.isEmpty then Success(acc)
+      else
+        f(source.next()) match
+          case Success(b)         => process(acc :+ b, source)
+          case Failure(exception) => Failure(exception)
+    process(Seq(), seq.iterator)
 
 extension (string: String)
   inline def i: Regex =
