@@ -349,10 +349,12 @@ case class Tile(id: Int, dir: Dir = Dir.p0):
 case class Dir(sign: Sign, n: Times):
 
   /** Rotates this direction by the given direction. This method is associative and commutatives */
-  def rotate(dir: Dir): Dir = Dir(
-    if (sign == dir.sign) Sign.+ else Sign.-,
-    Times.fromOrdinal((n.ordinal + dir.n.ordinal) % 4)
-  )
+  def rotate(dir: Dir): Dir =
+    val newSign = if (sign == dir.sign) Sign.+ else Sign.-
+    if sign == Sign.- then
+      Dir(newSign, Times.fromOrdinal((n.ordinal - dir.n.ordinal + 4) % 4))
+    else
+      Dir(newSign, Times.fromOrdinal((n.ordinal + dir.n.ordinal + 4) % 4))
 
 case object Dir:
 
