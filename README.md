@@ -47,7 +47,7 @@ Moreover, if you have any suggestions, feel free to reach out via GitHub issues 
 - [Teeworlds Automap Tool](https://github.com/ZonsaC/Teeworlds-Automapper)
 - [Teeworlds Rule Generator](https://github.com/tw-tooling/tw-rule-generator)
 
-## Technical Information
+## Scala
 
 This project is cross-compiled for both ScalaJVM and ScalaJS. The shared core is located in the `shared/` directory, while platform-specific code resides in the `js/` or `jvm/` directories.
 
@@ -75,3 +75,22 @@ It will create a new `.rules` file in the current directory, containing the comp
 ### ScalaJS
 
 The ScalaJS component enables building a web-based Powerrules to DDNet rules converter. You can try it [here](https://lomination.github.io/Powerrules/) or build
+
+## Workflows
+
+All workflows are located in the default directory for GitHub workflows i.e. `./github/workflows/`.
+
+The `build.yaml` workflow builds the project and run the tests for both ScalaJVM and ScalaJS plateforms. The `check-format.yaml` workflow uses scalafmt and scalafix to check if the Scala source code is formatted according to the respective given configurations `./.scalafmt.conf` and `./.scalafix.conf` to improve code consistency. Finally, the `coverage.yaml` workflows runs code coverage thanks to sbt-scoverage plugin, then computes the line coverage and branch coverage and, if it is run on a commit on the main branch, update the GitHub Gists responsible for the badges at the begining of this file. These three workflows can be trigger on workflow call.
+
+The `on-push.yaml` workflow is used only to call the three previously mentioned ones: `build.yaml`, `check-format` and `coverage.yaml`. As its name suggests, it is run on every pushed commit, regardless of the branch. Note that it first runs `build.yaml` and `check-format` workflows and then `coverage.yaml` only if the build and tests have succeeded.
+
+The `check-examples.yaml` workflow ensures that each provided compiled PowerRules file in `./examples/*.rules` corresponds exactly to its `.powerrules` file (i.e. it ensures that no change in the compiler has affected the result of the compilation of the examples). It is not automatically run but can be triggered using the GitHub interface thanks to the `workflow_dispatch` tag.
+
+The `release.yaml` workflow creates a new release of the project. It can be triggered manually as the `check-examples.yaml` workflow. The release process includes:
+- running `build.yaml`, `check-format.yaml` and `coverage.yaml` workflows and ensuring they succeed,
+- changing the version to the new release in the `./build.sbt` and `./package.json` files,
+- creating a git tag,
+- building for ScalaJS using `npm run build`,
+- deploying to GitHub pages,
+- chaging the version to the future snapshot in the `./build.sbt` and `./package.json` files,
+- updating the GitHub Gist responsible for the version badge at the begining of this file.
