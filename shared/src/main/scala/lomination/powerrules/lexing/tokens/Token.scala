@@ -165,6 +165,9 @@ object Hashtag extends StaticTokenFactory[Hashtag]:
 case class Slash(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
   def repos(start: Position, end: Position): Token = new Slash(raw, start, end)
 
+object Slash extends StaticTokenFactory[Slash]:
+  def apply(raw: String, start: Position, end: Position) = new Slash(raw, start, end)
+
 // ---------- Whitespace token parsers ---------- //
 
 case class Space(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
