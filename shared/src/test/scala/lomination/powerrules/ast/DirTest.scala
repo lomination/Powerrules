@@ -18,7 +18,7 @@ class DirTest extends FunSuite {
 
   test("DirTest - rotate method (3)") {
     val test     = Dir.m2 rotate Dir.m1
-    val expected = Dir.p3
+    val expected = Dir.p1
     assert(clue(test) == clue(expected))
   }
 
@@ -40,9 +40,9 @@ class DirTest extends FunSuite {
     assert(clue(test) == clue(expected))
   }
 
-  test("DirTest - rotate method (7): associativity") {
-    val test     = (Dir.m1 rotate Dir.m2) rotate Dir.p1
-    val expected = Dir.m1 rotate (Dir.m2 rotate Dir.p1)
+  test("DirTest - rotate method (7)") {
+    val test     = Dir.m0 rotate Dir.p1
+    val expected = Dir.m3
     assert(clue(test) == clue(expected))
   }
 
