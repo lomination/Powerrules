@@ -15,8 +15,8 @@ object CommentHandler extends TokenParser {
       ^^ { tokens => tokens collect { case tk: Token => tk } }
 
   lazy val singleLineComment: P[Unit] =
-    slashTk ~ slashTk ~ rep(not(newlineTk) ~ anyTk) ~ opt(newlineTk) ^^^ { () }
+    slashTk ~ slashTk ~! rep(not(newlineTk) ~ anyTk) ^^^ { () }
 
   lazy val multiLineComment: P[Unit] =
-    slashTk ~ starTk ~ rep(not(starTk ~ slashTk) ~ anyTk) ~ starTk ~ slashTk ^^^ { () }
+    slashTk ~ starTk ~! rep(not(starTk ~ slashTk) ~ anyTk) ~ (starTk ~ slashTk |< "multi line comment end `*/`") ^^^ { () }
 }
