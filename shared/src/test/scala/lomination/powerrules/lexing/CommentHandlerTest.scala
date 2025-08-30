@@ -1,7 +1,8 @@
 package lomination.powerrules.lexing
 
 import lomination.powerrules.FunSuite
-import lomination.powerrules.Functions.{build, given_Conversion_Int_TestPos}
+import lomination.powerrules.Functions.build
+import lomination.powerrules.ImplicitConversions.given
 import lomination.powerrules.lexing.tokens._
 
 import scala.language.implicitConversions
