@@ -2,7 +2,7 @@ package lomination.powerrules.macros
 
 import lomination.powerrules.FunSuite
 import lomination.powerrules.Functions.build
-import lomination.powerrules.Functions.given
+import lomination.powerrules.ImplicitConversions.given
 import lomination.powerrules.lexing.tokens._
 
 import scala.language.implicitConversions
