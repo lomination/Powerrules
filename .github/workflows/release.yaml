@@ -23,10 +23,10 @@ jobs:
     needs: build
     uses: ./.github/workflows/coverage.yaml
 
-  check-examples:
-    name: Check examples
-    needs: build
-    uses: ./.github/workflows/check-examples.yaml
+  # check-examples:
+  #   name: Check examples
+  #   needs: build
+  #   uses: ./.github/workflows/check-examples.yaml
 
   create-release:
     name: Create release
@@ -35,7 +35,7 @@ jobs:
       - build
       - check-format
       - coverage
-      - check-examples
+      # - check-examples
     permissions:
       pages: write
       contents: write

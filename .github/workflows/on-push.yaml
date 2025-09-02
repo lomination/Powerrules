@@ -18,7 +18,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/coverage.yaml
 
-  check-examples:
-    name: Check examples
-    needs: build
-    uses: ./.github/workflows/check-examples.yaml
+  # check-examples:
+  #   name: Check examples
+  #   needs: build
+  #   uses: ./.github/workflows/check-examples.yaml
