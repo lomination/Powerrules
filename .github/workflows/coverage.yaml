@@ -24,7 +24,6 @@ jobs:
         shell: bash
         run: npm ci
       - name: Run coverage
-        if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: sbt coverage rootJVM/test rootJVM/coverageReport
       - name: Authentificate via token
