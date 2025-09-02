@@ -1,22 +1,20 @@
 package lomination.powerrules
 
-import lomination.powerrules.lexing.tokens.Token
-
 import scala.util.parsing.input.Position
 
 case class TestPos(l: Int, c: Int) extends Position:
   def line                = l
   def column              = c
-  override def toString   = s"$l"
+  override def toString   = s"$l.$c"
   override def longString = toString
   def lineContents        = ""
 
 object TestPos:
   def apply(l: Int, c: Int): TestPos = new TestPos(l, c)
-  def apply(l: Int): TestPos = new TestPos(l, 0)
+  def apply(l: Int): TestPos         = new TestPos(l, 0)
 
 object Functions:
-  def build(tokens: (Position, Position) => Token*): Seq[Token] =
+  def build[T](tokens: (Position, Position) => T*): Seq[T] =
     tokens.zipWithIndex.map { case f -> i => f.apply(TestPos(i), TestPos(i + 1)) }
 
 object ImplicitConversions:
