@@ -51,6 +51,10 @@ class TokenParser extends Parsers {
               error
       } named name
 
+  lazy val anyTk: P[Token] =
+    acceptMatch("any token", { case tk: Token => tk })
+      |< "any token"
+
   lazy val defTk: P[Literal] =
     acceptMatch("`def` token", { case token @ Literal("def", _, _) => token })
       |< "`def` token"
@@ -250,6 +254,10 @@ class TokenParser extends Parsers {
   lazy val hashtagTk: P[Hashtag] =
     acceptMatch("hashtag character `#`", { case token: Hashtag => token })
       |< "hashtag character `#`"
+
+  lazy val slashTk: P[Slash] =
+    acceptMatch("slash character `/`", { case token: Slash => token })
+      |< "slash character `/`"
 
   lazy val spaceTk: P[Space] =
     acceptMatch("space character ` `", { case token: Space => token })

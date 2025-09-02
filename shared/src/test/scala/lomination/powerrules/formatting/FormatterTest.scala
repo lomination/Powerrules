@@ -2,7 +2,7 @@ package lomination.powerrules.formatting
 
 import lomination.powerrules.FunSuite
 import lomination.powerrules.Functions.build
-import lomination.powerrules.Functions.given
+import lomination.powerrules.ImplicitConversions.given
 import lomination.powerrules.config.Config
 import lomination.powerrules.lexing.tokens._
 
