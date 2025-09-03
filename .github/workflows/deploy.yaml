@@ -1,0 +1,43 @@
+name: Deploy to GitHub pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to GitHub pages
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      contents: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:1.21
+          apps: sbt
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js packages
+        shell: bash
+        run: npm ci
+      - name: Build for ScalaJS
+        shell: bash
+        run: npm run build
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist"
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Deploy to GitHub pages
+        id: deployment
+        uses: actions/deploy-pages@v4
