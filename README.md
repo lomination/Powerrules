@@ -62,7 +62,7 @@ The compilation process follows several steps. All referenced classes are found 
 
 ### ScalaJVM
 
-The ScalaJVM part of the project allows you to convert a PowerRules file into a DDNet rules file. To use it, run the following command replacing `<filename>` by the name of your Powerrules file:
+The ScalaJVM part of the project allows you to convert a PowerRules file into a DDNet rules file. To use it, run the following command replacing `<filename>` by the name of your PowerRules file:
 
 ```bash
 sbt "rootJVM/run <filename>"
