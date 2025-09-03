@@ -10,18 +10,32 @@ on:
 
 jobs:
 
-  check-format:
-    uses: ./.github/workflows/check-format.yaml
-
   build:
+    name: Build and test
     uses: ./.github/workflows/build.yaml
 
-  deploy:
-    name: Deploy to github pages
+  check-format:
+    name: Check format
+    uses: ./.github/workflows/check-format.yaml
+  
+  coverage:
+    name: Coverage
+    needs: build
+    uses: ./.github/workflows/coverage.yaml
+
+  # check-examples:
+  #   name: Check examples
+  #   needs: build
+  #   uses: ./.github/workflows/check-examples.yaml
+
+  create-release:
+    name: Create release
     runs-on: ubuntu-latest
     needs:
-      - check-format
       - build
+      - check-format
+      - coverage
+      # - check-examples
     permissions:
       pages: write
       contents: write
@@ -42,7 +56,7 @@ jobs:
         run: |
           sed -i 's/^\( *version *:=\).*/\1 "${{ inputs.version }}",/g' build.sbt
           sed -i 's/^\( *"version":\).*/\1 "${{ inputs.version }}",/g' package.json
-          sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
+          # sed -i 's|^!\[Version.*|![Version ${{ inputs.version }}](https://img.shields.io/badge/version-${{ inputs.version }}-blue)|g' README.md
           git commit -am "Set version to ${{ inputs.version }}"
           git tag -a ${{ inputs.version }} -m "Release v${{ inputs.version }}"
       - name: Setup scala
@@ -70,18 +84,24 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Get next snapshot version
-        id: new-version
+        id: next-version
         shell: bash
         run: |
           v="$( awk -F. '{ print $1"."$2"."($3 + 1) }' <<< "${{ inputs.version }}" )"
           echo "New snapshot: $v"
-          echo "new-version=$v" >> $GITHUB_OUTPUT
+          echo "next-version=$v" >> $GITHUB_OUTPUT
       - name: Set version to the new snapshot
         shell: bash
         run: |
-          sed -i 's/^\( *version *:=\).*/\1 "${{ steps.new-version.outputs.new-version }}-SNAPSHOT",/g' build.sbt
-          sed -i 's/^\( *"version":\).*/\1 "${{ steps.new-version.outputs.new-version }}-SNAPSHOT",/g' package.json
-          git commit -am "Set version to ${{ steps.new-version.outputs.new-version }}-SNAPSHOT"
+          sed -i 's/^\( *version *:=\).*/\1 "${{ steps.next-version.outputs.next-version }}-SNAPSHOT",/g' build.sbt
+          sed -i 's/^\( *"version":\).*/\1 "${{ steps.next-version.outputs.next-version }}-SNAPSHOT",/g' package.json
+          git commit -am "Set version to ${{ steps.next-version.outputs.next-version }}-SNAPSHOT"
       - name: Push changes
         shell: bash
         run: git push && git push --tags
+      - name: Update version badge gist
+        shell: bash
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GIST_TOKEN }}"
+          echo '{ "schemaVersion": 1, "label": "version", "message": "'"${{ inputs.version }}"'", "color": "blue" }' > powerrules-version-badge.json
+          gh gist edit 332a8f012e03423e217c300418f37718 powerrules-version-badge.json

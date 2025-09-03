@@ -1,0 +1,24 @@
+name: On push
+
+on:
+  push:
+
+jobs:
+
+  build:
+    name: Build and test
+    uses: ./.github/workflows/build.yaml
+
+  check-format:
+    name: Check format
+    uses: ./.github/workflows/check-format.yaml
+  
+  coverage:
+    name: Coverage
+    needs: build
+    uses: ./.github/workflows/coverage.yaml
+
+  # check-examples:
+  #   name: Check examples
+  #   needs: build
+  #   uses: ./.github/workflows/check-examples.yaml

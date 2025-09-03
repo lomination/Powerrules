@@ -1,7 +1,6 @@
 name: Build and test
 
 on:
-  push:
   workflow_call:
 
 jobs:
@@ -27,48 +26,3 @@ jobs:
       - name: Run tests (JVM and JS)
         shell: bash
         run: sbt test
-      - name: Run coverage
-        if: ${{ github.ref == 'refs/heads/main' }}
-        shell: bash
-        run: sbt coverage rootJVM/test rootJVM/coverageReport
-      - name: Authentificate via token
-        if: ${{ github.ref == 'refs/heads/main' }}
-        shell: bash
-        run: gh auth login --with-token <<< "${{ secrets.GIST_TOKEN }}"
-      - name: Update gist
-        if: ${{ github.ref == 'refs/heads/main' }}
-        shell: bash
-        run: |
-          # calculate line coverage
-          lines_valid="$(grep -oE -m 1 'lines-valid="[^"]+"' jvm/target/scala-3.*/coverage-report/cobertura.xml | cut -d \" -f 2)"
-          echo "valid lines: $lines_valid"
-          lines_covered="$(grep -oE -m 1 'lines-covered="[^"]+"' jvm/target/scala-3.*/coverage-report/cobertura.xml | cut -d \" -f 2)"
-          echo "covered lines: $lines_covered"
-          line_coverage="$(awk -v lines_valid=$lines_valid -v lines_covered=$lines_covered 'BEGIN {printf "%.2f", lines_covered/lines_valid*100}')"
-          echo "line coverage: $line_coverage"
-          line_round_cov="$(cut -d '.' -f 1 <<< $line_coverage)"
-          line_r="$(( 255 * (100 - line_round_cov) / 100 ))"
-          line_g="$(( 255 * line_round_cov / 100 ))"
-          line_color="$(printf "#%02X%02X%02X\n" "$line_r" "$line_g" "0")"
-          echo "line coverage badge color: $line_color"
-
-          # calculate branch coverage
-          branches_valid="$(grep -oE -m 1 'branches-valid="[^"]+"' jvm/target/scala-3.*/coverage-report/cobertura.xml | cut -d \" -f 2)"
-          echo "valid branches: $branches_valid"
-          branches_covered="$(grep -oE -m 1 'branches-covered="[^"]+"' jvm/target/scala-3.*/coverage-report/cobertura.xml | cut -d \" -f 2)"
-          echo "covered branches: $branches_covered"
-          branch_coverage="$(awk -v branches_valid=$branches_valid -v branches_covered=$branches_covered 'BEGIN {printf "%.2f", branches_covered/branches_valid*100}')"
-          echo "branch coverage: $branch_coverage"
-          branch_round_cov="$(cut -d '.' -f 1 <<< $branch_coverage)"
-          branch_r="$(( 255 * (100 - branch_round_cov) / 100 ))"
-          branch_g="$(( 255 * branch_round_cov / 100 ))"
-          branch_color="$(printf "#%02X%02X%02X\n" "$branch_r" "$branch_g" "0")"
-          echo "branch coverage badge color: $branch_color"
-
-          # update line coverage badge gist
-          echo '{ "schemaVersion": 1, "label": "line coverage", "message": "'"$line_coverage"'%", "color": "'"$line_color"'" }' > powerrules-line-coverage-badge.json
-          gh gist edit 6d46d5386c81a9b73454731cbb5cc358 powerrules-line-coverage-badge.json
-
-          # update branch coverage badge gist
-          echo '{ "schemaVersion": 1, "label": "branch coverage", "message": "'"$branch_coverage"'%", "color": "'"$branch_color"'" }' > powerrules-branch-coverage-badge.json
-          gh gist edit 07f82f2d3ab43091376eb29126e2839c powerrules-branch-coverage-badge.json

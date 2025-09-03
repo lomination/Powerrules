@@ -1,0 +1,57 @@
+name: Check examples
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+
+  check-examples:
+    name: Check examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:1.21
+          apps: sbt
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js packages
+        shell: bash
+        run: npm ci
+      - name: Compare examples
+        shell: bash
+        run: |
+          shopt -s nullglob
+
+          failures=""
+
+          for file in ./examples/*.powerrules; do
+
+            ref="${file%.powerrules}.ref"
+            rules="${file%.powerrules}.rules"
+
+            if [[ ! -f "$rules" ]]; then
+              failures="$failures\n$file: .rules file not found"
+            else
+              mv "$rules" "$ref"
+              if ! sbt "rootJVM/run $file"; then
+                failures="$failures\n$file: compilation failed"
+              elif ! cmp -s "$ref" "$rules"; then
+                failures="$failures\n$file: compiled version differs"
+              fi
+            fi
+
+          done
+
+          if [[ -z "$failures" ]]; then
+            exit 0
+          else
+            printf "$failures"
+            exit 1
+          fi
