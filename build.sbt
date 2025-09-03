@@ -6,7 +6,7 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name         := "Powerrules",
+    name         := "PowerRules",
     version      := "0.5.1-SNAPSHOT",
     scalaVersion := scala3Version,
     scalacOptions ++= Seq(

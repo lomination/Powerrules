@@ -123,8 +123,8 @@ class CompilerTest extends FunSuite {
          |""".stripMargin
     val test = Compiler(code)
     val expected =
-      s"""|# Generated with Powerrules (version ${BuildInfo.version}) by lomination
-          |# https://github.com/lomination/Powerrules
+      s"""|# Generated with PowerRules (version ${BuildInfo.version}) by lomination
+          |# https://github.com/lomination/powerrules
           |
           |
           |
@@ -147,8 +147,8 @@ class CompilerTest extends FunSuite {
          |""".stripMargin
     val test = Compiler(code)
     val expected =
-      s"""|# Generated with Powerrules (version ${BuildInfo.version}) by lomination
-          |# https://github.com/lomination/Powerrules
+      s"""|# Generated with PowerRules (version ${BuildInfo.version}) by lomination
+          |# https://github.com/lomination/powerrules
           |
           |
           |

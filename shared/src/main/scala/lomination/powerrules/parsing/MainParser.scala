@@ -8,10 +8,10 @@ import lomination.powerrules.util.style.{ansi0, ansi31, ansi4}
 
 import scala.util.Try
 
-/** Object that parses Powerrules Ast from tokens. */
+/** Object that generates PowerRules ast from tokens. */
 object MainParser extends TokenParser {
 
-  /** Parse all the input as a Powerrules file ast.
+  /** Parse all the input as a PowerRules file ast.
     *
     * @param input
     *   the parsed input.
@@ -127,7 +127,7 @@ object MainParser extends TokenParser {
   def missingStm(stm: String, cmd: String): P[Nothing] =
     err(s"Missing '$stm' statement in $cmd command." + wiki(cmd.capitalize))
 
-  /** Creates a message that refers to the given pages of the github wiki of Powerrules
+  /** Creates a message that refers to the given pages of the github wiki of PowerRules
     *
     * @param pages
     *   the pages to refer to
@@ -136,16 +136,16 @@ object MainParser extends TokenParser {
     */
   def wiki(pages: String*): String =
     pages
-      .map(ansi4 + "https://github.com/lomination/Powerrules/wiki/" + _ + ansi0)
+      .map(ansi4 + "https://github.com/lomination/powerrules/wiki/" + _ + ansi0)
       .mkString("\nFor more information, see the following wiki pages:\n", ",\n", "")
 
   // ---------- General ---------- //
 
-  /** A parser of a global Powerrules file */
+  /** A parser of a global PowerRules file */
   lazy val ruleFile: P[RuleFile] =
     newlineTk.? ~>! rep1sep(rule, newlineTk.?) <~ newlineTk.?
       ^^ { rules => RuleFile(rules) }
-      |< "powerrules file"
+      |< "PowerRules file"
 
   /** A parser of a rule */
   lazy val rule: P[Rule] =

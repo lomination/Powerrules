@@ -12,7 +12,7 @@ import scala.util.{Success, Try}
 
 // @formatter:off
 
-/** This object call all the subprocess to convert the given content of a powerrules file (as a string) into written DDNet rules (also as a string).
+/** This object call all the subprocess to convert the given content of a PowerRules file (as a string) into written DDNet rules (also as a string).
   */
 object Compiler:
 
@@ -57,7 +57,7 @@ object Compiler:
     * section and macros section are empty.
     *
     * @param code
-    *   the content of a powerrules file
+    *   the content of a PowerRules file
     * @return
     *   a triplet of string containing in this order, the config section, the macros section and the rules section.
     */
@@ -66,7 +66,7 @@ object Compiler:
       """((?:(?://[^\n]*\n| *\n)*\n)?)((?:::[cC][oO][nN][fF][iI][gG]:: *\n[\S\s]*?\n)?)((?:::[mM][aA][cC][rR][oO][sS]?:: *\n[\S\s]*?\n)?)(::[rR][uU][lL][eE][sS]?:: *\n[\S\s]+)""".r
     code match
       case formatted(empty, rawCfg, rawMac, rawRul) =>
-        logger debug "Compiling formatted powerrules"
+        logger debug "Compiling formatted PowerRules"
         val lnB4Cfg = empty.count(_ == '\n')
         val lnB4Mac = rawCfg.count(_ == '\n') + lnB4Cfg
         val lnB4Rul = rawMac.count(_ == '\n') + lnB4Mac
@@ -76,5 +76,5 @@ object Compiler:
           if rawRul.isEmpty then "" else "\n" * lnB4Rul + rawRul.dropWhile(_ != '\n')
         )
       case str =>
-        logger debug "Compiling non-formated powerrules (fast mode)"
+        logger debug "Compiling non-formated PowerRules (fast mode)"
         ("", "", str)

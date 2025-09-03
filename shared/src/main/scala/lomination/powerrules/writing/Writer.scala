@@ -39,8 +39,8 @@ object Writer {
     extension (rf: RuleFile)
       def write(using Config): String =
         logger.trace("writing rulefile")
-        s"# Generated with Powerrules (version ${BuildInfo.version}) by lomination\n" +
-          "# https://github.com/lomination/Powerrules" + "\n\n\n\n" +
+        s"# Generated with PowerRules (version ${BuildInfo.version}) by lomination\n" +
+          "# https://github.com/lomination/powerrules" + "\n\n\n\n" +
           rf.rules.map(_.w).mkString("\n")
 
   given Writable[Rule] with

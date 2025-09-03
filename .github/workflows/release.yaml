@@ -74,7 +74,7 @@ jobs:
         run: npm ci
       - name: Build for ScalaJS
         shell: bash
-        run: npm run build4gh
+        run: npm run build
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -97,12 +97,12 @@ jobs:
           sed -i 's/^\( *version *:=\).*/\1 "${{ steps.next-version.outputs.next-version }}-SNAPSHOT",/g' build.sbt
           sed -i 's/^\( *"version":\).*/\1 "${{ steps.next-version.outputs.next-version }}-SNAPSHOT",/g' package.json
           git commit -am "Set version to ${{ steps.next-version.outputs.next-version }}-SNAPSHOT"
-      - name: Push changes
-        shell: bash
-        run: git push && git push --tags
       - name: Update version badge gist
         shell: bash
         run: |
           gh auth login --with-token <<< "${{ secrets.GIST_TOKEN }}"
           echo '{ "schemaVersion": 1, "label": "version", "message": "'"${{ inputs.version }}"'", "color": "blue" }' > powerrules-version-badge.json
           gh gist edit 332a8f012e03423e217c300418f37718 powerrules-version-badge.json
+      - name: Push changes
+        shell: bash
+        run: git push && git push --tags

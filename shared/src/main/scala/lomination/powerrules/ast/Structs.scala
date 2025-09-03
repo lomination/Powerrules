@@ -4,14 +4,14 @@ package lomination.powerrules.ast
 
 // ---------- General ---------- //
 
-/** A Powerrules file
+/** A PowerRules file
   *
   * @param rules
   *   a not empty sequence of rules
   */
 case class RuleFile(rules: Seq[Rule])
 
-/** A powerrules rule, equivalent to a DDNet rule
+/** A PowerRules rule, equivalent to a DDNet rule
   *
   * @param name
   *   the name of the rule
