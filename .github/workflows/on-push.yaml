@@ -16,6 +16,7 @@ jobs:
   coverage:
     name: Coverage
     needs: build
+    secrets: inherit
     uses: ./.github/workflows/coverage.yaml
 
   # check-examples:

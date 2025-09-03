@@ -26,7 +26,7 @@ jobs:
       - name: Run coverage
         shell: bash
         run: sbt coverage rootJVM/test rootJVM/coverageReport
-      - name: Authentificate via token
+      - name: Authenticate via token
         if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: gh auth login --with-token <<< "${{ secrets.GIST_TOKEN }}"
