@@ -52,9 +52,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Perso
-launch_nginx.sh
-scripts
-backup_outdated_tests
-wiki
