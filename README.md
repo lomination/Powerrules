@@ -1,7 +1,6 @@
 <div align="center">
 
-[![Version badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Flomination%2F332a8f012e03423e217c300418f37718%2Fraw%2Fpowerrules-version-badge.json%3Fcachebust%3Ddkjflskjfldkf)
-](https://github.com/lomination/Powerrules/releases/latest)
+[![Version badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Flomination%2F332a8f012e03423e217c300418f37718%2Fraw%2Fpowerrules-version-badge.json%3Fcachebust%3Ddkjflskjfldkf)](https://github.com/lomination/Powerrules/releases/latest)
 [![Build](https://img.shields.io/github/actions/workflow/status/lomination/Powerrules/.github/workflows/build.yaml?branch=main)](https://github.com/lomination/Powerrules/actions/workflows/build.yaml)
 [![Check format](https://img.shields.io/github/actions/workflow/status/lomination/Powerrules/.github/workflows/check-format.yaml?branch=main&label=check%20format)](https://github.com/lomination/Powerrules/actions/workflows/check-format.yaml)
 <br>
