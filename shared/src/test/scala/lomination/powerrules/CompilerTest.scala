@@ -136,4 +136,30 @@ class CompilerTest extends FunSuite {
     assert(clue(test.get) == clue(expected))
   }
 
+  test("CompilerTest - apply method (2)") {
+    val code =
+      """|[My Rule]
+         |
+         |replace
+         |    with 1
+         |    if there is 1 or 2 or 3
+         |
+         |""".stripMargin
+    val test = Compiler(code)
+    val expected =
+      s"""|# Generated with Powerrules (version ${BuildInfo.version}) by lomination
+          |# https://github.com/lomination/Powerrules
+          |
+          |
+          |
+          |[My Rule]
+          |
+          |Index 1 NONE
+          |Pos 0 0 INDEX 1 OR 2 OR 3
+          |NewRun
+          |""".stripMargin
+    assert(test.isSuccess)
+    assert(clue(test.get) == clue(expected))
+  }
+
 }
