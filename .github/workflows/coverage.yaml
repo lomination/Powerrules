@@ -26,12 +26,12 @@ jobs:
       - name: Run coverage
         shell: bash
         run: sbt coverage rootJVM/test rootJVM/coverageReport
-      - name: Authentificate via token
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Authenticate via token
+        # if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: gh auth login --with-token <<< "${{ secrets.GIST_TOKEN }}"
       - name: Update gist
-        if: ${{ github.ref == 'refs/heads/main' }}
+        # if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: |
           # calculate line coverage
