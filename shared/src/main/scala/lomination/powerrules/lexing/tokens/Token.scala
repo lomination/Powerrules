@@ -66,12 +66,6 @@ case class Minus(raw: String, start: Position, end: Position) extends StaticToke
 object Minus extends StaticTokenFactory[Minus]:
   def apply(raw: String, start: Position, end: Position) = new Minus(raw, start, end)
 
-case class Pipe(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
-  def repos(start: Position, end: Position): Token = new Pipe(raw, start, end)
-
-object Pipe extends StaticTokenFactory[Pipe]:
-  def apply(raw: String, start: Position, end: Position) = new Pipe(raw, start, end)
-
 case class Star(raw: String, start: Position, end: Position) extends StaticToken(raw, start, end):
   def repos(start: Position, end: Position): Token = new Star(raw, start, end)
 

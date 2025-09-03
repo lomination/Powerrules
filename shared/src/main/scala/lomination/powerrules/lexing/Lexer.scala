@@ -102,7 +102,7 @@ object Lexer extends RegexParsers {
   // @formatter:off
   
   lazy val tokenParser: P[Unpositioned[Token]] =
-    Seq(literalTk, decimalNumberTk, hexaNumberTk, plusTk, minusTk, pipeTk, starTk, percentTk, leftParentheseTk, rightParentheseTk, leftBracketTk, rightBracketTk, leftBraceTk, rightBraceTk, leftChevronTk, rightChevronTk, commaTk, dollarTk, ampersandTk, dotTk, hashtagTk, slashTk, spaceTk, newlineTk, tabTk, unknownTk)
+    Seq(literalTk, decimalNumberTk, hexaNumberTk, plusTk, minusTk, starTk, percentTk, leftParentheseTk, rightParentheseTk, leftBracketTk, rightBracketTk, leftBraceTk, rightBraceTk, leftChevronTk, rightChevronTk, commaTk, dollarTk, ampersandTk, dotTk, hashtagTk, slashTk, spaceTk, newlineTk, tabTk, unknownTk)
       .map(phrase)
       .reduce((p1, p2) => p1 | p2)
       .named("token")
@@ -117,7 +117,6 @@ object Lexer extends RegexParsers {
 
   lazy val plusTk            = "+" |>> Plus
   lazy val minusTk           = "-" |>> Minus
-  lazy val pipeTk            = "|" |>> Pipe
   lazy val starTk            = "*" |>> Star
   lazy val percentTk         = "%" |>> Percent
   lazy val leftParentheseTk  = "(" |>> LeftParenthese

@@ -391,7 +391,7 @@ object MainParser extends TokenParser {
 
   /** A parser of generic matcher */
   lazy val genericMatcher: P[GenericMatcher] =
-    rep1sep(tileMatcher, optSpaced(pipeTk))
+    rep1sep(tileMatcher, optSpaced(orTk))
       ^^ { case tms => GenericMatcher(tms.toSeq*) }
       |< "generic matcher"
 

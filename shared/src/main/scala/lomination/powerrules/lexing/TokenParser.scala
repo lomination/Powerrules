@@ -191,10 +191,6 @@ class TokenParser extends Parsers {
     acceptMatch("minus sign `-`", { case token: Minus => token })
       |< "minus sign `-`"
 
-  lazy val pipeTk: P[Pipe] =
-    acceptMatch("pipe character `|`", { case token: Pipe => token })
-      |< "pipe character `|`"
-
   lazy val starTk: P[Star] =
     acceptMatch("star character `*`", { case token: Star => token })
       |< "star character `*`"
